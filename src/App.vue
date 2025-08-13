@@ -1,7 +1,5 @@
 <template>
-  <h1>app vue</h1>
-  <router-view></router-view>
+    <main class="min-h-screen">
+        <router-view/>
+    </main>
 </template>
-
-<script setup lang="ts">
-</script>
