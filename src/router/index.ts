@@ -5,7 +5,7 @@ const routes = [
   {
     path: '/',
     name: 'books-list',
-    component: () => import('@/views/BookListView.vue')
+    component: () => import('@/views/BookshelfView.vue')
   }
 ];
 
