@@ -21,7 +21,7 @@ export const shelvesApi = {
     return apiClient.post(endpoints.shelfBookAdd, null, { bookshelfId, bookId });
   },
   updateBook(bookshelfId: number, bookId: number) {
-    return apiClient.post(endpoints.shelfBookUpdate, {}, {});
+    return apiClient.post(endpoints.shelfBookUpdate, {}, { bookshelfId, bookId });
   },
   removeBook(bookshelfId: number, bookId: number) {
     return apiClient.post(endpoints.shelfBookRemove, null, { bookshelfId, bookId });

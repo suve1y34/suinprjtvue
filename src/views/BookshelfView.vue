@@ -40,7 +40,19 @@ const loadingItems = computed(() => store.loading.items);
 const shelfError = computed(() => store.error.shelf);
 const itemsError = computed(() => store.error.items);
 
-function reload() { store.fetchShelfItems(); }
+const canMutate = computed(() => !!bookshelfId.value && !loadingItems.value && !!tempBookId.value);
+
+function resetInput() {
+  tempBookId.value = 0;
+}
+
+function reload() {
+  if (!bookshelfId.value) {
+    store.fetchMyShelf().then(() => store.fetchShelfItems());
+  } else {
+    store.fetchShelfItems();
+  }
+}
 
 async function onAdd() {
   if (!bookshelfId.value || !tempBookId.value) return;
@@ -48,15 +60,19 @@ async function onAdd() {
     await store.addBookToShelf(tempBookId.value);
   } catch (e: any) {
     alert(e?.message ?? "추가 실패");
+  } finally {
+    resetInput();
   }
 }
 
 async function onRemove() {
-  if (!bookshelfId.value || !tempBookId.value) return;
+  if (!canMutate.value) return;
   try {
     await store.removeBookFromShelf(tempBookId.value);
   } catch (e: any) {
     alert(e?.message ?? "삭제 실패");
+  } finally {
+    resetInput();
   }
 }
 

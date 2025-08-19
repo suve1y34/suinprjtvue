@@ -8,6 +8,7 @@ export const useShelvesStore = defineStore("shelves", {
     shelfItems: [] as ShelfBook[],
     loading: { shelf: false, items: false },
     error:   { shelf: null as string | null, items: null as string | null },
+    mutating: false as boolean, // 추가/삭제 중 상태
   }),
 
   getters: {
@@ -21,6 +22,9 @@ export const useShelvesStore = defineStore("shelves", {
       try {
         const list = await shelvesApi.list();
         this.myShelf = list?.[0] ?? null; // 사용자당 1개 가정
+        if (this.myShelf?.bookshelfId) {
+          await this.fetchShelfItems();
+        }
       } catch (e: any) {
         this.error.shelf = e?.message ?? "책장 로드 실패";
       } finally { this.loading.shelf = false; }
@@ -51,6 +55,8 @@ export const useShelvesStore = defineStore("shelves", {
           book: { bookId, isbn13Code: "", author: "", title: "", pages: undefined },
         },
       ];
+
+      this.mutating = true;
       try {
         await shelvesApi.addBook(this.myShelf.bookshelfId, bookId);
         await this.fetchShelfItems();
@@ -69,6 +75,8 @@ export const useShelvesStore = defineStore("shelves", {
       } catch (e) {
         this.shelfItems = prev; // 롤백
         throw e;
+      } finally {
+        this.mutating = false;
       }
     },
   },
