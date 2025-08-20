@@ -3,7 +3,8 @@
     <header class="head">
       <h1>책장</h1>
       <div class="controls">
-        <button @click="reload" :disabled="loadingItems">새로고침</button>
+        <button @click="reload" :disabled="loadingShelf || loadingItems">새로고침</button>
+        <button @click="onLogout" class="logout">로그아웃</button>
       </div>
     </header>
 
@@ -29,6 +30,8 @@ import { onMounted, ref, computed } from "vue";
 import { storeToRefs } from "pinia";
 import Bookshelf from "@/components/books/Bookshelf.vue";
 import { useShelvesStore } from "@/stores/shelves.store";
+import { useAuthStore } from "@/stores/auth.store";
+import { useRouter } from "vue-router";
 
 const store = useShelvesStore();
 const { books, bookshelfId } = storeToRefs(store);
@@ -39,6 +42,9 @@ const loadingShelf = computed(() => store.loading.shelf);
 const loadingItems = computed(() => store.loading.items);
 const shelfError = computed(() => store.error.shelf);
 const itemsError = computed(() => store.error.items);
+
+const auth = useAuthStore();
+const router = useRouter();
 
 const canMutate = computed(() => !!bookshelfId.value && !loadingItems.value && !!tempBookId.value);
 
@@ -76,6 +82,11 @@ async function onRemove() {
   }
 }
 
+async function onLogout() {
+  await auth.logout();
+  router.replace({ name: 'login' });
+}
+
 onMounted(async () => {
   await store.fetchMyShelf();
   await store.fetchShelfItems();
@@ -87,6 +98,7 @@ onMounted(async () => {
 .head { display: flex; justify-content: space-between; align-items: center; }
 .controls { display: flex; gap: 12px; align-items: center; }
 .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.logout { background: #fff; color: #c22727; border: 1px solid #c22727; padding: 6px 10px; border-radius: 6px; }
 .state { font-size: 14px; }
 .error { color: #c22727; }
 .spinner { font-size: 13px; opacity: 0.8; }

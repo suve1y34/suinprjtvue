@@ -11,7 +11,17 @@ export const http = axios.create({
   timeout: 10000,
 });
 
-// 응답 언래핑
+// 요청 인터셉터
+http.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth.accessToken');
+  if (token) {
+    config.headers = config.headers ?? {};
+    (config.headers as any).Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// 응답 언래핑 + 401 처리
 http.interceptors.response.use(
   (res) => {
     const body = res.data;
@@ -25,14 +35,24 @@ http.interceptors.response.use(
   (err) => {
     const res = err?.response;
     const body = res?.data;
+    const status = res?.status;
+
+    // 401 처리: 로그아웃
+    if (status === 401) {
+      try {
+        localStorage.removeItem('auth.accessToken');
+        localStorage.removeItem('auth.user');
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+      } catch {}
+    }
+
     const message =
       body?.message ||
       err?.message ||
       '요청 중 오류가 발생했습니다.';
 
-    // 서버가 공통 래퍼 형태로 에러 반환한 경우
     const code = (body && typeof body === 'object' && 'code' in body) ? body.code : undefined;
-    return Promise.reject(new ApiError(message, { status: res?.status, code, payload: body }));
+    return Promise.reject(new ApiError(message, { status, code, payload: body }));
   }
 );
 
