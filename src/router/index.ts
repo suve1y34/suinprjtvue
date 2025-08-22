@@ -17,6 +17,11 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     name: 'books-list',
     component: BookshelfView
+  },
+  {
+    path: '/search/aladin',
+    name: 'aladin-search',
+    component: () => import('@/views/AladinSearchView.vue'),
   }
 ];
 
