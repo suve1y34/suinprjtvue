@@ -18,7 +18,7 @@ async function onSubmit() {
   try {
     await auth.login(email.value.trim(), password.value);
     // 리다이렉트 대상이 있으면 거기로, 없으면 책장
-    const redirect = (route.query.redirect as string) || '/bookshelf';
+    const redirect = (route.query.redirect as string) || '/';
     router.replace(redirect);
   } catch (e: any) {
     error.value = e?.message ?? '로그인 실패';
@@ -30,7 +30,8 @@ async function onSubmit() {
 
 <template>
   <section class="login">
-    <h1>로그인</h1>
+    <h1>책담책담</h1>
+    <h2>로그인</h2>
     <form @submit.prevent="onSubmit" class="form">
       <input
         v-model="email"

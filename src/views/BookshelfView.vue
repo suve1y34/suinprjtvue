@@ -12,15 +12,10 @@
     <div v-else-if="shelfError" class="state error">{{ shelfError }}</div>
 
     <div v-if="bookshelfId">
-      <div class="toolbar">
-        <input v-model.number="tempBookId" type="number" placeholder="추가/삭제할 Book ID" />
-        <button @click="onAdd" :disabled="loadingItems">추가</button>
-        <button @click="onRemove" :disabled="loadingItems">삭제</button>
-        <span v-if="loadingItems" class="spinner">로딩…</span>
-        <span v-if="itemsError" class="state error">{{ itemsError }}</span>
-      </div>
 
-      <Bookshelf :books="books" />
+      <Bookshelf :entries="store.shelfEntries" />
+
+      <BookSearchModal ref="searchRef" />
     </div>
   </section>
 </template>
@@ -48,38 +43,16 @@ const router = useRouter();
 
 const canMutate = computed(() => !!bookshelfId.value && !loadingItems.value && !!tempBookId.value);
 
+const userId = computed(() => auth.user?.userId ?? null);
+
 function resetInput() {
   tempBookId.value = 0;
 }
 
 function reload() {
-  if (!bookshelfId.value) {
-    store.fetchMyShelf().then(() => store.fetchShelfItems());
-  } else {
-    store.fetchShelfItems();
-  }
-}
-
-async function onAdd() {
-  if (!bookshelfId.value || !tempBookId.value) return;
-  try {
-    await store.addBookToShelf(tempBookId.value);
-  } catch (e: any) {
-    alert(e?.message ?? "추가 실패");
-  } finally {
-    resetInput();
-  }
-}
-
-async function onRemove() {
-  if (!canMutate.value) return;
-  try {
-    await store.removeBookFromShelf(tempBookId.value);
-  } catch (e: any) {
-    alert(e?.message ?? "삭제 실패");
-  } finally {
-    resetInput();
-  }
+  if (!userId.value) return;
+  store.fetchMyShelf(userId.value).then(() => store.fetchShelfItems());
+  console.log(books.value)
 }
 
 async function onLogout() {
@@ -88,8 +61,11 @@ async function onLogout() {
 }
 
 onMounted(async () => {
-  await store.fetchMyShelf();
-  await store.fetchShelfItems();
+  if (!auth.isAuthenticated || !userId.value) {
+    router.replace({ name: 'login' });
+    return;
+  }
+  await reload();
 });
 </script>
 
