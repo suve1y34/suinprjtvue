@@ -29,28 +29,31 @@ async function onSubmit() {
 </script>
 
 <template>
-  <section class="login">
+  <section class="v-login">
     <h1>책담책담</h1>
     <h2>로그인</h2>
-    <form @submit.prevent="onSubmit" class="form">
-      <input
-        v-model="email"
-        type="email"
-        placeholder="이메일"
-        required
-        autocomplete="username"
-      />
-      <input
-        v-model="password"
-        type="password"
-        placeholder="비밀번호"
-        required
-        autocomplete="current-password"
-      />
-      <button :disabled="loading" type="submit">
+    <form @submit.prevent="onSubmit" class="v-login__form">
+      <div class="v-login__field">
+        <input
+          v-model="email"
+          type="email"
+          placeholder="이메일"
+          required
+          autocomplete="username"
+        />
+        <input
+          v-model="password"
+          type="password"
+          placeholder="비밀번호"
+          required
+          autocomplete="current-password"
+        />
+      </div>
+      <button :disabled="loading" type="submit" class="v-login__submit">
         {{ loading ? '로그인 중…' : '로그인' }}
       </button>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="v-login__error">{{ error }}</p>
+      
     </form>
   </section>
 </template>

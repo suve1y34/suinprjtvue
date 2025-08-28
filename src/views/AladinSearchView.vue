@@ -42,11 +42,11 @@ const input = ref(store.keyword);
 
 let timer: number | undefined;
 watch(input, (v) => {
-    store.keyword = v;
-    if (timer) window.clearTimeout(timer);
-    timer = window.setTimeout(() => {
-        store.search(v);
-    }, 300);
+  store.keyword = v;
+  if (timer) window.clearTimeout(timer);
+  timer = window.setTimeout(() => {
+    store.search(v);
+  }, 300);
 });
 
 function onSearchClick() { if (timer) window.clearTimeout(timer); store.search(input.value); }

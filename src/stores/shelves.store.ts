@@ -68,12 +68,29 @@ export const useShelvesStore = defineStore("shelves", {
     },
 
     async updateProgress(shelfBookId: number, currentPage: number, totalPages?: number) {
+      this.mutating = true;
       // 0 ~ totalPages
       let cp = Math.max(0, Number.isFinite(currentPage) ? currentPage : 0);
       if (typeof totalPages === 'number') cp = Math.min(cp, totalPages);
+        try {
+          await shelvesApi.updateProgress({ shelfBookId, currentPage: cp });
+          await this.fetchShelfItems();
+        } catch(e) {
+          throw e;
+        } finally {
+          this.mutating = false;
+        }
+    },
 
-        await shelvesApi.updateProgress({ shelfBookId, currentPage: cp });
-        await this.fetchShelfItems();
+    async updateStatus(shelfBookId: number, status: "PLAN"|"READING"|"DONE") {
+      this.mutating = true;
+      try {
+        await shelvesApi.updateStatus({ shelfBookId, readingStatus: status });
+      } catch(e) {
+        throw e;
+      } finally {
+        this.mutating = false;
+      }
     }
   },
 });

@@ -1,18 +1,18 @@
 import type { Book } from "./book";
 
 export interface Bookshelf {
-    bookshelfId: number;
+  bookshelfId: number;
 }
 
 export type ReadingStatus = "PLAN" | "READING" | "DONE";
 
 export interface ShelfBook {
-    shelfBookId: number;
-    bookshelfId: number;
-    bookId: number;
-    currentPage: number;     
-    readingStatus: ReadingStatus;
-    addedDatetime: string;
-    modifiedDatetime: string;
-    book: Book;
+  shelfBookId: number;
+  bookshelfId: number;
+  bookId: number;
+  currentPage: number;     
+  readingStatus: ReadingStatus;
+  addedDatetime: string;
+  modifiedDatetime: string;
+  book: Book;
 }

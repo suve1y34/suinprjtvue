@@ -2,10 +2,17 @@
   <div class="shelf" role="list">
     <BookSpine
       v-for="(entry, i) in entries"
-      :key="entry.bookId"
+      :key="entry.shelfBookId"
       :book="entry.book"
       :index="i"
+      :reading-status="entry.readingStatus"
+      :current-page="entry.currentPage"
+      :total-pages="entry.book.pages"
+      :disabled="mutating"
       role="listitem"
+      @change-status="(s) => store.updateStatus(entry.shelfBookId, s)"
+      @edit-progress="(cp) => store.updateProgress(entry.shelfBookId, cp, entry.book.pages)"
+
     />
   </div>
 </template>
@@ -18,6 +25,7 @@ import type { ShelfBook } from "@/types/shelf";
 const props = defineProps<{ entries: ShelfBook[] }>();
 
 const store = useShelvesStore();
+const mutating = store.$state.mutating;
 
 function edit(entry: ShelfBook) {
   const max = entry.book.pages ?? undefined;

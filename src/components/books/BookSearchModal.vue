@@ -1,40 +1,40 @@
 <template>
-    <dialog ref="dlg" class="modal">
-        <form method="dialog" class="box" @submit.prevent>
-            <header class="head">
-                <strong>도서 검색</strong>
-                <button @click="close" type="button" aria-label="close">✕</button>
-            </header>
+  <dialog ref="dlg" class="modal">
+    <form method="dialog" class="box" @submit.prevent>
+      <header class="head">
+        <strong>도서 검색</strong>
+        <button @click="close" type="button" aria-label="close">✕</button>
+      </header>
 
-            <div class="row">
-                <input v-model.trim="q" type="text" placeholder="검색 키워드 입력(제목/저자)" @keyup.enter="onSearch"/>
-                <button type="button" @click="onSearch" :disabled="loading">검색</button>
-            </div>
+      <div class="row">
+        <input v-model.trim="q" type="text" placeholder="검색 키워드 입력(제목/저자)" @keyup.enter="onSearch"/>
+        <button type="button" @click="onSearch" :disabled="loading">검색</button>
+      </div>
 
-            <div class="results" v-if="list.length">
-                <div class="item" v-for="b in list" :key="b.isbn13Code">
-                    <div class="meta">
-                        <div class="t">{{ b.title }}</div>
-                        <div class="s">
-                            <span>{{ b.author }}</span>
-                            <span v-if="b.publisher">{{ b.publisher }}</span>
-                            <span v-if="b.pubDate">{{ b.pubDate }}</span>
-                            <span v-if="b.pages">{{ b.pages }}</span>
-                        </div>
-                    </div>
-                    <button
-                        class="add"
-                        :disabled="mutating"
-                        @click="onAdd(b)"
-                        type="button"
-                        title="책장에 추가"
-                    >추가</button>
-                </div>
+      <div class="results" v-if="list.length">
+        <div class="item" v-for="b in list" :key="b.isbn13Code">
+          <div class="meta">
+            <div class="t">{{ b.title }}</div>
+            <div class="s">
+              <span>{{ b.author }}</span>
+              <span v-if="b.publisher">{{ b.publisher }}</span>
+              <span v-if="b.pubDate">{{ b.pubDate }}</span>
+              <span v-if="b.pages">{{ b.pages }}</span>
             </div>
-            <div class="empty" v-else-if="!loading">검색 결과가 없습니다.</div>
-            <div class="loading" v-if="loading">검색 중…</div>
-        </form>
-    </dialog>
+          </div>
+          <button
+              class="add"
+              :disabled="mutating"
+              @click="onAdd(b)"
+              type="button"
+              title="책장에 추가"
+          >추가</button>
+        </div>
+      </div>
+      <div class="empty" v-else-if="!loading">검색 결과가 없습니다.</div>
+      <div class="loading" v-if="loading">검색 중…</div>
+    </form>
+  </dialog>
 </template>
 
 <script setup lang="ts">
@@ -68,18 +68,18 @@ async function onSearch() {
 }
 
 function onAdd(b: AladinBook) {
-    const pages = (b as any).pages ?? (b as any).itemPage ?? undefined;
+  const pages = (b as any).pages ?? (b as any).itemPage ?? undefined;
 
-    store.addBookToShelf({
-        isbn13Code: (b as any).isbn13Code,
-        title: b.title,
-        author: b.author,
-        pages,
-        publisher: (b as any).publisher,
-        pubDate: (b as any).pubDate,
-    })
-    .then(() => close())
-    .catch((e: any) => alert(e?.message ?? "추가 실패"));
+  store.addBookToShelf({
+    isbn13Code: (b as any).isbn13Code,
+    title: b.title,
+    author: b.author,
+    pages,
+    publisher: (b as any).publisher,
+    pubDate: (b as any).pubDate,
+  })
+  .then(() => close())
+  .catch((e: any) => alert(e?.message ?? "추가 실패"));
 }
 </script>
 <style scoped>

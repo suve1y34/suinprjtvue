@@ -2,7 +2,7 @@ import { apiClient } from "./http";
 import type { AladinBook } from "@/types/aladin";
 
 const endpoints = {
-  search: '/api/search/aladin',
+  search: '/search/aladin',
 };
 
 export const aladinApi = {

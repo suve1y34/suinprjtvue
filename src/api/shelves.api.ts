@@ -2,12 +2,13 @@ import { apiClient  } from "./http";
 import type { Bookshelf, ShelfBook } from "@/types/shelf";
 
 const endpoints = {
-    myShelf: "/api/shelves/books/me",
-    shelfBookList: "/api/shelves/books/list",
-    shelfBookAdd: "/api/shelves/books/add",
-    shelfBookUpdate: "/api/shelves/books/update",
-    shelfBookRemove: "/api/shelves/books/remove",
-    shelfBookUpdateProgress: "/api/shelves/books/updateProgress",
+    myShelf: "/shelves/books/me",
+    shelfBookList: "/shelves/books/list",
+    shelfBookAdd: "/shelves/books/add",
+    shelfBookUpdate: "/shelves/books/update",
+    shelfBookRemove: "/shelves/books/remove",
+    shelfBookUpdateProgress: "/shelves/books/updateProgress",
+    shelfBookUpdateStatus: "/shelves/books/updateStatus",
 }
 
 export type ShelfAddByIsbn13Payload = {
@@ -38,5 +39,8 @@ export const shelvesApi = {
   },
   updateProgress(payload: { shelfBookId: number, currentPage: number }) {
     return apiClient.post(endpoints.shelfBookUpdateProgress, payload);
+  },
+  updateStatus(payload: { shelfBookId: number; readingStatus: "PLAN"|"READING"|"DONE" }) {
+    return apiClient.post(endpoints.shelfBookUpdateStatus, payload); 
   },
 };

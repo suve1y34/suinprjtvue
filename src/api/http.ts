@@ -6,8 +6,12 @@ import { ApiError } from '@/types/common';
  * - 성공: 공통 래퍼({code,message,data})면 data만 반환
  * - 실패: ApiError로 변환
  */
+
+const BASE = import.meta.env.VITE_API_BASE ?? "";
+const PREFIX = import.meta.env.VITE_API_PREFIX ?? "/api";
+
 export const http = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE,
+  baseURL: `${BASE}${PREFIX}`.replace(/\/+$/, ""),
   timeout: 10000,
 });
 

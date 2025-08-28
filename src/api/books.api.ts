@@ -2,8 +2,8 @@ import { apiClient } from './http';
 import type { Book } from '@/types/book';
 
 const endpoints = {
-  list: '/api/books/list',
-  detail: '/api/books/detail',
+  list: '/books/list',
+  detail: '/books/detail',
 };
 
 export const booksApi = {
