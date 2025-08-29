@@ -5,11 +5,12 @@
       :key="entry.shelfBookId"
       :book="entry.book"
       :index="i"
+      role="listitem"
       :reading-status="entry.readingStatus"
       :current-page="entry.currentPage"
-      :total-pages="entry.book.pages"
+      :total-pages="entry.book?.pages ?? entry.pages"
       :disabled="mutating"
-      role="listitem"
+      
       @change-status="(s) => store.updateStatus(entry.shelfBookId, s)"
       @edit-progress="(cp) => store.updateProgress(entry.shelfBookId, cp, entry.book.pages)"
 

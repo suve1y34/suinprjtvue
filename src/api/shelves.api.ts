@@ -8,7 +8,6 @@ const endpoints = {
     shelfBookUpdate: "/shelves/books/update",
     shelfBookRemove: "/shelves/books/remove",
     shelfBookUpdateProgress: "/shelves/books/updateProgress",
-    shelfBookUpdateStatus: "/shelves/books/updateStatus",
 }
 
 export type ShelfAddByIsbn13Payload = {
@@ -20,6 +19,10 @@ export type ShelfAddByIsbn13Payload = {
   pubDate?: string; // "YYYY-MM-DD"
 };
 
+export type ShelfAddPayload =
+  & { bookshelfId: number }
+  & ({ bookId: number } | ShelfAddByIsbn13Payload);
+
 export const shelvesApi = {
   me(userId: number): Promise<Bookshelf> {
     return apiClient.post(endpoints.myShelf, null, { userId })
@@ -28,8 +31,8 @@ export const shelvesApi = {
     // book 조인 포함해 내려오는 것을 전제로 함
     return apiClient.post<ShelfBook[]>(endpoints.shelfBookList, null, { bookshelfId });
   },
-  addBook(bookshelfId: number, payload: ShelfAddByIsbn13Payload) {
-    return apiClient.post(endpoints.shelfBookAdd, payload, { bookshelfId });
+  addBook(payload: ShelfAddPayload) {
+    return apiClient.post(endpoints.shelfBookAdd, payload);
   },
   updateBook(bookshelfId: number, bookId: number) {
     return apiClient.post(endpoints.shelfBookUpdate, {}, { bookshelfId, bookId });
@@ -41,6 +44,6 @@ export const shelvesApi = {
     return apiClient.post(endpoints.shelfBookUpdateProgress, payload);
   },
   updateStatus(payload: { shelfBookId: number; readingStatus: "PLAN"|"READING"|"DONE" }) {
-    return apiClient.post(endpoints.shelfBookUpdateStatus, payload); 
+    return apiClient.post(endpoints.shelfBookUpdate, payload); 
   },
 };

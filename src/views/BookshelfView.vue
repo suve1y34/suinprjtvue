@@ -1,9 +1,13 @@
 <template>
   <section class="page">
     <header class="head">
-      <h1>책장</h1>
+      <h1 class="title">
+        <span class="brand">
+          <span class="brand__chek">책</span><span class="brand__dam">담</span><span class="brand__chek">책</span><span class="brand__dam">담</span>
+        </span>
+      </h1>
       <div class="controls">
-        <button @click="reload" :disabled="loadingShelf || loadingItems">새로고침</button>
+        <button class="btn btn-solid-gray" @click="reload" :disabled="loadingShelf || loadingItems">새로고침</button>
         <button @click="onLogout" class="logout">로그아웃</button>
       </div>
     </header>
@@ -14,7 +18,7 @@
     <div v-if="bookshelfId">
 
       <Bookshelf :entries="store.shelfEntries" />
-
+      <button type="button" @click="openSearch">책 추가</button>
       <BookSearchModal ref="searchRef" />
     </div>
   </section>
@@ -24,6 +28,7 @@
 import { onMounted, ref, computed } from "vue";
 import { storeToRefs } from "pinia";
 import Bookshelf from "@/components/books/Bookshelf.vue";
+import BookSearchModal from "@/components/books/BookSearchModal.vue";
 import { useShelvesStore } from "@/stores/shelves.store";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
@@ -45,6 +50,13 @@ const canMutate = computed(() => !!bookshelfId.value && !loadingItems.value && !
 
 const userId = computed(() => auth.user?.userId ?? null);
 
+// 타입 안전한 ref (둘 중 하나)
+const searchRef = ref<InstanceType<typeof BookSearchModal> | null>(null);
+
+function openSearch() {
+  searchRef.value?.open();   // ← 여기서 showModal() 트리거
+}
+
 function resetInput() {
   tempBookId.value = 0;
 }
@@ -52,7 +64,6 @@ function resetInput() {
 function reload() {
   if (!userId.value) return;
   store.fetchMyShelf(userId.value).then(() => store.fetchShelfItems());
-  console.log(books.value)
 }
 
 async function onLogout() {
@@ -78,4 +89,14 @@ onMounted(async () => {
 .state { font-size: 14px; }
 .error { color: #c22727; }
 .spinner { font-size: 13px; opacity: 0.8; }
+
+.btn { padding: 6px 10px; border: 1px solid transparent; border-radius: 6px; font-weight: 600; }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+.btn-solid-gray { background: #6b7280; color: #fff; border-color: #6b7280; }   /* 회색배경 흰글씨 */
+.btn-outline-danger { background: #fff; color: #c22727; border-color: #c22727; }
+
+.title { display: flex; align-items: baseline; gap: 10px; }
+.brand { font-size: 20px; letter-spacing: .5px; }
+.brand__chek { color: #c29a82; }  /* 요청색 */
+.brand__dam { color: #222; }      /* 담은 다른 색 (원하면 토큰으로 빼도 됨) */
 </style>

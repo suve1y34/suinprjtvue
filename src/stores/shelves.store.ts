@@ -1,6 +1,29 @@
 import { defineStore } from "pinia";
 import type { Bookshelf, ShelfBook } from "@/types/shelf";
-import { shelvesApi, type ShelfAddByIsbn13Payload } from "@/api/shelves.api";
+import type { Book } from "@/types/book";
+import { shelvesApi, type ShelfAddByIsbn13Payload, type ShelfAddPayload } from "@/api/shelves.api";
+
+function normalizeShelfItem(raw: any): ShelfBook {
+  const book: Book = {
+    bookId: raw.bookId,
+    isbn13Code: raw.isbn13Code ?? "",      // BE가 안 주면 빈값
+    title: raw.title ?? "",
+    author: raw.author ?? "",
+    pages: typeof raw.pages === "number" ? raw.pages : undefined,
+    publisher: raw.publisher,
+    pubDate: raw.pubDate,
+  };
+  return {
+    shelfBookId: raw.shelfBookId,
+    bookshelfId: raw.bookshelfId,
+    bookId: raw.bookId,
+    currentPage: typeof raw.currentPage === "number" ? raw.currentPage : 0,
+    readingStatus: (raw.readingStatus as any) ?? "PLAN",
+    addedDatetime: raw.addedDatetime,
+    modifiedDatetime: raw.modifiedDatetime,
+    book,
+  };
+}
 
 export const useShelvesStore = defineStore("shelves", {
   state: () => ({
@@ -34,19 +57,26 @@ export const useShelvesStore = defineStore("shelves", {
       if (!this.bookshelfId) return;
       this.loading.items = true; this.error.items = null;
       try {
-        this.shelfItems = await shelvesApi.listShelfBooks(this.bookshelfId);
+        const raw = await shelvesApi.listShelfBooks(this.bookshelfId);
+        this.shelfItems = raw.map(normalizeShelfItem);
       } catch (e: any) {
         this.error.items = e?.message ?? "책 목록 로드 실패";
       } finally { this.loading.items = false; }
     },
 
-    async addBookToShelf(payload: ShelfAddByIsbn13Payload) {
+    async addBookToShelf(arg: number | ShelfAddByIsbn13Payload) {
       if (!this.bookshelfId) throw new Error("책장이 없습니다.");
-      this.mutating = true;
+      const prev = [...this.shelfItems];
 
       this.mutating = true;
+
       try {
-        await shelvesApi.addBook(this.bookshelfId, payload);
+        const payload: ShelfAddPayload =
+          typeof arg === "number"
+            ? { bookshelfId: this.bookshelfId, bookId: arg }
+            : { bookshelfId: this.bookshelfId, ...arg };
+
+        await shelvesApi.addBook(payload);
         await this.fetchShelfItems();
       } catch (e) {
         throw e;
