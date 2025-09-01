@@ -1,16 +1,29 @@
-.login {
-  max-width: 360px;
-  margin: 80px auto;
-  padding: 24px;
-  border: 1px solid #eee;
-  border-radius: 8px;
+:root{
+  /* Brand palette */
+  --color-brand: #c29a82; /* 브랜드 메인(배경보다는 강조 라인/태그/인디케이터 권장) */
+  --color-ink:   #3f1b1d; /* 주 텍스트/다크 버튼 배경 */
+  --color-ink-2: #633127; /* hover/pressed 혹은 보조 잉크 */
+  --color-accent:#925536; /* 강조 배지/보조 버튼 배경 */
+  --color-surface:#ebeaf0;/* 카드/페이지 배경용 밝은 서피스 */
+  --color-danger:#c22727; /* 오류/삭제 등 파괴적 액션 */
+  --color-white:#ffffff;  /* 기본 화이트 */
+  --color-gray-600:#6b7280; /* 회색 솔리드 버튼 */
+  --color-border:#eeeeee; /* 경계선 */
+  --color-text:#222;      /* 일반 텍스트(검정계열) */
+
+  /* Sizes & radii */
+  --radius-sm: 3px;
+  --radius:    6px;  /* 버튼/입력 기본 라운드 */
+  --radius-lg: 8px;  /* 카드/모달 라운드 */
+
+  /* Typography */
+  --fz-12: 12px;
+  --fz-14: 14px;
+
+  /* Spacing */
+  --sp-6: 6px;
+  --sp-8: 8px;
+  --sp-10:10px;
+  --sp-12:12px;
+  --sp-24:24px;
 }
-.v-login__form {
-  display: grid; gap: 10px;
-}
-.v-login__field {
-  border: 1px solid #ddd; border-radius: 6px; padding: 10px;
-}
-.v-login__submit { padding: 10px 12px; border: 1px solid #222; background: #222; color: #fff; border-radius: 6px; cursor: pointer; }
-button:disabled { opacity: .6; cursor: default; }
-.login__error { color: #c22727; font-size: 14px; }

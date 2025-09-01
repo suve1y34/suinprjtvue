@@ -8,8 +8,9 @@
       role="listitem"
       :reading-status="entry.readingStatus"
       :current-page="entry.currentPage"
-      :total-pages="entry.book?.pages ?? entry.pages"
+      :total-pages="entry.book?.pages ?? undefined"
       :disabled="mutating"
+      @click="edit(entry)"
       
       @change-status="(s) => store.updateStatus(entry.shelfBookId, s)"
       @edit-progress="(cp) => store.updateProgress(entry.shelfBookId, cp, entry.book.pages)"
@@ -45,7 +46,4 @@ function edit(entry: ShelfBook) {
 </script>
 
 <style scoped>
-.shelf { display:flex; flex-wrap:wrap; align-items:flex-end; align-content:flex-start; gap:0; line-height:0; }
-.cell { display:flex; flex-direction:column; align-items:center; padding:0 2px; }
-.progress { font-size:11px; line-height:1; margin-top:4px; opacity:.8; }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div
     class="spine"
-    :class="{ dark: isDark, light: !isDark }"
+    :class="variantClass"
     :style="{ width: widthPx }"
     :title="titleAttr"
     @click="onEditProgress"
@@ -9,7 +9,7 @@
     <span class="badge" :class="`badge--${(readingStatus ?? 'PLAN').toLowerCase()}`">
       {{ readingStatus ?? 'PLAN' }}
     </span>
-    <span class="title">{{ book.title }}</span>
+    <span class="spine__title">{{ book.title }}</span>
 
     <select
       class="status-select"
@@ -73,55 +73,13 @@ function onEditProgress() {
   }
   emit("edit-progress", num);
 }
+
+const variantClass = computed(() => {
+  const order = ["spine--dark", "spine--dark-2", "spine--accent", "spine--light"];
+  const i = Math.abs(props.index ?? 0) % order.length;
+  return order[i];
+});
 </script>
 
 <style scoped>
-.spine {
-  position: relative;          /* 뱃지/셀렉트 위치 기준 */
-  height: 180px;
-  display: inline-flex;
-  vertical-align: bottom;
-  align-items: center;
-  justify-content: center;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  margin: 0;
-  border-radius: 2px;
-  overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.1);
-  cursor: pointer;
-  user-select: none;
-}
-.spine.dark { background: #333; color: #f0f0f0; }
-.spine.light { background: #bbb; color: #222; }
-
-.title {
-  font-size: 12px;
-  line-height: 1.1;
-  max-height: 92%;
-  display: -webkit-box;
-  -webkit-line-clamp: 12;
-  -webkit-box-orient: vertical;
-  white-space: normal;
-  overflow: hidden;
-}
-
-/* 상태 뱃지 */
-.badge{
-  position:absolute; top:4px; right:4px;
-  font-size:10px; padding:2px 4px; border-radius:3px;
-  background:#eee; color:#222; line-height:1;
-  pointer-events:none; /* 클릭은 spine으로 전달 */
-}
-.badge--plan{ background:#e5e7eb; }
-.badge--reading{ background:#dbeafe; }
-.badge--done{ background:#dcfce7; }
-
-/* 상태 셀렉트: hover 시 보이게 */
-.status-select{
-  position:absolute; bottom:4px; right:4px;
-  font-size:10px; padding:2px 4px;
-  opacity:0; transition:opacity .15s ease;
-}
-.spine:hover .status-select{ opacity:1; }
 </style>

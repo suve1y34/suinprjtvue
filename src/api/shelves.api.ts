@@ -17,6 +17,8 @@ export type ShelfAddByIsbn13Payload = {
   pages?: number;
   publisher?: string;
   pubDate?: string; // "YYYY-MM-DD"
+  readingStatus?: "PLAN"|"READING"|"DONE";
+  currentPage?: number;
 };
 
 export type ShelfAddPayload =

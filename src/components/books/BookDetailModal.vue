@@ -1,4 +1,28 @@
 <template>
+  <dialog ref="dlg" class="modal modal--md">
+    <form method="dialog" class="modal__box" @submit.prevent>
+      <header class="modal__box">
+        <strong>도서 상세</strong>
+        <button @click="close" type="button" aria-label="close" class="btn btn--outline-black">✕</button>
+      </header>
+
+      <div v-if="book">
+        <div class="result-meta">
+          <div class="t">{{ book.title }}</div>
+          <div class="s">
+            <span>{{ book.author }}</span>
+            <span v-if="(book as any).publisher">{{ (book as any).publisher }}</span>
+            <span v-if="(book as any).pubDate">{{ (book as any).pubDate }}</span>
+            <span v-if="(book as any).pages">{{ (book as any).pages }}p</span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn--outline-dark" type="button" @click="onConfig">추가 설정...</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
 </template>
 
 <script setup lang="ts">
@@ -18,13 +42,4 @@ defineExpose({ open, close });
 </script>
 
 <style scoped>
-.modal { border: none; padding: 0; }
-.box { width: 600px; max-width: 92vw; padding: 12px; display: grid; gap: 12px; }
-.head { display: flex; justify-content: space-between; align-items: center; border-bottom:1px solid #eee; padding-bottom:6px; }
-.meta .t { font-weight: 600; }
-.meta .s { font-size: 12px; opacity: 0.8; display:flex; gap:8px; flex-wrap:wrap; }
-.actions { display:flex; justify-content:flex-end; }
-.btn { padding: 6px 10px; border: 1px solid transparent; border-radius: 6px; font-weight: 600; }
-.btn:disabled { opacity: .6; cursor: not-allowed; }
-.btn-outline-dark { background: #fff; color: #222; border-color: #222; }
 </style>

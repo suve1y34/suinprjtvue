@@ -1,3 +1,33 @@
+<template>
+  <section class="auth-card">
+    <h1 class="brand">
+      <span class="brand__chek">책</span><span class="brand__dam">담</span><span class="brand__chek">책</span><span class="brand__dam">담</span>
+    </h1>
+    <h2>로그인</h2>
+    <form @submit.prevent="onSubmit" class="auth-form">
+      <input
+        v-model="email"
+        type="email"
+        placeholder="이메일"
+        required
+        autocomplete="username"
+      />
+      <input
+        v-model="password"
+        type="password"
+        placeholder="비밀번호"
+        required
+        autocomplete="current-password"
+      />
+      <button :disabled="loading" type="submit">
+        {{ loading ? '로그인 중…' : '로그인' }}
+      </button>
+      <p v-if="error" class="auth-error">{{ error }}</p>
+      
+    </form>
+  </section>
+</template>
+
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
@@ -28,41 +58,5 @@ async function onSubmit() {
 }
 </script>
 
-<template>
-  <section class="v-login">
-    <h1>책담책담</h1>
-    <h2>로그인</h2>
-    <form @submit.prevent="onSubmit" class="v-login__form">
-      <div class="v-login__field">
-        <input
-          v-model="email"
-          type="email"
-          placeholder="이메일"
-          required
-          autocomplete="username"
-        />
-        <input
-          v-model="password"
-          type="password"
-          placeholder="비밀번호"
-          required
-          autocomplete="current-password"
-        />
-      </div>
-      <button :disabled="loading" type="submit" class="v-login__submit">
-        {{ loading ? '로그인 중…' : '로그인' }}
-      </button>
-      <p v-if="error" class="v-login__error">{{ error }}</p>
-      
-    </form>
-  </section>
-</template>
-
 <style scoped>
-.login { max-width: 360px; margin: 80px auto; padding: 24px; border: 1px solid #eee; border-radius: 8px; }
-.form { display: grid; gap: 10px; }
-input { border: 1px solid #ddd; border-radius: 6px; padding: 10px; }
-button { padding: 10px 12px; border: 1px solid #222; background: #222; color: #fff; border-radius: 6px; cursor: pointer; }
-button:disabled { opacity: .6; cursor: default; }
-.error { color: #c22727; font-size: 14px; }
 </style>

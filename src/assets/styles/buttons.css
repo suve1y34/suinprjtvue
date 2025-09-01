@@ -1,0 +1,52 @@
+/* 공통 버튼 스타일 */
+.btn{
+  padding: var(--sp-6) var(--sp-10);
+  border:1px solid transparent;
+  border-radius:var(--radius);
+  font-weight:600;
+  cursor:pointer;
+}
+.btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+/* 기본 프라이머리 버튼(진한 배경) */
+.btn--primary{
+  background:var(--color-ink);
+  color:var(--color-white);
+  border-color:var(--color-ink);
+}
+
+/* 프라이머리 hover/pressed */
+.btn--primary:hover{
+  background:var(--color-ink-2);
+  border-color:var(--color-ink-2);
+}
+
+/* 회색 솔리드 버튼(보조) */
+.btn--solid-gray{
+  background:var(--color-gray-600);
+  color:var(--color-white);
+  border-color:var(--color-gray-600);
+}
+
+/* 아웃라인(검정/잉크) — 흰 배경, 테두리/텍스트만 컬러 */
+.btn--outline-black{
+  background:#fff;
+  color:var(--color-ink);
+  border-color:var(--color-ink);
+}
+.btn--outline-black:hover{ background:var(--color-surface); }
+
+/* 아웃라인(위험/삭제 등) */
+.btn--outline-danger{
+  background:#fff;
+  color:var(--color-danger);
+  border-color:var(--color-danger);
+}
+
+/* 아웃라인(브랜드 포커스) — 텍스트는 잉크, 테두리만 브랜드 컬러 */
+.btn--outline-brand{
+  background:#fff;
+  color:var(--color-ink);
+  border-color:var(--color-brand);
+}
+.btn--outline-brand:hover{ background:var(--color-surface); }

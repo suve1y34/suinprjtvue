@@ -1,13 +1,13 @@
 <template>
-  <dialog ref="dlg" class="modal">
-    <form method="dialog" class="box" @submit.prevent="onConfirm">
-      <header class="head">
+  <dialog ref="dlg" class="modal modal--sm">
+    <form method="dialog" class="modal__box" @submit.prevent="onConfirm">
+      <header class="modal__head">
         <strong>추가 설정</strong>
-        <button @click="close" type="button" aria-label="close" class="btn btn-outline-dark">✕</button>
+        <button @click="close" type="button" aria-label="close" class="btn btn--outline-black">✕</button>
       </header>
       
       <div v-if="book">
-        <div class="meta">
+        <div class="result-meta">
           <div class="t">{{ book.title }}</div>
           <div class="s">
             <span>{{ book.author }}</span>
@@ -15,7 +15,7 @@
           </div>
         </div>
 
-        <div class="row">
+        <div class="form-row">
           <label>
             상태
             <select v-model="status">
@@ -29,8 +29,8 @@
             <input type="number" v-model.number="currentPage" min="0" :max="pages || undefined" />
           </label>
         </div>
-        <div class="actions">
-          <button type="submit" class="btn btn-solid-gray" :disabled="false">완료</button>
+        <div class="modal__actions">
+          <button type="submit" class="btn btn--solid-gray" :disabled="false">완료</button>
         </div>
       </div>
     </form>
@@ -83,15 +83,4 @@ defineExpose({ open, close });
 </script>
 
 <style scoped>
-.modal { border: none; padding: 0; }
-.box { width: 480px; max-width: 92vw; padding: 12px; display: grid; gap: 12px; }
-.head { display: flex; justify-content: space-between; align-items: center; border-bottom:1px solid #eee; padding-bottom:6px; }
-.row { display:flex; gap:12px; align-items:center; }
-.meta .t { font-weight: 600; }
-.meta .s { font-size: 12px; opacity: 0.8; display:flex; gap:8px; flex-wrap:wrap; }
-.actions { display:flex; gap:8px; justify-content:flex-end; }
-.btn { padding: 6px 10px; border: 1px solid transparent; border-radius: 6px; font-weight: 600; }
-.btn:disabled { opacity: .6; cursor: not-allowed; }
-.btn-outline-dark { background: #fff; color: #222; border-color: #222; }
-.btn-solid-gray { background: #6b7280; color: #fff; border-color: #6b7280; }
 </style>

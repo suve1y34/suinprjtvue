@@ -1,0 +1,13 @@
+.page{ display:grid; gap:var(--sp-12); }
+.page__head{ display:flex; justify-content:space-between; align-items:center; }
+.page__controls{ display:flex; gap:var(--sp-12); align-items:center; }
+.page__toolbar{ display:flex; gap:var(--sp-8); align-items:center; margin-bottom:var(--sp-8); }
+.state{ font-size:var(--fz-14); }
+.state--error{ color: var(--color-danger); }
+.spinner{ font-size:13px; opacity:.8; }
+
+/* Title + Brand */
+.page-title{ display:flex; align-items:baseline; gap:10px; }
+.brand{ font-size:20px; letter-spacing:.5px; }
+.brand__chek{ color: var(--color-brand); }
+.brand__dam{ color: var(--color-ink); } /* '담' 쪽 */

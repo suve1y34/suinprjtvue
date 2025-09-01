@@ -1,19 +1,19 @@
 <template>
-  <dialog ref="dlg" class="modal">
-    <form method="dialog" class="box" @submit.prevent>
-      <header class="head">
+  <dialog ref="dlg" class="modal modal--lg">
+    <form method="dialog" class="modal__box" @submit.prevent>
+      <header class="modal__head">
         <strong>도서 검색</strong>
-        <button @click="close" type="button" class="btn btn-outline-dark" aria-label="close">✕</button>
+        <button @click="close" type="button" class="btn btn--outline-black" aria-label="close">✕</button>
       </header>
 
-      <div class="row">
+      <div class="form-row">
         <input v-model.trim="q" type="text" placeholder="검색 키워드 입력(제목/저자)" @keyup.enter="onSearch"/>
-        <button type="button" @click="onSearch" :disabled="loading" class="btn btn-outline-dark">검색</button>
+        <button type="button" @click="onSearch" :disabled="loading" class="btn btn--outline-black">검색</button>
       </div>
 
-      <div class="results" v-if="list.length">
-        <div class="item" v-for="b in list" :key="b.isbn13Code" @click="openDetail(b)">
-          <div class="meta">
+      <div class="results-grid" v-if="list.length">
+        <div class="result-item" v-for="b in list" :key="b.isbn13Code" @click="openDetail(b)">
+          <div class="result-meta">
             <div class="t">{{ b.title }}</div>
             <div class="s">
               <span>{{ b.author }}</span>
@@ -23,7 +23,7 @@
             </div>
           </div>
           <button
-            class="btn btn-outline-dark add"
+            class="btn btn--outline-black add"
             :disabled="mutating"
             @click.stop="openConfig(b)"
             type="button"
@@ -91,7 +91,7 @@ async function onConfirmAdd({ book, status, currentPage }: { book: AladinBook; s
       pages,
       publisher: (book as any).publisher,
       pubDate: (book as any).pubDate,
-      ReadingStatus: status,
+      readingStatus: status,
     });
 
     // 2) 진행도 보정 필요 시 (shelfBookId 모르면 재조회 후 찾기)
@@ -112,19 +112,4 @@ async function onConfirmAdd({ book, status, currentPage }: { book: AladinBook; s
 }
 </script>
 <style scoped>
-.modal { border: none; padding: 0; }
-.box { width: 680px; max-width: 92vw; padding: 12px; display: grid; gap: 12px; }
-.head { display: flex; justify-content: space-between; align-items: center; }
-.row { display: flex; gap: 8px; }
-.results { display: grid; gap: 8px; max-height: 60vh; overflow: auto; }
-.item { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 8px; border: 1px solid #eee; border-radius: 8px; }
-.meta .t { font-weight: 600; }
-.meta .s { font-size: 12px; opacity: 0.8; display:flex; gap:8px; flex-wrap:wrap; }
-.add { padding: 6px 10px; }
-.loading, .empty { font-size: 14px; opacity: 0.8; }
-
-/* 버튼 기본 스타일(전역 없을 경우 대비) */
-.btn { padding: 6px 10px; border: 1px solid transparent; border-radius: 6px; font-weight: 600; }
-.btn:disabled { opacity: .6; cursor: not-allowed; }
-.btn-outline-dark { background: #fff; color: #222; border-color: #222; }
 </style>

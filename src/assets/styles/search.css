@@ -1,0 +1,4 @@
+.results-grid{ display:grid; gap:var(--sp-8); max-height:60vh; overflow:auto; }
+.result-item{ display:flex; justify-content:space-between; gap:var(--sp-12); align-items:center; padding:var(--sp-8); border:1px solid var(--color-border); border-radius:var(--radius-lg); }
+.result-meta .t{ font-weight:600; }
+.result-meta .s{ font-size:12px; opacity:.8; display:flex; gap:8px; flex-wrap:wrap; }
