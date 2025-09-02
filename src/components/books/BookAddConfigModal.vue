@@ -1,36 +1,48 @@
 <template>
   <dialog ref="dlg" class="modal modal--sm">
-    <form method="dialog" class="modal__box" @submit.prevent="onConfirm">
+    <form class="modal__box" @submit.prevent="onConfirm">
       <header class="modal__head">
-        <strong>추가 설정</strong>
-        <button @click="close" type="button" aria-label="close" class="btn btn--outline-black">✕</button>
+        <strong>{{ mode === 'add' ? '책 추가' : '책 수정' }}</strong>
+        <button
+          @click="onClickClose"
+          type="button"
+          aria-label="close"
+          class="btn btn--outline-black"
+        >✕</button>
       </header>
-      
+
       <div v-if="book">
-        <div class="result-meta">
-          <div class="t">{{ book.title }}</div>
-          <div class="s">
-            <span>{{ book.author }}</span>
-            <span v-if="pages">{{ pages }}</span>
-          </div>
+        <div class="book-head">
+          <h3 class="book-title">{{ book.title }}</h3>
+          <div class="book-author" v-if="book.author">{{ book.author }}</div>
+          <div class="book-pages" v-if="pages">{{ pages }}p</div>
         </div>
 
-        <div class="form-row">
-          <label>
-            상태
-            <select v-model="status">
-              <option value="PLAN">PLAN</option>
-              <option value="READING">READING</option>
-              <option value="DONE">DONE</option>
-            </select>
-          </label>
-          <label>
-            현재 페이지
-            <input type="number" v-model.number="currentPage" min="0" :max="pages || undefined" />
-          </label>
+        <div class="form-col">
+          <label class="form-label">독서 상태</label>
+          <select v-model="status" class="select">
+            <option value="PLAN">읽기전</option>
+            <option value="READING">읽는중</option>
+            <option value="DONE">다읽음</option>
+          </select>
         </div>
+
+        <div class="form-col" v-if="status === 'READING'">
+          <label class="form-label">독서량</label>
+          <input
+            class="input"
+            type="number"
+            v-model.number="currentPage"
+            min="0"
+            :max="pages ?? undefined"
+            inputmode="numeric"
+            placeholder="현재 페이지"
+          />
+        </div>
+
         <div class="modal__actions">
-          <button type="submit" class="btn btn--solid-gray" :disabled="false">완료</button>
+          <button type="button" class="btn btn--outline-black" @click="onClickClose">취소</button>
+          <button type="submit" class="btn btn--solid-gray">저장</button>
         </div>
       </div>
     </form>
@@ -38,48 +50,134 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
+import { useShelvesStore } from "@/stores/shelves.store";
 import type { AladinBook } from "@/types/aladin";
 
 type ReadingStatus = "PLAN" | "READING" | "DONE";
+type BookLike = { title?: string; author?: string; pages?: number; isbn13Code?: string };
+
+const store = useShelvesStore();
 
 const dlg = ref<HTMLDialogElement | null>(null);
-const book = ref<AladinBook | null>(null);
+const isOpen = ref(false);
+const mode = ref<"add" | "edit">("add");
+const shelfBookId = ref<number | null>(null);
+const book = ref<BookLike | null>(null);
 const status = ref<ReadingStatus>("PLAN");
 const currentPage = ref<number>(0);
 
-const pages = computed<number | undefined>(() => {
-  const b = book.value as any;
-  return b ? (b.pages ?? b.itemPage ?? undefined) : undefined;
-});
+const pages = computed<number | undefined>(() => book.value?.pages ?? undefined);
 
 const emit = defineEmits<{
-  (e: "confirm", payload: { book: AladinBook; status: ReadingStatus; currentPage: number }): void;
+  (e: "confirm-add", payload: { book: BookLike; status: ReadingStatus; currentPage: number }): void;
+  (e: "confirm-edit", payload: { shelfBookId: number; status: ReadingStatus; currentPage: number; totalPages?: number }): void;
 }>();
 
-function open(b: AladinBook) {
-  book.value = b;
+function resetState() {
+  mode.value = "add";
+  shelfBookId.value = null;
+  book.value = null;
   status.value = "PLAN";
   currentPage.value = 0;
-  dlg.value?.showModal();
+}
+
+/* */
+async function ensureOpen() {
+  if (!dlg.value) return;
+  if (!isOpen.value) {
+    dlg.value.showModal();
+    isOpen.value = true;
+    await nextTick();
+  }
+}
+
+function openFromSearch(b: AladinBook) {
+  // 상태 세팅
+  mode.value = "add";
+  shelfBookId.value = null;
+  book.value = {
+    title: b.title,
+    author: b.author,
+    pages: (b as any).pages ?? (b as any).itemPage ?? undefined,
+    isbn13Code: (b as any).isbn13Code,
+  };
+  status.value = "PLAN";
+  currentPage.value = 0;
+  ensureOpen();
+}
+
+async function openFromShelf(entry: {
+  shelfBookId: number;
+  readingStatus?: ReadingStatus;
+  currentPage?: number;
+  book?: { title?: string; author?: string; pages?: number; isbn13Code?: string };
+}) {
+  mode.value = "edit";
+  shelfBookId.value = entry.shelfBookId;
+
+  await store.fetchShelfItems();
+  const fresh = store.shelfItems.find(e => e.shelfBookId === entry.shelfBookId) ?? entry;
+
+  book.value = {
+    title: fresh.book?.title ?? entry.book?.title,
+    author: fresh.book?.author ?? entry.book?.author,
+    pages: fresh.book?.pages ?? entry.book?.pages,
+    isbn13Code: fresh.book?.isbn13Code ?? entry.book?.isbn13Code,
+  };
+  status.value = (fresh as any).readingStatus ?? entry.readingStatus ?? "PLAN";
+  currentPage.value = (fresh as any).currentPage ?? entry.currentPage ?? 0;
+
+  ensureOpen();
 }
 
 function close() {
-  dlg.value?.close();
-  book.value = null;
+  if (!dlg.value || !isOpen.value) return;
+  dlg.value.close();
+}
+
+function onClickClose() {
+  close();
 }
 
 function onConfirm() {
   if (!book.value) return;
-  let cp = currentPage.value || 0;
-  if (typeof pages.value === "number") {
-    cp = Math.max(0, Math.min(cp, pages.value));
+  const total = pages.value;
+  let cp = Number.isFinite(currentPage.value) ? currentPage.value : 0;
+  if (typeof total === "number") cp = Math.max(0, Math.min(cp, total));
+
+  if (mode.value === "add") {
+    emit("confirm-add", { book: book.value, status: status.value, currentPage: cp });
+  } else if (shelfBookId.value != null) {
+    emit("confirm-edit", {
+      shelfBookId: shelfBookId.value,
+      status: status.value,
+      currentPage: cp,
+      totalPages: total,
+    });
   }
-  emit("confirm", { book: book.value, status: status.value, currentPage: cp });
   close();
 }
 
-defineExpose({ open, close });
+function handleDialogClose() {
+  isOpen.value = false;
+  resetState();
+}
+
+function onCancel(_e: Event) {
+  // no-op
+}
+
+onMounted(() => {
+  dlg.value?.addEventListener("close", handleDialogClose);
+  dlg.value?.addEventListener("cancel", onCancel);
+});
+onBeforeUnmount(() => {
+  dlg.value?.removeEventListener("close", handleDialogClose);
+  dlg.value?.removeEventListener("cancel", onCancel);
+});
+
+defineExpose({ openFromSearch, openFromShelf, close });
 </script>
 
 <style scoped>

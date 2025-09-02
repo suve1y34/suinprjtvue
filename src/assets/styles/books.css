@@ -2,6 +2,16 @@
 .shelf{ display:flex; flex-wrap:wrap; align-items:flex-end; align-content:flex-start; gap:0; line-height:0; }
 .shelf__cell{ display:flex; flex-direction:column; align-items:center; padding:0 2px; }
 .shelf__progress{ font-size:11px; line-height:1; margin-top:4px; opacity:.8; }
+/* 책장 중앙 정렬 옵션 */
+.shelf--center{ justify-content: center; }
+
+.shelf-wrap {
+  display: flex;
+  justify-content: center;   /* 가로 중앙 */
+  align-items: center;       /* 세로 중앙 */
+  min-height: calc(100vh - 140px); /* 헤더 높이 추정치 보정 */
+  padding: 12px 0;
+}
 
 /* Book spine */
 .spine{
@@ -56,6 +66,24 @@
 .spine:hover .status-select{ opacity:1; }
 
 .spine--light{
-  background: var(--color-surface); /* ✅ #ebeaf0 */
+  background: var(--color-surface);
   color: var(--color-ink);          /* 텍스트는 진한 잉크 */
 }
+
+.book-head { display: grid; gap: 6px; text-align: center; margin: 4px 0 10px; }
+.book-title { font-size: 18px; font-weight: 700; line-height: 1.3; }
+.book-author { font-size: 14px; opacity: .9; }
+.book-pages { font-size: 13px; opacity: .8; }
+
+/* 입력/셀렉트 공통(버튼 높이와 맞춤) */
+.select, .input {
+  padding: 6px 10px;
+  height: 34px;               /* 전역 .btn 높이와 동일 */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  min-width: 160px;
+}
+
+/* 폼 행(세로 스택) */
+.form-col { display: grid; gap: 6px; margin: 10px 0; }
+.form-label { font-size: 12px; opacity: .8; }

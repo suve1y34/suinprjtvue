@@ -1,24 +1,26 @@
 <template>
   <section class="page">
-    <header class="page__head">
-      <h1 class="page__head">
+    <header class="page__bar">
+      <div></div>
+      <h1 class="page-title page-title--xl">
         <span class="brand">
           <span class="brand__chek">책</span><span class="brand__dam">담</span><span class="brand__chek">책</span><span class="brand__dam">담</span>
         </span>
       </h1>
       <div class="page__controls">
-        <button class="btn btn-solid-gray" @click="reload" :disabled="loadingShelf || loadingItems">새로고침</button>
+        <button type="button" class="btn btn--outline-black" @click="openSearch">책 추가</button>
+        <button class="btn btn--outline-brand" @click="reload" :disabled="loadingShelf || loadingItems">새로고침</button>
         <button @click="onLogout" class="btn btn--outline-danger">로그아웃</button>
       </div>
+
     </header>
 
     <div v-if="loadingShelf" class="state">책장 불러오는 중…</div>
     <div v-else-if="shelfError" class="state state--error">{{ shelfError }}</div>
 
-    <div v-if="bookshelfId">
+    <div v-if="bookshelfId" class="shelf-wrap">
 
-      <Bookshelf :entries="store.shelfEntries" />
-      <button type="button" class="btn btn--outline-black" @click="openSearch">책 추가</button>
+      <Bookshelf class="shelf--center" :entries="store.shelfEntries" />
       <BookSearchModal ref="searchRef" />
     </div>
   </section>
@@ -34,19 +36,16 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
 
 const store = useShelvesStore();
-const { books, bookshelfId } = storeToRefs(store);
+const { bookshelfId } = storeToRefs(store);
 
 const tempBookId = ref<number>(0);
 
 const loadingShelf = computed(() => store.loading.shelf);
 const loadingItems = computed(() => store.loading.items);
 const shelfError = computed(() => store.error.shelf);
-const itemsError = computed(() => store.error.items);
 
 const auth = useAuthStore();
 const router = useRouter();
-
-const canMutate = computed(() => !!bookshelfId.value && !loadingItems.value && !!tempBookId.value);
 
 const userId = computed(() => auth.user?.userId ?? null);
 
@@ -54,11 +53,7 @@ const userId = computed(() => auth.user?.userId ?? null);
 const searchRef = ref<InstanceType<typeof BookSearchModal> | null>(null);
 
 function openSearch() {
-  searchRef.value?.open();   // ← 여기서 showModal() 트리거
-}
-
-function resetInput() {
-  tempBookId.value = 0;
+  searchRef.value?.open();
 }
 
 function reload() {

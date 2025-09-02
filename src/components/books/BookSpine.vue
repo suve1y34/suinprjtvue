@@ -4,32 +4,21 @@
     :class="variantClass"
     :style="{ width: widthPx }"
     :title="titleAttr"
-    @click="onEditProgress"
+    @click="openEdit"
   >
-    <span class="badge" :class="`badge--${(readingStatus ?? 'PLAN').toLowerCase()}`">
-      {{ readingStatus ?? 'PLAN' }}
+    <span class="badge" :class="`badge--${(readingStatus ?? 'PLAN')}`">
+      {{ statusLabel }}
     </span>
     <span class="spine__title">{{ book.title }}</span>
-
-    <select
-      class="status-select"
-      :value="readingStatus"
-      :disabled="disabled"
-      @click.stop
-      @change="onChangeStatus"
-    >
-      <option value="PLAN">PLAN</option>
-      <option value="READING">READING</option>
-      <option value="DONE">DONE</option>
-    </select>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from "vue";
 import type { Book } from "@/types/book";
-import type { ReadingStatus } from "@/types/shelf";
-import { computed } from "vue";
 import { pagesToWidth } from "@/utils/thickness";
+
+type ReadingStatus = "PLAN" | "READING" | "DONE";
 
 const props = defineProps<{
   book: Book;
@@ -41,12 +30,15 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "change-status", status: ReadingStatus): void;
-  (e: "edit-progress", currentPage: number): void;
+  (e: "open-edit"): void;
 }>();
 
 const widthPx = computed(() => `${pagesToWidth(props.book.pages)}px`);
-const isDark = computed(() => (props.index ?? 0) % 2 === 0);
+const variantClass = computed(() => {
+  const order = ["spine--dark", "spine--dark-2", "spine--accent", "spine--light"];
+  const i = Math.abs(props.index ?? 0) % order.length;
+  return order[i];
+});
 
 const titleAttr = computed(() => {
   const tp = props.totalPages ?? props.book.pages;
@@ -55,30 +47,17 @@ const titleAttr = computed(() => {
   return `${props.book.title} — ${cp}${tp ? " / " + tp : ""}p · ${status}`;
 });
 
-function onChangeStatus(e: Event) {
-  const v = (e.target as HTMLSelectElement).value as ReadingStatus;
-  emit("change-status", v);
-}
-
-function onEditProgress() {
-  if (props.disabled) return;
-  const max = props.totalPages ?? props.book.pages;
-  const initial = String(props.currentPage ?? 0);
-  const input = window.prompt(`현재 페이지 (0${typeof max === "number" ? " ~ " + max : ""})`, initial);
-  if (input == null) return;
-  const num = Number(input);
-  if (!Number.isFinite(num) || num < 0 || (typeof max === "number" && num > max)) {
-    alert("유효한 페이지 수를 입력하세요.");
-    return;
+const statusLabel = computed(() => {
+  switch (props.readingStatus) {
+    case "READING": return "읽는중";
+    case "DONE":    return "다읽음";
+    default:        return "읽기전";
   }
-  emit("edit-progress", num);
-}
-
-const variantClass = computed(() => {
-  const order = ["spine--dark", "spine--dark-2", "spine--accent", "spine--light"];
-  const i = Math.abs(props.index ?? 0) % order.length;
-  return order[i];
 });
+
+function openEdit(e: Event){
+  emit("open-edit");
+}
 </script>
 
 <style scoped>

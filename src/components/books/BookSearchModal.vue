@@ -7,7 +7,13 @@
       </header>
 
       <div class="form-row">
-        <input v-model.trim="q" type="text" placeholder="검색 키워드 입력(제목/저자)" @keyup.enter="onSearch"/>
+        <input
+          v-model.trim="q"
+          type="text"
+          class="search-input"
+          placeholder="검색 키워드 입력(제목/저자)"
+          @keyup.enter="onSearch"
+        />
         <button type="button" @click="onSearch" :disabled="loading" class="btn btn--outline-black">검색</button>
       </div>
 
@@ -22,13 +28,6 @@
               <span v-if="(b as any).pages">{{ (b as any).pages }}</span>
             </div>
           </div>
-          <button
-            class="btn btn--outline-black add"
-            :disabled="mutating"
-            @click.stop="openConfig(b)"
-            type="button"
-            title="책장에 추가"
-          >추가</button>
         </div>
       </div>
       <div class="empty" v-else-if="!loading">검색 결과가 없습니다.</div>
@@ -36,17 +35,30 @@
     </form>
   </dialog>
   <BookDetailModal ref="detailRef" @config="openConfig" />
-  <BookAddConfigModal ref="configRef" @confirm="onConfirmAdd" />
+  <BookAddConfigModal ref="configRef" @confirm-add="onConfirmAdd" />
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { aladinApi } from "@/api/aladin.api";
 import { useShelvesStore } from "@/stores/shelves.store";
 import type { AladinBook } from "@/types/aladin";
 
 import BookDetailModal from "./BookDetailModal.vue";
 import BookAddConfigModal from "./BookAddConfigModal.vue";
+
+type AddPayload = {
+  book: {
+    isbn13Code?: string;
+    title?: string;
+    author?: string;
+    pages?: number;
+    publisher?: string;
+    pubDate?: string;
+  };
+  status: "PLAN" | "READING" | "DONE";
+  currentPage: number;
+};
 
 const dlg = ref<HTMLDialogElement | null>(null);
 const q = ref("");
@@ -56,16 +68,23 @@ const loading = ref(false);
 const store = useShelvesStore();
 const mutating = computed(() => store.mutating);
 
+function reset(){ q.value = ""; list.value = []; }
 function open() { dlg.value?.showModal(); }
 function close() { dlg.value?.close(); }
 defineExpose({ open, close });
+
+function onDlgClose(){ reset(); }
+onMounted(() => { dlg.value?.addEventListener("close", onDlgClose); });
+onBeforeUnmount(() => { dlg.value?.removeEventListener("close", onDlgClose); });
 
 // 자식 refs
 const detailRef = ref<InstanceType<typeof BookDetailModal> | null>(null);
 const configRef = ref<InstanceType<typeof BookAddConfigModal> | null>(null);
 
 function openDetail(b: AladinBook) { detailRef.value?.open(b); }
-function openConfig(b: AladinBook) { configRef.value?.open(b); }
+function openConfig(b: AladinBook) {
+  configRef.value?.openFromSearch(b);
+}
 
 async function onSearch() {
   if (!q.value) return;
@@ -79,7 +98,7 @@ async function onSearch() {
   }
 }
 
-async function onConfirmAdd({ book, status, currentPage }: { book: AladinBook; status: "PLAN"|"READING"|"DONE"; currentPage: number }) {
+async function onConfirmAdd({ book, status, currentPage }: AddPayload) {
   const pages = (book as any).pages ?? (book as any).itemPage ?? undefined;
 
   try {
@@ -92,6 +111,7 @@ async function onConfirmAdd({ book, status, currentPage }: { book: AladinBook; s
       publisher: (book as any).publisher,
       pubDate: (book as any).pubDate,
       readingStatus: status,
+      currentPage
     });
 
     // 2) 진행도 보정 필요 시 (shelfBookId 모르면 재조회 후 찾기)

@@ -1,24 +1,20 @@
 <template>
   <dialog ref="dlg" class="modal modal--md">
     <form method="dialog" class="modal__box" @submit.prevent>
-      <header class="modal__box">
+      <header class="modal__head">
         <strong>도서 상세</strong>
         <button @click="close" type="button" aria-label="close" class="btn btn--outline-black">✕</button>
       </header>
 
       <div v-if="book">
-        <div class="result-meta">
-          <div class="t">{{ book.title }}</div>
-          <div class="s">
-            <span>{{ book.author }}</span>
-            <span v-if="(book as any).publisher">{{ (book as any).publisher }}</span>
-            <span v-if="(book as any).pubDate">{{ (book as any).pubDate }}</span>
-            <span v-if="(book as any).pages">{{ (book as any).pages }}p</span>
-          </div>
+        <div class="book-head">
+          <h3 class="book-title">{{ book.title }}</h3>
+          <div class="book-author" v-if="book.author">{{ book.author }}</div>
+          <div class="book-pages" v-if="(book as any).pages">{{ (book as any).pages }}p</div>
         </div>
 
-        <div class="actions">
-          <button class="btn btn--outline-dark" type="button" @click="onConfig">추가 설정...</button>
+        <div class="modal__actions">
+          <button class="btn btn--outline-dark" type="button" @click="onConfig">책 추가</button>
         </div>
       </div>
     </form>
