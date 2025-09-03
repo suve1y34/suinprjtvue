@@ -40,6 +40,16 @@
           />
         </div>
 
+        <div class="form-col">
+          <label class="form-label">책 메모</label>
+          <textarea
+            class="textarea textarea--sm"
+            rows="4"
+            v-model="memo"
+            placeholder="메모를 입력하세요"
+          ></textarea>
+        </div>
+
         <div class="modal__actions">
           <button type="button" class="btn btn--outline-black" @click="onClickClose">취소</button>
           <button type="submit" class="btn btn--solid-gray">저장</button>
@@ -66,12 +76,13 @@ const shelfBookId = ref<number | null>(null);
 const book = ref<BookLike | null>(null);
 const status = ref<ReadingStatus>("PLAN");
 const currentPage = ref<number>(0);
+const memo = ref<string>("");
 
 const pages = computed<number | undefined>(() => book.value?.pages ?? undefined);
 
 const emit = defineEmits<{
-  (e: "confirm-add", payload: { book: BookLike; status: ReadingStatus; currentPage: number }): void;
-  (e: "confirm-edit", payload: { shelfBookId: number; status: ReadingStatus; currentPage: number; totalPages?: number }): void;
+  (e: "confirm-add", payload: { book: BookLike; status: ReadingStatus; currentPage: number; memo?: string | null }): void;
+  (e: "confirm-edit", payload: { shelfBookId: number; status: ReadingStatus; currentPage: number; totalPages?: number; memo?: string | null }): void;
 }>();
 
 function resetState() {
@@ -80,6 +91,7 @@ function resetState() {
   book.value = null;
   status.value = "PLAN";
   currentPage.value = 0;
+  memo.value = "";
 }
 
 /* */
@@ -104,6 +116,7 @@ function openFromSearch(b: AladinBook) {
   };
   status.value = "PLAN";
   currentPage.value = 0;
+  memo.value = "";
   ensureOpen();
 }
 
@@ -111,6 +124,7 @@ async function openFromShelf(entry: {
   shelfBookId: number;
   readingStatus?: ReadingStatus;
   currentPage?: number;
+  memo?: string | null;
   book?: { title?: string; author?: string; pages?: number; isbn13Code?: string };
 }) {
   mode.value = "edit";
@@ -127,6 +141,7 @@ async function openFromShelf(entry: {
   };
   status.value = (fresh as any).readingStatus ?? entry.readingStatus ?? "PLAN";
   currentPage.value = (fresh as any).currentPage ?? entry.currentPage ?? 0;
+  memo.value = (fresh as any).memo ?? entry.memo ?? "";
 
   ensureOpen();
 }
@@ -154,6 +169,7 @@ function onConfirm() {
       status: status.value,
       currentPage: cp,
       totalPages: total,
+      memo: memo.value || null,
     });
   }
   close();

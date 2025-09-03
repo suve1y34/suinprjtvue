@@ -12,6 +12,8 @@ type User = {
     nickname?: string;
 } | null;
 
+type LoginOptions = { remember?: boolean };
+
 function parseJwtExp(token: string): number | null {
     try {
         const base64 = token.split('.')[1];
@@ -27,6 +29,10 @@ function isExpired(token: string, leewaySec = 30): boolean {
   return exp - now <= leewaySec;
 }
 
+function getStore(remember?: boolean) {
+  return remember ? window.localStorage : window.sessionStorage;
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User,
@@ -36,14 +42,21 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: (s) => !!s.accessToken && !!s.user,
   },
   actions: {
-    async login(email: string, password: string) {
+    async login(email: string, password: string, opts?: LoginOptions) {
       const resp = await authApi.login({ email, password });
       this.accessToken = resp.accessToken;
       this.user = resp.user;
 
+      // 저장 전에 양쪽 스토리지 정리(중복 방지)
+      localStorage.removeItem(LS_TOKEN);
+      localStorage.removeItem(LS_USER);
+      sessionStorage.removeItem(LS_TOKEN);
+      sessionStorage.removeItem(LS_USER);
+
       // 영속화
-      localStorage.setItem(LS_TOKEN, resp.accessToken);
-      localStorage.setItem(LS_USER, JSON.stringify(resp.user));
+      const store = getStore(opts?.remember ?? true);
+      store.setItem(LS_TOKEN, resp.accessToken);
+      store.setItem(LS_USER, JSON.stringify(resp.user));
 
       return resp.user;
     },
@@ -55,12 +68,14 @@ export const useAuthStore = defineStore('auth', {
       this.accessToken = null;
       localStorage.removeItem(LS_TOKEN);
       localStorage.removeItem(LS_USER);
+      sessionStorage.removeItem(LS_TOKEN);
+      sessionStorage.removeItem(LS_USER);
     },
 
     // 스토리지 - 메모리 로드 + 만료 체크
     loadMe() {
-      const token = localStorage.getItem(LS_TOKEN);
-      const userStr = localStorage.getItem(LS_USER);
+      const token = localStorage.getItem(LS_TOKEN) ?? sessionStorage.getItem(LS_TOKEN);
+      const userStr = localStorage.getItem(LS_USER) ?? sessionStorage.getItem(LS_USER);
 
       if (!token || !userStr) {
         this.user = null; this.accessToken = null;

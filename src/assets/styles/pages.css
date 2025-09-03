@@ -16,7 +16,15 @@
 
 /* Title + Brand */
 .page-title{ display:flex; align-items:baseline; gap:10px; }
-.brand{ font-size:20px; letter-spacing:.5px; }
+.brand{
+  display:flex;
+  justify-content:center;   /* 가운데 정렬 */
+  gap: 6px;
+  font-weight: 800;
+  font-size: clamp(28px, 6vw, 48px);  /* 폰트 커짐(반응형) */
+  line-height: 1.1;
+  margin: 0 0 16px;
+}
 .brand__chek{ color: var(--color-brand); }
 .brand__dam{ color: var(--color-ink); } /* '담' 쪽 */
 

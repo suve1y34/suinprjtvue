@@ -12,6 +12,7 @@ export interface ShelfBook {
   bookId: number;
   currentPage: number;     
   readingStatus: ReadingStatus;
+  memo?: string | null;
   addedDatetime: string;
   modifiedDatetime: string;
   book: Book;

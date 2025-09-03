@@ -8,6 +8,7 @@ const endpoints = {
     shelfBookUpdate: "/shelves/books/update",
     shelfBookRemove: "/shelves/books/remove",
     shelfBookUpdateProgress: "/shelves/books/updateProgress",
+    shelfBookUpdateMemo: "/shelves/books/updateMemo",
 }
 
 export type ShelfAddByIsbn13Payload = {
@@ -19,6 +20,7 @@ export type ShelfAddByIsbn13Payload = {
   pubDate?: string; // "YYYY-MM-DD"
   readingStatus?: "PLAN"|"READING"|"DONE";
   currentPage?: number;
+  memo?: string;
 };
 
 export type ShelfAddPayload =
@@ -47,5 +49,8 @@ export const shelvesApi = {
   },
   updateStatus(payload: { shelfBookId: number; readingStatus: "PLAN"|"READING"|"DONE" }) {
     return apiClient.post(endpoints.shelfBookUpdate, payload); 
+  },
+  updateMemo(shelfBookId: number, memo: string | null) {
+    return apiClient.post(endpoints.shelfBookUpdateMemo, { shelfBookId, memo });
   },
 };

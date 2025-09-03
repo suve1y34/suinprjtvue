@@ -1,6 +1,15 @@
 .auth-card{ max-width:360px; margin:80px auto; padding:var(--sp-24); border:1px solid var(--color-border); border-radius:var(--radius-lg); background:#fff; }
-.auth-form{ display:grid; gap:10px; }
+.auth-form{
+  margin-top: 50px;
+  display:grid;
+  gap:10px;
+}
 .auth-form input{ border:1px solid #ddd; border-radius:var(--radius); padding:10px; }
 .auth-form button{ padding:10px 12px; border:1px solid var(--color-ink); background:var(--color-ink); color:#fff; border-radius:var(--radius); cursor:pointer; }
 .auth-form button:disabled{ opacity:.6; cursor:default; }
 .auth-error{ color: var(--color-danger); font-size:14px; }
+
+.keep-login{
+  display:flex; align-items:center; gap:8px;
+  font-size:14px; color: var(--color-ink, #111);
+}

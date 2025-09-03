@@ -25,6 +25,8 @@ function normalizeShelfItem(raw: any): ShelfBook {
   };
 }
 
+type ShelfAddByIsbn13WithMemo = ShelfAddByIsbn13Payload & { memo?: string | null };
+
 export const useShelvesStore = defineStore("shelves", {
   state: () => ({
     bookshelfId: null as number | null,
@@ -79,7 +81,10 @@ export const useShelvesStore = defineStore("shelves", {
         await shelvesApi.addBook(payload);
         await this.fetchShelfItems();
       } catch (e) {
+        this.shelfItems = prev;
         throw e;
+      } finally {
+        this.mutating = false;
       }
     },
 
@@ -121,6 +126,17 @@ export const useShelvesStore = defineStore("shelves", {
       } finally {
         this.mutating = false;
       }
-    }
+    },
+
+    async updateMemo(shelfBookId: number, memo: string | null) {
+      this.mutating = true;
+      try {
+        await shelvesApi.updateMemo(shelfBookId, memo);
+      } catch (e) {
+        throw e;
+      } finally {
+        this.mutating = false;
+      }
+    },
   },
 });

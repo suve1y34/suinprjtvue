@@ -87,3 +87,45 @@
 /* 폼 행(세로 스택) */
 .form-col { display: grid; gap: 6px; margin: 10px 0; }
 .form-label { font-size: 12px; opacity: .8; }
+
+/* 텍스트에어리어 */
+.textarea{
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-height: 96px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-line, #e5e7eb);
+  border-radius: var(--radius-6, 6px);
+  background:#fff;
+  color: var(--color-ink, #111);
+  font: inherit;
+  line-height: 1.45;
+  resize: vertical;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.textarea::placeholder{
+  color: #9aa0a6;                    /* 은은한 플레이스홀더 */
+}
+
+.textarea:focus{
+  outline: 0;
+  border-color: var(--color-brand, #c29a82);
+  box-shadow: 0 0 0 3px rgba(194,154,130,.2);  /* 브랜드 포커스 링 */
+  background:#fff;
+}
+
+.textarea[disabled],
+.textarea[readonly]{
+  background: #f7f7f7;
+  color: #888;
+  cursor: not-allowed;
+}
+
+/* 밀도 낮은 레이아웃용(선택) */
+.textarea--sm{ min-height: 72px; }
+.textarea--lg{ min-height: 140px; }
+
+/* 폼 행과의 간격 유지 */
+.form-col .textarea{ margin: 0; }

@@ -5,8 +5,9 @@
 
 /* 모달 내부 박스(폼/컨텐츠 래퍼) */
 .modal__box{
+  box-sizing: border-box;
   width: 600px;
-  max-width: 92vw;
+  max-width: 92vw; /* 필요시 min(92vw, 600px)로도 OK */
   padding: var(--sp-12);
   display:grid;
   gap: var(--sp-12);

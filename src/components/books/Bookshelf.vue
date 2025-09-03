@@ -41,8 +41,10 @@ async function onConfirmEdit(p: {
   status:"PLAN"|"READING"|"DONE";
   currentPage:number;
   totalPages?:number;
+  memo?: string | null;
 }){
   try{
+    await store.updateMemo(p.shelfBookId, p.memo ?? null);
     await store.updateStatus(p.shelfBookId, p.status);
     await store.updateProgress(p.shelfBookId, p.currentPage, p.totalPages);
   }catch(e:any){

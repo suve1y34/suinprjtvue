@@ -3,7 +3,6 @@
     <h1 class="brand">
       <span class="brand__chek">책</span><span class="brand__dam">담</span><span class="brand__chek">책</span><span class="brand__dam">담</span>
     </h1>
-    <h2>로그인</h2>
     <form @submit.prevent="onSubmit" class="auth-form">
       <input
         v-model="email"
@@ -19,6 +18,10 @@
         required
         autocomplete="current-password"
       />
+      <label class="keep-login">
+    <input type="checkbox" v-model="rememberMe" />
+      로그인 상태 유지
+    </label>
       <button :disabled="loading" type="submit">
         {{ loading ? '로그인 중…' : '로그인' }}
       </button>
@@ -37,6 +40,8 @@ const email = ref('');
 const password = ref('');
 const loading = ref(false);
 const error = ref<string | null>(null);
+
+const rememberMe = ref(true);
 
 const auth = useAuthStore();
 const router = useRouter();
