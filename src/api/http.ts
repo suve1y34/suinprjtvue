@@ -60,16 +60,25 @@ http.interceptors.response.use(
   }
 );
 
-// 기본 POST 전용 클라이언트
-async function post<T>(
-  url: string,
-  body?: unknown,
-  params?: Record<string, any>,
-  config?: any
-): Promise<T> {
+async function get<T>(url: string, params?: Record<string, any>, config?: any): Promise<T> {
+  const data = await http.get(url, { params, ...(config || {}) });
+  return data as T;
+}
+async function post<T>(url: string, body?: unknown, params?: Record<string, any>, config?: any): Promise<T> {
   const data = await http.post(url, body ?? null, { params, ...(config || {}) });
   return data as T;
 }
+async function put<T>(url: string, body?: unknown, params?: Record<string, any>, config?: any): Promise<T> {
+  const data = await http.put(url, body ?? null, { params, ...(config || {}) });
+  return data as T;
+}
+async function patch<T>(url: string, body?: unknown, params?: Record<string, any>, config?: any): Promise<T> {
+  const data = await http.patch(url, body ?? null, { params, ...(config || {}) });
+  return data as T;
+}
+async function del<T>(url: string, params?: Record<string, any>, config?: any): Promise<T> {
+  const data = await http.delete(url, { params, ...(config || {}) });
+  return data as T;
+}
 
-// 필요 시 확장용(추가 메서드가 생기면 여기..)
-export const apiClient = { post };
+export const apiClient = { get, post, put, patch, del };

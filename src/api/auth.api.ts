@@ -1,14 +1,16 @@
 import { apiClient } from "./http";
+import type { User } from "@/types/user";
 
 type LoginReq = { email: string; password: string };
 type LoginRes = {
   accessToken: string;
-  user: { userId: number; userName: string; email: string; nickname?: string; };
+  user: User;
 };
 
 const endpoints = {
   login: '/auth/login',
   logout: '/auth/logout',
+  resetPassword: "/auth/resetPw"
 };
 
 export const authApi = {
@@ -17,5 +19,8 @@ export const authApi = {
   },
   logout(): Promise<{ success: boolean }> {
       return apiClient.post<{ success: boolean }>(endpoints.logout, {});
+  },
+  resetPassword(): Promise<{ success: boolean }> {
+    return apiClient.post<{ success: boolean }>(endpoints.resetPassword, {});
   },
 };

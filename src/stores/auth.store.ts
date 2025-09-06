@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { authApi } from '@/api/auth.api';
+import { usersApi } from '@/api/users.api';
+import type { UserUpdatePayload } from "@/types/user";
 
 // 로컬 스토리지 키
 const LS_TOKEN = 'auth.accessToken';
@@ -92,6 +94,21 @@ export const useAuthStore = defineStore('auth', {
       } catch {
         this.logout();
       }
+    },
+
+    async updateMe(payload: UserUpdatePayload) {
+      const updated = await usersApi.updateMe(payload);
+      // 스토어 갱신
+      this.user = this.user
+        ? { ...this.user, userName: updated.userName, nickname: updated.nickname, email: updated.email }
+        : updated;
+
+      // 저장된 토큰이 있는 저장소에만 사용자 정보 반영
+      const userStr = JSON.stringify(this.user);
+      if (localStorage.getItem('auth.accessToken')) localStorage.setItem('auth.user', userStr);
+      if (sessionStorage.getItem('auth.accessToken')) sessionStorage.setItem('auth.user', userStr);
+
+      return this.user;
     },
   },
 });
