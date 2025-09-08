@@ -47,3 +47,11 @@ export type AddPayload = {
 export type ShelfAddPayload =
   & { bookshelfId: number }
   & ({ bookId: number } | ShelfAddByIsbn13Payload);
+
+export type ShelfUpdatePayload = {
+  shelfBookId: number;
+  currentPage: number;     
+  readingStatus: ReadingStatus;
+  memo?: string | null;
+  memoChanged?: boolean | null;
+}

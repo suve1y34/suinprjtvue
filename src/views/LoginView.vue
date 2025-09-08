@@ -22,10 +22,14 @@
     <input type="checkbox" v-model="rememberMe" />
       로그인 상태 유지
     </label>
-      <button :disabled="loading" type="submit">
-        {{ loading ? '로그인 중…' : '로그인' }}
-      </button>
-      <p v-if="error" class="auth-error">{{ error }}</p>
+    <div class="sns-login">
+      <h2>SNS 로그인</h2>
+      <button @click="snsLogin('google')">Google 로그인</button>
+    </div>
+    <button :disabled="loading" type="submit">
+      {{ loading ? '로그인 중…' : '로그인' }}
+    </button>
+    <p v-if="error" class="auth-error">{{ error }}</p>
       
     </form>
   </section>
@@ -35,6 +39,7 @@
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { useRouter, useRoute } from 'vue-router';
+import { OAUTH2_AUTH_URL } from '@/utils/constants';
 
 const email = ref('');
 const password = ref('');
@@ -60,6 +65,13 @@ async function onSubmit() {
   } finally {
     loading.value = false;
   }
+}
+
+function snsLogin(provider: keyof typeof OAUTH2_AUTH_URL) {
+  const redirectUri = window.location.origin + '/login/callback';
+  const base = OAUTH2_AUTH_URL[provider];
+  const url = `${base}?redirect_uri=${encodeURIComponent(redirectUri)}`;
+  window.location.href = url;
 }
 </script>
 

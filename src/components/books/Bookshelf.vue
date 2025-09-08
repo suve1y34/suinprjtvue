@@ -23,7 +23,7 @@ import { ref } from "vue";
 import { useShelvesStore } from "@/stores/shelves.store";
 import BookSpine from "./BookSpine.vue";
 import BookAddConfigModal from "./BookAddConfigModal.vue";
-import type { ShelfBook } from "@/types/shelf";
+import type { ShelfBook, ShelfUpdatePayload } from "@/types/shelf";
 
 defineProps<{ entries: ShelfBook[] }>();
 
@@ -36,18 +36,10 @@ function onOpenEdit(entry: ShelfBook) {
   editRef.value?.openFromShelf(entry);  // 수정 모드로 오픈
 }
 
-async function onConfirmEdit(p: {
-  shelfBookId:number;
-  status:"PLAN"|"READING"|"DONE";
-  currentPage:number;
-  totalPages?:number;
-  memo?: string | null;
-}){
-  try{
-    await store.updateMemo(p.shelfBookId, p.memo ?? null);
-    await store.updateStatus(p.shelfBookId, p.status);
-    await store.updateProgress(p.shelfBookId, p.currentPage, p.totalPages);
-  }catch(e:any){
+async function onConfirmEdit(p: ShelfUpdatePayload & { totalPages?: number }) {
+  try {
+    await store.updateShelfItem(p); // 단일 업데이트 API
+  } catch (e: any) {
     alert(e?.message ?? "저장 실패");
   }
 }

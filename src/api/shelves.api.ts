@@ -1,6 +1,6 @@
 import { apiClient  } from "./http";
 import { EP } from "./endpoints";
-import type { Bookshelf, ShelfBook, ShelfAddByIsbn13Payload, ShelfAddPayload } from "@/types/shelf";
+import type { Bookshelf, ShelfBook, ShelfAddPayload, ShelfUpdatePayload } from "@/types/shelf";
 
 
 export const shelvesApi = {
@@ -14,19 +14,10 @@ export const shelvesApi = {
   addBook(payload: ShelfAddPayload) {
     return apiClient.post(EP.shelves.add, payload);
   },
-  updateBook(bookshelfId: number, bookId: number) {
-    return apiClient.post(EP.shelves.update, {}, { bookshelfId, bookId });
+  updateShelfItem(payload: ShelfUpdatePayload) {
+    return apiClient.post(EP.shelves.update, payload);
   },
   removeBook(bookshelfId: number, bookId: number) {
     return apiClient.post(EP.shelves.remove, null, { bookshelfId, bookId });
-  },
-  updateProgress(payload: { shelfBookId: number, currentPage: number }) {
-    return apiClient.post(EP.shelves.updateProgress, payload);
-  },
-  updateStatus(payload: { shelfBookId: number; readingStatus: "PLAN"|"READING"|"DONE" }) {
-    return apiClient.post(EP.shelves.update, payload); 
-  },
-  updateMemo(shelfBookId: number, memo: string | null) {
-    return apiClient.post(EP.shelves.updateMemo, { shelfBookId, memo });
   },
 };

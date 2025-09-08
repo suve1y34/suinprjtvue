@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth.store';
 
 import LoginView from '@/views/LoginView.vue';
 import BookshelfView from '@/views/BookshelfView.vue';
-import AladinSearchView from '@/views/AladinSearchView.vue';
+import LoginCallbackView from '@/views/LoginCallbackView.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -13,6 +13,12 @@ const routes: RouteRecordRaw[] = [
     name: 'login',
     component: LoginView,
     meta: { guestOnly: true },
+  },
+  {
+    path: '/login/callback',
+    name: 'login-callback',
+    component: LoginCallbackView,
+    meta: { guestOnly: true }
   },
   {
     path: '/signup',
@@ -29,7 +35,7 @@ const routes: RouteRecordRaw[] = [
     path: '/search/aladin',
     name: 'aladin-search',
     component: () => import('@/views/AladinSearchView.vue'),
-  }
+  },
 ];
 
 const router = createRouter({

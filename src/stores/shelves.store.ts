@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { api } from '@/api';
-import type { ShelfBook, ShelfAddByIsbn13Payload, ShelfAddPayload } from "@/types/shelf";
+import type { ShelfBook, ShelfAddByIsbn13Payload, ShelfAddPayload, ShelfUpdatePayload } from "@/types/shelf";
 import type { Book } from "@/types/book";
 
 function normalizeShelfItem(raw: any): ShelfBook {
@@ -86,6 +86,18 @@ export const useShelvesStore = defineStore("shelves", {
       }
     },
 
+    async updateShelfItem(payload: ShelfUpdatePayload) {
+      this.mutating = true;
+      try {
+        await api.shelves.updateShelfItem(payload);
+        await this.fetchShelfItems(); // 최신값 반영
+      } catch (e) {
+        throw e;
+      } finally {
+        this.mutating = false;
+      }
+    },
+
     async removeBookFromShelf(bookId: number) {
       if (!this.bookshelfId) return;
       const prev = [...this.shelfItems];
@@ -94,43 +106,6 @@ export const useShelvesStore = defineStore("shelves", {
         await api.shelves.removeBook(this.bookshelfId, bookId);
       } catch (e) {
         this.shelfItems = prev; // 롤백
-        throw e;
-      } finally {
-        this.mutating = false;
-      }
-    },
-
-    async updateProgress(shelfBookId: number, currentPage: number, totalPages?: number) {
-      this.mutating = true;
-      // 0 ~ totalPages
-      let cp = Math.max(0, Number.isFinite(currentPage) ? currentPage : 0);
-      if (typeof totalPages === 'number') cp = Math.min(cp, totalPages);
-        try {
-          await api.shelves.updateProgress({ shelfBookId, currentPage: cp });
-          await this.fetchShelfItems();
-        } catch(e) {
-          throw e;
-        } finally {
-          this.mutating = false;
-        }
-    },
-
-    async updateStatus(shelfBookId: number, status: "PLAN"|"READING"|"DONE") {
-      this.mutating = true;
-      try {
-        await api.shelves.updateStatus({ shelfBookId, readingStatus: status });
-      } catch(e) {
-        throw e;
-      } finally {
-        this.mutating = false;
-      }
-    },
-
-    async updateMemo(shelfBookId: number, memo: string | null) {
-      this.mutating = true;
-      try {
-        await api.shelves.updateMemo(shelfBookId, memo);
-      } catch (e) {
         throw e;
       } finally {
         this.mutating = false;

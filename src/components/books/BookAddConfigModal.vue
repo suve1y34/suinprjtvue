@@ -63,7 +63,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { useShelvesStore } from "@/stores/shelves.store";
 import type { AladinBook } from "@/types/aladin";
-import type { BookLike, ReadingStatus } from "@/types/shelf";
+import type { BookLike, ReadingStatus, ShelfUpdatePayload } from "@/types/shelf";
 
 
 const store = useShelvesStore();
@@ -79,9 +79,11 @@ const memo = ref<string>("");
 
 const pages = computed<number | undefined>(() => book.value?.pages ?? undefined);
 
+const initial = ref<{ status: ReadingStatus; currentPage: number; memo: string } | null>(null);
+
 const emit = defineEmits<{
   (e: "confirm-add", payload: { book: BookLike; status: ReadingStatus; currentPage: number; memo?: string | null }): void;
-  (e: "confirm-edit", payload: { shelfBookId: number; status: ReadingStatus; currentPage: number; totalPages?: number; memo?: string | null }): void;
+  (e: "confirm-edit", payload: ShelfUpdatePayload & { totalPages?: number }): void;
 }>();
 
 function resetState() {
@@ -91,6 +93,7 @@ function resetState() {
   status.value = "PLAN";
   currentPage.value = 0;
   memo.value = "";
+  initial.value = null;
 }
 
 /* */
@@ -113,9 +116,17 @@ function openFromSearch(b: AladinBook) {
     pages: (b as any).pages ?? (b as any).itemPage ?? undefined,
     isbn13Code: (b as any).isbn13Code,
   };
+
   status.value = "PLAN";
   currentPage.value = 0;
   memo.value = "";
+
+  initial.value = {
+    status: status.value,
+    currentPage: currentPage.value,
+    memo: memo.value
+  };
+
   ensureOpen();
 }
 
@@ -142,6 +153,12 @@ async function openFromShelf(entry: {
   currentPage.value = (fresh as any).currentPage ?? entry.currentPage ?? 0;
   memo.value = (fresh as any).memo ?? entry.memo ?? "";
 
+  initial.value = {
+    status: status.value,
+    currentPage: currentPage.value,
+    memo: memo.value ?? ""
+  };
+
   ensureOpen();
 }
 
@@ -160,16 +177,44 @@ function onConfirm() {
   let cp = Number.isFinite(currentPage.value) ? currentPage.value : 0;
   if (typeof total === "number") cp = Math.max(0, Math.min(cp, total));
 
+  const memoTrimmed = (memo.value ?? "").trim();
+  const init = initial.value; // ★
+  const initMemoTrimmed = (init?.memo ?? "").trim();
+
   if (mode.value === "add") {
-    emit("confirm-add", { book: book.value, status: status.value, currentPage: cp });
-  } else if (shelfBookId.value != null) {
-    emit("confirm-edit", {
-      shelfBookId: shelfBookId.value,
+    const payload: { book: BookLike; status: ReadingStatus; currentPage: number; memo?: string | null } = {
+      book: book.value,
       status: status.value,
+      currentPage: cp
+    };
+    if (memoTrimmed.length > 0) payload.memo = memoTrimmed;
+    emit("confirm-add", payload);
+  } else if (shelfBookId.value != null) {
+    const statusChanged = init ? status.value !== init.status : true;
+    const pageChanged   = init ? cp !== init.currentPage       : true;
+    const memoChanged   = init ? memoTrimmed !== initMemoTrimmed : (memoTrimmed.length > 0);
+
+    if (!statusChanged && !pageChanged && !memoChanged) {
+      close();
+      return;
+    }
+
+    const payload: ShelfUpdatePayload & { totalPages?: number } = {
+      shelfBookId: shelfBookId.value!,
+      
       currentPage: cp,
-      totalPages: total,
-      memo: memo.value || null,
-    });
+      readingStatus: status.value,
+      totalPages: total
+    };
+
+    if (memoChanged) {
+      payload.memoChanged = true;
+      payload.memo = memoTrimmed.length > 0 ? memoTrimmed : null; // null = 비우기
+    } else {
+      payload.memoChanged = false;
+    }
+
+    emit("confirm-edit", payload);
   }
   close();
 }

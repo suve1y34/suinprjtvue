@@ -53,6 +53,26 @@ export const useAuthStore = defineStore('auth', {
       return resp.user;
     },
 
+    async loginByToken(token: string) {
+      this.accessToken = token;
+
+      // 토큰을 스토리지에 먼저 저장
+      localStorage.setItem(LS_TOKEN, token);
+      sessionStorage.setItem(LS_TOKEN, token);
+
+      try {
+        const me = await api.users.getMe(); // /api/users/me
+        this.user = me;
+        const userStr = JSON.stringify(this.user);
+        localStorage.setItem(LS_USER, userStr);
+        sessionStorage.setItem(LS_USER, userStr);
+      } catch (e) {
+        console.error('SNS 로그인 후 사용자 정보 불러오기 실패', e);
+        this.logout();
+        throw e;
+      }
+    },
+
     async logout() {
       try { await api.auth.logout(); } catch { }
       // 상태/스토리지 정리
