@@ -1,4 +1,18 @@
-.auth-card{ max-width:360px; margin:80px auto; padding:var(--sp-24); border:1px solid var(--color-border); border-radius:var(--radius-lg); background:#fff; }
+.auth-card{
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+.auth-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  text-align: center;
+}
 .auth-form{
   margin-top: 50px;
   display:grid;
@@ -7,6 +21,58 @@
 .auth-form input{ border:1px solid #ddd; border-radius:var(--radius); padding:10px; }
 .auth-form button{ padding:10px 12px; border:1px solid var(--color-ink); background:var(--color-ink); color:#fff; border-radius:var(--radius); cursor:pointer; }
 .auth-form button:disabled{ opacity:.6; cursor:default; }
+.auth-form .form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.auth-form label {
+  font-size: 13px;
+  color: #374151;
+}
+.auth-form input {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+}
+.auth-form input:focus {
+  border-color: #6b7280;
+}
+
+.is-invalid {
+  border-color: #ef4444 !important;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #ef4444;
+}
+
+.success-text {
+  font-size: 12px;
+  color: #059669;
+}
+
+.row-inline {
+  align-items: center;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 10px;
+}
+
 .auth-error{ color: var(--color-danger); font-size:14px; }
 
 .keep-login{
@@ -14,7 +80,17 @@
   font-size:14px; color: var(--color-ink, #111);
 }
 
+.page-auth {
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+
 .info__grid{ display:grid; gap:10px; }
 .info__row{ display:grid; grid-template-columns: 100px 1fr; gap:8px; align-items:center; }
 .info__label{ font-size:12px; opacity:.7; }
 .info__value{ font-size:14px; }
+
+.mt-8 {
+  margin-top: 8px;
+}

@@ -63,9 +63,8 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { useShelvesStore } from "@/stores/shelves.store";
 import type { AladinBook } from "@/types/aladin";
+import type { BookLike, ReadingStatus } from "@/types/shelf";
 
-type ReadingStatus = "PLAN" | "READING" | "DONE";
-type BookLike = { title?: string; author?: string; pages?: number; isbn13Code?: string };
 
 const store = useShelvesStore();
 

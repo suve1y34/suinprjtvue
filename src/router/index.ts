@@ -5,12 +5,19 @@ import { useAuthStore } from '@/stores/auth.store';
 
 import LoginView from '@/views/LoginView.vue';
 import BookshelfView from '@/views/BookshelfView.vue';
+import AladinSearchView from '@/views/AladinSearchView.vue';
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'login',
     component: LoginView,
+    meta: { guestOnly: true },
+  },
+  {
+    path: '/signup',
+    name: 'signup',
+    component: () => import('@/views/SignupView.vue'),
     meta: { guestOnly: true },
   },
   {
@@ -42,7 +49,7 @@ router.beforeEach(async (to) => {
     return { name: 'login', query: { redirect: to.fullPath } };
   }
   if (to.meta.guestOnly && auth.isAuthenticated) {
-    return { name: 'bookshelf' };
+    return { name: 'books-list' };
   }
   return true;
 });

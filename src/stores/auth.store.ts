@@ -1,20 +1,10 @@
 import { defineStore } from 'pinia';
-import { authApi } from '@/api/auth.api';
-import { usersApi } from '@/api/users.api';
-import type { UserUpdatePayload } from "@/types/user";
+import { api } from '@/api';
+import type { User, UserUpdatePayload, LoginOptions } from "@/types/user";
 
 // 로컬 스토리지 키
 const LS_TOKEN = 'auth.accessToken';
 const LS_USER = 'auth.user';
-
-type User = {
-    userId: number;
-    userName: string;
-    email: string;
-    nickname?: string;
-} | null;
-
-type LoginOptions = { remember?: boolean };
 
 function parseJwtExp(token: string): number | null {
     try {
@@ -37,7 +27,7 @@ function getStore(remember?: boolean) {
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null as User,
+    user: null as User | null,
     accessToken: null as string | null,
   }),
   getters: {
@@ -45,7 +35,7 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async login(email: string, password: string, opts?: LoginOptions) {
-      const resp = await authApi.login({ email, password });
+      const resp = await api.auth.login({ email, password });
       this.accessToken = resp.accessToken;
       this.user = resp.user;
 
@@ -64,7 +54,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
-      try { await authApi.logout(); } catch { }
+      try { await api.auth.logout(); } catch { }
       // 상태/스토리지 정리
       this.user = null;
       this.accessToken = null;
@@ -97,7 +87,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async updateMe(payload: UserUpdatePayload) {
-      const updated = await usersApi.updateMe(payload);
+      const updated = await api.users.updateMe(payload);
       // 스토어 갱신
       this.user = this.user
         ? { ...this.user, userName: updated.userName, nickname: updated.nickname, email: updated.email }

@@ -16,9 +16,8 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import type { Book } from "@/types/book";
+import type { ReadingStatus } from "@/types/shelf";
 import { pagesToWidth } from "@/utils/thickness";
-
-type ReadingStatus = "PLAN" | "READING" | "DONE";
 
 const props = defineProps<{
   book: Book;

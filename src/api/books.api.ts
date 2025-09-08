@@ -1,18 +1,14 @@
 import { apiClient } from './http';
+import { EP } from "./endpoints";
 import type { Book } from '@/types/book';
-
-const endpoints = {
-  list: '/books/list',
-  detail: '/books/detail',
-};
 
 export const booksApi = {
   list(): Promise<Book[]> {
-    // 본문 없이 POST
-    return apiClient.post<Book[]>(endpoints.list);
+    // 책 목록 조회 (param body 없이 - 테스트용)
+    return apiClient.post<Book[]>(EP.books.list);
   },
   detail(bookId: number): Promise<Book> {
-    // 쿼리스트링으로 bookId 전달(POST 규칙 유지)
-    return apiClient.post<Book>(endpoints.detail, null, { bookId });
+    // 책 상세 조회 (bookId)
+    return apiClient.post<Book>(EP.books.detail, null, { bookId });
   },
 };

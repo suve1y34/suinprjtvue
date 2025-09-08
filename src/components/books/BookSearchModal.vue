@@ -43,22 +43,10 @@ import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { aladinApi } from "@/api/aladin.api";
 import { useShelvesStore } from "@/stores/shelves.store";
 import type { AladinBook } from "@/types/aladin";
+import type { AddPayload } from "@/types/shelf";
 
 import BookDetailModal from "./BookDetailModal.vue";
 import BookAddConfigModal from "./BookAddConfigModal.vue";
-
-type AddPayload = {
-  book: {
-    isbn13Code?: string;
-    title?: string;
-    author?: string;
-    pages?: number;
-    publisher?: string;
-    pubDate?: string;
-  };
-  status: "PLAN" | "READING" | "DONE";
-  currentPage: number;
-};
 
 const dlg = ref<HTMLDialogElement | null>(null);
 const q = ref("");

@@ -1,13 +1,10 @@
 import { apiClient } from "./http";
+import { EP } from "./endpoints";
 import type { User, UserUpdatePayload, UserServerResponse } from "@/types/user";
-
-const endpoints = {
-  myInfo: '/users/me',
-};
 
 export const usersApi = {
   async updateMe(payload: UserUpdatePayload): Promise<User> {
-    const r = await apiClient.put<UserServerResponse>(endpoints.myInfo, payload);
+    const r = await apiClient.put<UserServerResponse>(EP.users.myInfo, payload);
     return {
       userId: r.userId,
       userName: r.userName,
