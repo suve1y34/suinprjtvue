@@ -1,15 +1,13 @@
+/* --- 기존 Toast 스타일 그대로 유지 --- */
 .toast-host{
   position: fixed;
-  inset: 12px 12px auto auto; /* top-right */
+  inset: 12px 12px auto auto;
   z-index: 9999;
-  pointer-events: none; /* 기본 클릭 패스스루 (개별 토스트는 허용) */
+  pointer-events: none;
 }
-.toast-stack{
-  display: grid;
-  gap: 8px;
-}
+.toast-stack{ display: grid; gap: 8px; }
 .toast{
-  pointer-events: auto; /* 닫기 버튼 클릭 가능 */
+  pointer-events: auto;
   display: grid;
   grid-template-columns: 20px 1fr auto;
   align-items: center;
@@ -31,23 +29,24 @@
   font-size: 18px; line-height: 1; padding: 2px 4px; opacity: .6;
 }
 .toast__close:hover{ opacity: 1; }
+.toast--success{ border-color: #3fbf79; }
+.toast--error{   border-color: #e06666; }
+.toast--info{    border-color: #8aa3ff; }
+.toast-enter-from, .toast-leave-to{ opacity: 0; transform: translateY(-6px); }
+.toast-enter-active, .toast-leave-active{ transition: opacity .18s ease, transform .18s ease; }
 
-/* 타입별 색감 (다크/라이트 변수 기반) */
-.toast--success{
-  border-color: #3fbf79;
+/* --- 아이콘 버튼 --- */
+.icon-btn{
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-ink);
+  background: #fff;
+  color: var(--color-ink);
+  cursor: pointer;
 }
-.toast--error{
-  border-color: #e06666;
-}
-.toast--info{
-  border-color: #8aa3ff;
-}
-
-/* 트랜지션 */
-.toast-enter-from, .toast-leave-to{
-  opacity: 0;
-  transform: translateY(-6px);
-}
-.toast-enter-active, .toast-leave-active{
-  transition: opacity .18s ease, transform .18s ease;
-}
+.icon-btn:hover{ background: var(--color-surface); }
+.icon-btn:disabled{ opacity: .6; cursor: not-allowed; }
+.icon-btn svg{ width: 18px; height: 18px; display: block; }

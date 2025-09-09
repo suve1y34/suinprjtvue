@@ -13,9 +13,15 @@
 
       <div v-if="book">
         <div class="book-head">
-          <h3 class="book-title">{{ book.title }}</h3>
-          <div class="book-author" v-if="book.author">{{ book.author }}</div>
-          <div class="book-pages" v-if="pages">{{ pages }}p</div>
+          <div class="cover" v-if="coverUrl">
+            <img :src="coverUrl" :alt="book.title || 'cover'" @error="onImgError">
+          </div>
+          <div class="meta">
+            <h3 class="book-title">{{ book.title }}</h3>
+            <div class="book-author" v-if="book.author">{{ book.author }}</div>
+            <div class="book-pages" v-if="pages">{{ pages }}p</div>
+          </div>
+          
         </div>
 
         <div class="progress-box">
@@ -108,6 +114,16 @@ const percentText = computed<string>(() => {
 
 const initial = ref<{ status: ReadingStatus; currentPage: number; memo: string } | null>(null);
 
+// 커버 미리보기 URL
+const coverUrl = computed<string | undefined>(() => {
+  const b: any = book.value || {};
+  return b.coverImageUrl || b.coverLargeUrl || b.cover || b.coverSmallUrl || undefined;
+});
+
+function onImgError(e: Event) {
+  (e.target as HTMLImageElement).style.display = "none";
+}
+
 const emit = defineEmits<{
   (e: "confirm-add", payload: { book: BookLike; status: ReadingStatus; currentPage: number; memo?: string | null }): void;
   (e: "confirm-edit", payload: ShelfUpdatePayload & { totalPages?: number }): void;
@@ -142,6 +158,7 @@ function openFromSearch(b: AladinBook) {
     author: b.author,
     pages: (b as any).pages ?? (b as any).itemPage ?? undefined,
     isbn13Code: (b as any).isbn13Code,
+    ...(coverPick(b))
   };
 
   status.value = "PLAN";
@@ -155,6 +172,11 @@ function openFromSearch(b: AladinBook) {
   };
 
   ensureOpen();
+}
+
+function coverPick(b: any) {
+  const u = b.coverImageUrl || b.coverLargeUrl || b.cover || b.coverSmallUrl;
+  return u ? { coverImageUrl: u } : {};
 }
 
 async function openFromShelf(entry: {

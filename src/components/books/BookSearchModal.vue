@@ -48,6 +48,9 @@
 
       <div class="results-grid" v-if="list.length">
         <div class="result-item" v-for="b in list" :key="b.isbn13Code" @click="openDetail(b)">
+          <div class="thumb">
+            <img :src="coverOf(b)" :alt="b.title" loading="lazy" @error="onImgError" />
+          </div>
           <div class="result-meta">
             <div class="t">{{ b.title }}</div>
             <div class="s">
@@ -166,6 +169,14 @@ async function onSearch() {
   } finally {
     loading.value = false;
   }
+}
+
+// 커버 URL 우선순위
+function coverOf(b: any): string {
+  return b.coverImageUrl || b.coverLargeUrl || b.cover || b.coverSmallUrl || "";
+}
+function onImgError(e: Event) {
+  (e.target as HTMLImageElement).src = ""; // 실패 시 비움(브라우저 기본 깨진이미지 숨김을 기대)
 }
 
 async function onConfirmAdd({ book, status, currentPage }: AddPayload) {

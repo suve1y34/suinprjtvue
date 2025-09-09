@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { api } from '@/api';
-import type { ShelfBook, ShelfAddByIsbn13Payload, ShelfAddPayload, ShelfUpdatePayload } from "@/types/shelf";
+import type { ShelfBook, ShelfAddByIsbn13Payload, ShelfAddPayload, ShelfUpdatePayload, ShelfListOpts } from "@/types/shelf";
 import type { Book } from "@/types/book";
 
 function normalizeShelfItem(raw: any): ShelfBook {
@@ -53,11 +53,11 @@ export const useShelvesStore = defineStore("shelves", {
       }
     },
 
-    async fetchShelfItems() {
+    async fetchShelfItems(opts?: ShelfListOpts) {
       if (!this.bookshelfId) return;
       this.loading.items = true; this.error.items = null;
       try {
-        const raw = await api.shelves.listShelfBooks(this.bookshelfId);
+        const raw = await api.shelves.listShelfBooks(this.bookshelfId, opts);
         this.shelfItems = raw.map(normalizeShelfItem);
       } catch (e: any) {
         this.error.items = e?.message ?? "책 목록 로드 실패";

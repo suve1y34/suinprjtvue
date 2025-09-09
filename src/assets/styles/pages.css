@@ -7,7 +7,7 @@
 }
 .page__head{ display:flex; justify-content:space-between; align-items:center; }
 .page__controls{ display:flex; gap:var(--sp-12); align-items:center; }
-.page__toolbar{ display:flex; gap:var(--sp-8); align-items:center; margin-bottom:var(--sp-8); }
+.page__toolbar{ display:flex; gap:var(--sp-8); align-items:center; margin-bottom:var(--sp-8); justify-content: center; }
 /* 사이트 타이틀 크게 */
 .page-title--xl .brand { font-size: 34px; line-height: 1.1; }
 .state{ font-size:var(--fz-14); }

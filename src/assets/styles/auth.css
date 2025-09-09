@@ -80,10 +80,12 @@
   font-size:14px; color: var(--color-ink, #111);
 }
 
+/* 중앙정렬 래퍼 강화 */
 .page-auth {
   display: grid;
   place-items: center;
   padding: 32px 16px;
+  min-height: 100vh; /* 화면 중앙 정렬 고정 */
 }
 
 .info__grid{ display:grid; gap:10px; }
@@ -93,4 +95,27 @@
 
 .mt-8 {
   margin-top: 8px;
+}
+
+.btn-google{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius, 6px);
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-google:hover{
+  background: #f8f9fa;
+}
+.btn-google svg{
+  width: 18px;
+  height: 18px;
+  display: block;
 }

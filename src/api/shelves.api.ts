@@ -1,15 +1,19 @@
 import { apiClient  } from "./http";
 import { EP } from "./endpoints";
-import type { Bookshelf, ShelfBook, ShelfAddPayload, ShelfUpdatePayload } from "@/types/shelf";
+import type { Bookshelf, ShelfBook, ShelfAddPayload, ShelfUpdatePayload, ShelfListOpts  } from "@/types/shelf";
 
 
 export const shelvesApi = {
   me(userId: number): Promise<Bookshelf> {
     return apiClient.post(EP.shelves.myShelf, null, { userId })
   },
-  listShelfBooks(bookshelfId: number): Promise<ShelfBook[]> {
-    // book 조인 포함해 내려오는 것을 전제로 함
-    return apiClient.post<ShelfBook[]>(EP.shelves.list, null, { bookshelfId });
+  listShelfBooks(bookshelfId: number, opts?: ShelfListOpts): Promise<ShelfBook[]> {
+    const body: any = { bookshelfId };
+    if (opts?.status) body.status = opts.status;
+    if (typeof opts?.year === "number") body.year = opts.year;
+    if (typeof opts?.month === "number") body.month = opts.month;
+    
+    return apiClient.post<ShelfBook[]>(EP.shelves.list, body);
   },
   addBook(payload: ShelfAddPayload) {
     return apiClient.post(EP.shelves.add, payload);

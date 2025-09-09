@@ -54,4 +54,10 @@ export type ShelfUpdatePayload = {
   readingStatus: ReadingStatus;
   memo?: string | null;
   memoChanged?: boolean | null;
-}
+};
+
+export type ShelfListOpts = {
+  status?: ReadingStatus;
+  year?: number;
+  month?: number;
+};

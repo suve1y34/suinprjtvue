@@ -6,4 +6,5 @@ export interface Book {
   pages?: number;
   publisher?: string;
   pubDate?: string; // "YYYY-MM-DD"
+  coverImageUrl?: string;
 }

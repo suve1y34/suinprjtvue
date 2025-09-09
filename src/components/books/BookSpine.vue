@@ -6,7 +6,7 @@
     :title="titleAttr"
     @click="openEdit"
   >
-    <span class="badge" :class="`badge--${(readingStatus ?? 'PLAN')}`">
+    <span class="badge" :class="badgeClass">
       {{ statusLabel }}
     </span>
     <span class="spine__title">{{ book.title }}</span>
@@ -29,9 +29,7 @@ const props = defineProps<{
   disabled?: boolean;
 }>();
 
-const emit = defineEmits<{
-  (e: "open-edit"): void;
-}>();
+const emit = defineEmits<{ (e: "open-edit"): void }>();
 
 const widthPx = computed(() => `${pagesToWidth(props.book.pages)}px`);
 const variantClass = computed(() => {
@@ -56,6 +54,11 @@ const titleAttr = computed(() => {
   return `${props.book.title} — ${cp.value}${tp.value ? " / " + tp.value : ""}p · ${status}`;
 });
 
+const badgeClass = computed(() => {
+  const s = (props.readingStatus ?? 'PLAN').toLowerCase(); // plan|reading|done
+  return `badge--${s}`;
+});
+
 const statusLabel = computed(() => {
   switch (props.readingStatus) {
     case "READING": return "읽는중";
@@ -64,9 +67,7 @@ const statusLabel = computed(() => {
   }
 });
 
-function openEdit() {
-  emit("open-edit");
-}
+function openEdit() { emit("open-edit"); }
 </script>
 
 <style scoped>

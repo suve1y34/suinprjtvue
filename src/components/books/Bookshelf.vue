@@ -1,11 +1,12 @@
 <template>
-  <div class="shelf" role="list">
+  <div class="shelf shelf--tight shelf--wood" role="list">
     <!-- 로딩 시 스켈레톤 -->
     <template v-if="isLoading">
       <div class="shelf__cell" v-for="n in skeletonCount" :key="'sk-'+n" role="presentation">
         <BookSpineSkeleton />
       </div>
     </template>
+
     <BookSpine
       v-for="(entry, i) in entries"
       :key="entry.shelfBookId"
@@ -17,13 +18,12 @@
       :current-page="entry.currentPage"
       :total-pages="entry.book?.pages ?? undefined"
       :disabled="mutating"
-      
       @open-edit="onOpenEdit(entry)"
     />
   </div>
+
   <BookAddConfigModal ref="editRef" @confirm-edit="onConfirmEdit" />
 </template>
-
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useShelvesStore } from "@/stores/shelves.store";
