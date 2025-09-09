@@ -3,12 +3,16 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from '@/router';
 import { useAuthStore } from '@/stores/auth.store';
+import { useThemeStore } from '@/stores/theme.store';
 
 import "@/assets/styles/index.css";
 
 const app = createApp(App);
 app.use(createPinia());
 app.use(router);
+
+const theme = useThemeStore();
+theme.init();
 
 // 앱 부팅 시 저장소 → 스토어로 복원
 const auth = useAuthStore();

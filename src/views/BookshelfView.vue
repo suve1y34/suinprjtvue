@@ -8,6 +8,14 @@
         </span>
       </h1>
       <div class="page__controls">
+        <button
+          type="button"
+          class="btn btn--outline-black"
+          @click="toggleTheme"
+          :title="`테마: ${themeLabel}`"
+        >
+          {{ themeLabel }}
+        </button>
         <button type="button" class="btn btn--outline-black" @click="openSearch">책 추가</button>
         <button class="btn btn--outline-brand" @click="reload" :disabled="loadingShelf || loadingItems">새로고침</button>
         <button @click="onLogout" class="btn btn--outline-danger">로그아웃</button>
@@ -34,6 +42,7 @@ import BookSearchModal from "@/components/books/BookSearchModal.vue";
 import { useShelvesStore } from "@/stores/shelves.store";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
+import { useThemeStore } from "@/stores/theme.store";
 
 const store = useShelvesStore();
 const { bookshelfId } = storeToRefs(store);
@@ -49,7 +58,16 @@ const router = useRouter();
 
 const userId = computed(() => auth.user?.userId ?? null);
 
-// 타입 안전한 ref (둘 중 하나)
+// 테마 토글 관련
+const themeStore = useThemeStore();
+const themeLabel = computed(() => {
+  // 버튼 라벨: Light / Dark / System
+  return themeStore.mode === 'light' ? '라이트' : themeStore.mode === 'dark' ? '다크' : '시스템';
+});
+function toggleTheme() {
+  themeStore.toggleCycle();
+}
+
 const searchRef = ref<InstanceType<typeof BookSearchModal> | null>(null);
 
 function openSearch() {

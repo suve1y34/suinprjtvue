@@ -56,6 +56,11 @@ http.interceptors.response.use(
       '요청 중 오류가 발생했습니다.';
 
     const code = (body && typeof body === 'object' && 'code' in body) ? body.code : undefined;
+
+    try {
+      window.dispatchEvent(new CustomEvent('toast:error', { detail: { message } }));
+    } catch {}
+    
     return Promise.reject(new ApiError(message, { status, code, payload: body }));
   }
 );

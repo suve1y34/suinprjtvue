@@ -6,14 +6,43 @@
         <button @click="close" type="button" class="btn btn--outline-black" aria-label="close">✕</button>
       </header>
 
-      <div class="form-row">
-        <input
-          v-model.trim="q"
-          type="text"
-          class="search-input"
-          placeholder="검색 키워드 입력(제목/저자)"
-          @keyup.enter="onSearch"
-        />
+      <div class="form-row searchbar">
+        <div class="searchbar__box">
+          <input
+            v-model.trim="q"
+            type="text"
+            class="search-input"
+            placeholder="검색 키워드 입력(제목/저자)"
+            @keyup.enter="onSearch"
+            @focus="onFocus"
+            @input="onInput"
+            @blur="onBlur"
+            ref="inputEl"
+          />
+          <ul
+            v-if="showDropdown"
+            class="searchbar__dropdown"
+          >
+            <li v-if="!histories.length" class="searchbar__empty">최근 검색어가 없습니다</li>
+
+            <li
+              v-for="(h, i) in histories"
+              :key="i"
+              class="searchbar__item"
+              @mousedown.prevent="onPickHistory(h)"
+              title="클릭하여 검색"
+            >
+              {{ h }}
+            </li>
+
+            <li v-if="histories.length" class="searchbar__footer">
+              <button type="button" class="link-clear" @mousedown.prevent="onClearHistory">
+                기록 모두 지우기
+              </button>
+            </li>
+          </ul>
+        </div>
+        
         <button type="button" @click="onSearch" :disabled="loading" class="btn btn--outline-black">검색</button>
       </div>
 
@@ -39,11 +68,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { aladinApi } from "@/api/aladin.api";
 import { useShelvesStore } from "@/stores/shelves.store";
 import type { AladinBook } from "@/types/aladin";
 import type { AddPayload } from "@/types/shelf";
+
+import searchHistory from "@/utils/searchHistory";
 
 import BookDetailModal from "./BookDetailModal.vue";
 import BookAddConfigModal from "./BookAddConfigModal.vue";
@@ -74,11 +105,62 @@ function openConfig(b: AladinBook) {
   configRef.value?.openFromSearch(b);
 }
 
+const inputEl = ref<HTMLInputElement | null>(null);
+const showDropdown = ref(false);
+const histories = ref<string[]>([]);
+let hideTimer: number | undefined;
+
+function refreshHistory() {
+  histories.value = searchHistory.list();
+}
+
+function onFocus() {
+  refreshHistory();
+  showDropdown.value = true;
+}
+
+function onInput() {
+  refreshHistory();
+  showDropdown.value = true;
+}
+
+function onBlur() {
+  // 드롭다운 항목 클릭(mousedown)과 충돌 방지 위해 약간 지연 후 닫기
+  hideDropdownSoon();
+}
+
+function hideDropdownSoon(force = false) {
+  if (hideTimer) window.clearTimeout(hideTimer);
+  hideTimer = window.setTimeout(() => {
+    showDropdown.value = !force && document.activeElement === inputEl.value;
+    if (force) showDropdown.value = false;
+  }, 100);
+}
+
+function onPickHistory(h: string) {
+  q.value = h;
+  nextTick(() => onSearch());
+}
+
+function onClearHistory() {
+  searchHistory.clear();
+  refreshHistory();
+  showDropdown.value = true; // 남겨서 "없음" 메시지 보이게
+}
+// ▲▲▲ 검색어 히스토리 드롭다운 상태/로직 ▲▲▲
+
 async function onSearch() {
-  if (!q.value) return;
+  const keyword = q.value.trim();
+  if (!keyword) return;
+
   loading.value = true;
   try {
-    list.value = await aladinApi.search(q.value, 1, 20);
+    list.value = await aladinApi.search(keyword, 1, 20);
+
+    // ★ DoD: "검색 시 push" — 확정 검색 시 기록 저장
+    searchHistory.push(keyword);
+    refreshHistory();
+    hideDropdownSoon(true); // 검색 후 드롭다운 닫기
   } catch (e: any) {
     alert(e?.message ?? "검색 실패");
   } finally {
@@ -109,7 +191,7 @@ async function onConfirmAdd({ book, status, currentPage }: AddPayload) {
         e.book?.isbn13Code === (book as any).isbn13Code
       );
       if (added) {
-        await store.updateProgress(added.shelfBookId, currentPage, pages);
+        // await store.updateProgress(added.shelfBookId, currentPage, pages);
       }
     }
 

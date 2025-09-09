@@ -87,14 +87,27 @@ export const useShelvesStore = defineStore("shelves", {
     },
 
     async updateShelfItem(payload: ShelfUpdatePayload) {
-      this.mutating = true;
+      const idx = this.shelfItems.findIndex(i => i.shelfBookId === payload.shelfBookId);
+      if (idx < 0) throw new Error("대상 항목을 찾을 수 없습니다.");
+
+      const snapshot: ShelfBook = JSON.parse(JSON.stringify(this.shelfItems[idx]));
+      const next: ShelfBook = { ...this.shelfItems[idx] };
+
+      if (typeof payload.currentPage === "number") next.currentPage = payload.currentPage;
+      if (payload.readingStatus) next.readingStatus = payload.readingStatus as any;
+
+      // UI 선반영
+      this.shelfItems.splice(idx, 1, next);
+
       try {
         await api.shelves.updateShelfItem(payload);
-        await this.fetchShelfItems(); // 최신값 반영
-      } catch (e) {
+        // 성공 시 서버 시간이 반영되어 있을 수 있으므로 최신화는 선택:
+        // await this.fetchShelfItems();
+      } catch (e: any) {
+        // 롤백
+        this.shelfItems.splice(idx, 1, snapshot);
+        try { window.dispatchEvent(new CustomEvent('toast:error', { detail: { message: e?.message || '업데이트 실패' } })); } catch {}
         throw e;
-      } finally {
-        this.mutating = false;
       }
     },
 

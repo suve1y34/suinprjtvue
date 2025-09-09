@@ -27,3 +27,20 @@
   --sp-12:12px;
   --sp-24:24px;
 }
+
+.theme-dark{
+  /* 다크 배경/텍스트 */
+  --color-surface: #151518;   /* 페이지/카드 배경 */
+  --color-text:    #e7e7ea;   /* 기본 텍스트 */
+  --color-border:  #2a2a2f;   /* 경계선 */
+
+  /* 잉크/포그라운드 계열(버튼/헤더) */
+  --color-ink:   #eee6e3;
+  --color-ink-2: #cbbdb6;
+
+  /* 강조/브랜드는 유지하되 대비 확보 */
+  --color-accent:#ad6a49;
+  --color-gray-600:#9aa0a6;
+
+  /* 공용 화이트는 실제 텍스트/배경에 직접 쓰지 않도록 유지 */
+}

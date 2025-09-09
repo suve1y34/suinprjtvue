@@ -1,9 +1,30 @@
 /* Bookshelf container */
-.shelf{ display:flex; flex-wrap:wrap; align-items:flex-end; align-content:flex-start; gap:0; line-height:0; }
-.shelf__cell{ display:flex; flex-direction:column; align-items:center; padding:0 2px; }
+.shelf{
+  --shelf-gap-x: 4px;         /* 좌우 여백(셀 padding 2px × 2) */
+  --shelf-gap-y: 10px;        /* 세로 간격 */
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr)); /* 기본: 6열 */
+  column-gap: var(--shelf-gap-x);
+  row-gap: var(--shelf-gap-y);
+  align-items: end;            /* 책등 하단 맞춤 */
+  align-content: start;
+  line-height: 0;              /* 기존 유지 */
+}
+.shelf__cell{
+  display: flex;
+  flex-direction: column;      /* 기존 유지 */
+  align-items: center;         /* 수평 중앙 */
+  justify-content: flex-end;   /* 수직 하단 정렬 */
+  padding: 0 2px;              /* 기존 유지(시각 간격은 grid gap로 관리) */
+}
 .shelf__progress{ font-size:11px; line-height:1; margin-top:4px; opacity:.8; }
 /* 책장 중앙 정렬 옵션 */
-.shelf--center{ justify-content: center; }
+.shelf--center{
+  margin-left: auto;
+  margin-right: auto;
+  /* 필요 시 최대 폭 제한 */
+  /* max-width: 1440px; */
+}
 
 .shelf-wrap {
   display: flex;
@@ -129,3 +150,121 @@
 
 /* 폼 행과의 간격 유지 */
 .form-col .textarea{ margin: 0; }
+
+.spine--skeleton{
+  position: relative;
+  height: 180px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: linear-gradient(90deg, #f2f2f2 25%, #f7f7f7 37%, #f2f2f2 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.badge--skeleton{
+  position: absolute; top: 4px; right: 4px;
+  width: 28px; height: 12px; border-radius: 3px;
+  background: rgba(255,255,255,.4);
+}
+
+.spine__title{
+  width: 70%;
+  height: 60%;
+  opacity: .4;
+}
+
+.spine__progress{
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  line-height: 1;
+  opacity: .85;
+  pointer-events: none;
+}
+
+.progress-box{
+  display: grid;
+  gap: 6px;
+  margin: 6px 0 10px;
+}
+.progress-label{
+  font-size: 13px;
+  opacity: .9;
+}
+.progress-bar{
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+.progress-fill{
+  height: 100%;
+  width: 0%;
+  background: var(--color-accent);
+  transition: width .25s ease;
+}
+
+.shimmer-line{
+  background: rgba(255,255,255,.35);
+  border-radius: 2px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.detail-skeleton{
+  display: grid;
+  gap: 10px;
+  padding: 6px 0 4px;
+}
+.sk-line{
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f2f2f2 25%, #f7f7f7 37%, #f2f2f2 63%);
+  background-size: 400% 100%;
+  animation: sk 1.2s ease-in-out infinite;
+}
+.sk-title{ height: 22px; }
+.sk-sub{ height: 14px; }
+.sk-sub.short{ width: 40%; }
+.sk-btn{
+  width: 120px; height: 34px; border-radius: 6px;
+  background: linear-gradient(90deg, #f2f2f2 25%, #f7f7f7 37%, #f2f2f2 63%);
+  background-size: 400% 100%;
+  animation: sk 1.2s ease-in-out infinite;
+}
+
+@keyframes sk {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (min-width: 768px) {
+  .shelf{
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+/* ≥1024px: 10열 */
+@media (min-width: 1024px) {
+  .shelf{
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+  }
+}
+
+/* ≥1280px: 12열 */
+@media (min-width: 1280px) {
+  .shelf{
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+}

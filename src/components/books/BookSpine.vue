@@ -10,11 +10,12 @@
       {{ statusLabel }}
     </span>
     <span class="spine__title">{{ book.title }}</span>
+    <span class="spine__progress">{{ percentText }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import type { Book } from "@/types/book";
 import type { ReadingStatus } from "@/types/shelf";
 import { pagesToWidth } from "@/utils/thickness";
@@ -39,11 +40,20 @@ const variantClass = computed(() => {
   return order[i];
 });
 
+const tp = computed(() => (typeof props.totalPages === 'number' ? props.totalPages : props.book.pages) || 0);
+const cp = computed(() => (typeof props.currentPage === 'number' ? props.currentPage : 0));
+
+const percentValue = computed(() => {
+  const total = Math.max(0, tp.value | 0);
+  if (!total) return 0;
+  const cur = Math.max(0, Math.min(cp.value | 0, total));
+  return Math.floor((cur / total) * 100);
+});
+const percentText = computed(() => (tp.value ? `${percentValue.value}%` : '—%'));
+
 const titleAttr = computed(() => {
-  const tp = props.totalPages ?? props.book.pages;
-  const cp = props.currentPage ?? 0;
   const status = props.readingStatus ?? "PLAN";
-  return `${props.book.title} — ${cp}${tp ? " / " + tp : ""}p · ${status}`;
+  return `${props.book.title} — ${cp.value}${tp.value ? " / " + tp.value : ""}p · ${status}`;
 });
 
 const statusLabel = computed(() => {
@@ -54,7 +64,7 @@ const statusLabel = computed(() => {
   }
 });
 
-function openEdit(e: Event){
+function openEdit() {
   emit("open-edit");
 }
 </script>

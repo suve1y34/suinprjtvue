@@ -18,6 +18,19 @@
           <div class="book-pages" v-if="pages">{{ pages }}p</div>
         </div>
 
+        <div class="progress-box">
+          <div class="progress-label">{{ percentText }}</div>
+          <div
+            class="progress-bar"
+            role="progressbar"
+            :aria-valuenow="percentValue"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            <div class="progress-fill" :style="{ width: percentValue + '%' }"></div>
+          </div>
+        </div>
+
         <div class="form-col">
           <label class="form-label">독서 상태</label>
           <select v-model="status" class="select">
@@ -78,6 +91,20 @@ const currentPage = ref<number>(0);
 const memo = ref<string>("");
 
 const pages = computed<number | undefined>(() => book.value?.pages ?? undefined);
+
+const percentValue = computed<number>(() => {
+  const tp = typeof pages.value === 'number' ? pages.value : 0;
+  if (!tp || tp <= 0) return 0;
+  if (status.value === 'DONE') return 100;
+  const cp0 = Number.isFinite(currentPage.value) ? currentPage.value : 0;
+  const cp = Math.max(0, Math.min(cp0, tp));
+  return Math.floor((cp / tp) * 100);
+});
+const percentText = computed<string>(() => {
+  const tp = typeof pages.value === 'number' ? pages.value : 0;
+  if (!tp || tp <= 0) return '—%';
+  return `${percentValue.value}%`;
+});
 
 const initial = ref<{ status: ReadingStatus; currentPage: number; memo: string } | null>(null);
 
