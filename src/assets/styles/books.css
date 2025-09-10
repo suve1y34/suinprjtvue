@@ -1,72 +1,76 @@
-/* Bookshelf container */
-.shelf{
-  --shelf-row-height: 180px;   /* 책등 높이 */
-  --shelf-gap-x: 4px;          /* 기본 좌우 간격 */
-  --shelf-gap-y: 10px;         /* 선반 간 세로 간격 */
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr)); /* 기본: 6열 */
-  column-gap: 0px !important;
-  row-gap: var(--shelf-gap-y);
-  align-items: end;
-  align-content: start;
-  line-height: 0;
-  position: relative;
+/* 래퍼(페이지 가운데 배치용) */
+.shelf-wrap{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height: calc(100vh - 140px);
+  padding: 12px 0;
 }
-.shelf::before{
+
+/* -----------------------------------------------------
+   Bookshelf Container
+   ----------------------------------------------------- */
+.shelf{
+  /* 행/간격 변수: 필요 시 여기서 높이/간격만 바꾸면 됨 */
+  --shelf-row-height: 180px;   /* 책등 높이 */
+  --shelf-gap-y: 12px;         /* 행과 행 사이 간격 */
+
+  position: relative;          /* 선반 배경 ::before/::after 기준 */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;       /* 각 행 하단 정렬 */
+  align-content: flex-start;
+  gap: 0;                      /* 완전 밀착 */
+}
+
+.shelf--center{
+  margin-left:auto;
+  margin-right:auto;
+}
+
+/* 밀착 보장(혹시 상위에서 덮을 때 대비) */
+.shelf--tight{
+  gap: 0 !important;
+}
+
+.shelf__cell{
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* -----------------------------------------------------
+   Wooden Shelf (선반 배경/립)
+   ----------------------------------------------------- */
+.shelf--wood{ position: relative; }
+.shelf--wood{
+  --wood:        #d8c3a8;                 /* 선반 면 색 */
+  --lip-shadow:  rgba(0,0,0,.14);         /* 립(그림자) */
+}
+
+/* 선반 판넬 */
+.shelf--wood::before,
+.shelf--wood::after{
   content:"";
-  position:absolute; inset:0;
+  position:absolute;
+  inset:0;
   pointer-events:none;
+}
+.shelf--wood::before{
+  z-index: 0;
   background:
     repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 178px,          /* 책등 높이 근처(시각 맞춤) */
-      rgba(0,0,0,.06) 178px,
-      rgba(0,0,0,.06) 180px,      /* 얇은 선 */
-      transparent 180px,
-      transparent 190px           /* 선반 간격(행 간 간격 포함) */
-    );
-  z-index: 0;
-}
-.shelf--tight{
-  column-gap: 0;               /* 책 간격 거의 0 */
-}
-.shelf__cell{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 !important;
-}
-.shelf--tight .shelf__cell{
-  padding: 0;                  /* 진짜 '붙어있는' 느낌 */
-}
-
-/* 목재 선반 효과 */
-.shelf--wood{
-  /* 선반 색상 */
-  --wood:      #d8c3a8;
-  --wood-dark: #c7ab8a;
-  --lip-shadow: rgba(0,0,0,.14);
-
-  background:
-    /* 선반 판넬 */
-    linear-gradient(
       to bottom,
       var(--wood) 0,
       var(--wood) var(--shelf-row-height),
       transparent var(--shelf-row-height),
       transparent calc(var(--shelf-row-height) + var(--shelf-gap-y))
     );
-  background-size: 100% calc(var(--shelf-row-height) + var(--shelf-gap-y));
-  background-repeat: repeat-y;
-  position: relative;
 }
-
-/* 선반 하단 그림자(립) */
-.shelf--wood::before{
-  content:"";
-  position:absolute; inset:0;
+/* 선반 하단 립 */
+.shelf--wood::after{
+  z-index: 0;
   background:
     repeating-linear-gradient(
       to bottom,
@@ -77,80 +81,81 @@
       transparent var(--shelf-row-height),
       transparent calc(var(--shelf-row-height) + var(--shelf-gap-y))
     );
-  pointer-events:none;
 }
 
-/* 중앙 정렬 옵션 */
-.shelf--center{ margin-left:auto; margin-right:auto; }
-
-/* 래퍼 */
-.shelf-wrap{
-  display:flex; justify-content:center; align-items:center;
-  min-height: calc(100vh - 140px);
-  padding: 12px 0;
-}
-
-/* Book spine */
+/* -----------------------------------------------------
+   Book Spine (책등)
+   ----------------------------------------------------- */
 .spine{
-  position:relative;
-  z-index: 1;
-  height: var(--shelf-row-height);
-  display:inline-flex;
-  vertical-align:bottom;
-  align-items:center;
-  justify-content:center;
-  writing-mode:vertical-rl;
-  text-orientation:mixed;
-  border-radius:2px;
-  overflow:hidden;
-  cursor:pointer;
-  user-select:none;
-  border: 0 !important;
-  box-shadow: none !important;
-  margin: 0 !important;
+  position: relative;                 /* 배지/진행률 기준 */
+  z-index: 1;                         /* 선반 배경 위로 */
+  height: var(--shelf-row-height);    /* 책 높이 고정 */
+  display: inline-flex;
+  vertical-align: bottom;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  margin: 0;                          /* 완전 밀착 */
+  border: 0;
+  box-shadow: none;
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
 }
 
-/* 테마별 변형 */
+/* 색상 테마(디자인 토큰 기준) */
 .spine--dark{    background: var(--color-ink);   color:#f0f0f0; }
 .spine--dark-2{  background: var(--color-ink-2); color:#f0f0f0; }
 .spine--accent{  background: var(--color-accent); color:#fff; }
 .spine--light{   background: var(--color-surface); color: var(--color-ink); }
 
+/* 제목 — BookSpine.vue에서 내려주는 CSS 변수 소비
+   (--spine-fz, --spine-ls, --spine-pad) */
 .spine__title{
-  font-size:12px;
-  line-height:1.1;
-  max-height:92%;
-  display:-webkit-box;
-  -webkit-line-clamp:12;
-  -webkit-box-orient:vertical;
-  white-space:normal;
-  overflow:hidden;
+  font-size: var(--spine-fz, 12px);
+  letter-spacing: var(--spine-ls, 0);
+  padding-inline: var(--spine-pad, 4px);
+  line-height: 1.05;
+  max-height: 92%;
+  display: -webkit-box;
+  -webkit-line-clamp: 12;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  overflow: hidden;
 }
 
-/* 진행도 퍼센트 */
+/* 진행도(%) 하단 중앙 고정 */
 .spine__progress{
   position: absolute;
   bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 11px;
+  font-size: var(--spine-progress-fz, 11px);
   line-height: 1;
-  opacity: .85;
   pointer-events: none;
 }
 
-/* 상태 배지 */
+/* 상태 배지(우상단) */
 .badge{
-  position:absolute; top:4px; right:4px;
-  font-size:10px; padding:2px 4px; border-radius:3px;
-  background:#eee; color:#222; line-height:1;
+  position:absolute;
+  top:4px; right:4px;
+  font-size: var(--spine-badge-fz, 10px);
+  padding:2px 4px;
+  border-radius:3px;
+  background:#eee;
+  color:#222;
+  line-height:1;
   pointer-events:none;
 }
 .badge--plan{    background:#fff; border:1px solid var(--color-brand); color:var(--color-ink); }
-.badge--reading{ background: var(--color-accent); color:#fff; }
-.badge--done{    background: var(--color-ink); color:#fff; }
+.badge--reading{ background: var(--color-accent); color:#fff; border:0; }
+.badge--done{    background: var(--color-ink); color:#fff; border:0; }
 
-/* 스켈레톤 */
+/* -----------------------------------------------------
+   Skeletons (로딩 상태)
+   ----------------------------------------------------- */
 .spine--skeleton{
   position: relative;
   height: var(--shelf-row-height);
@@ -175,7 +180,41 @@
   100% { background-position: -200% 0; }
 }
 
-/* 반응형 열 수 */
-@media (min-width: 768px)  { .shelf{ grid-template-columns: repeat(8,  minmax(0, 1fr)); } }
-@media (min-width: 1024px) { .shelf{ grid-template-columns: repeat(10, minmax(0, 1fr)); } }
-@media (min-width: 1280px) { .shelf{ grid-template-columns: repeat(12, minmax(0, 1fr)); } }
+
+.book-head {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.cover { width: 84px; height: 126px; border-radius: 8px; overflow: hidden; background: #f6f6f6; }
+.cover img { width: 100%; height: 100%; object-fit: cover; }
+.meta .book-title { font-weight: 700; line-height: 1.25; }
+.meta .book-author, .meta .book-pages { font-size: 12px; color: #666; }
+
+.progress-box { margin: 12px 0; }
+.progress-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+.progress-bar { height: 8px; background: #eee; border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--color-brand, #555); }
+
+.memo-section{ display:grid; gap:12px; }
+.memo-head{ display:flex; align-items:center; gap:6px; }
+.memo-count{ opacity:.7; font-size:12px; }
+.memo-list{ display:grid; gap:12px; list-style:none; padding:0; margin:0; }
+.memo-item{
+  border:1px solid var(--color-border,#eee);
+  border-radius:8px;
+  padding:10px 12px;
+  background: var(--color-white,#fff);
+}
+.memo-meta{ font-size:12px; color:#666; display:flex; align-items:center; gap:6px; }
+.memo-nick{ font-weight:600; }
+.memo-dot{ opacity:.6; }
+.memo-body{
+  margin-top:6px; line-height:1.5;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
+  overflow:hidden; white-space:normal;
+}
+.memo-empty{ font-size:14px; opacity:.8; }
+.memo-more{ display:flex; justify-content:center; }

@@ -2,7 +2,7 @@
   <div
     class="spine"
     :class="variantClass"
-    :style="{ width: widthPx }"
+    :style="spineStyle"
     :title="titleAttr"
     @click="openEdit"
   >
@@ -10,7 +10,7 @@
       {{ statusLabel }}
     </span>
     <span class="spine__title">{{ book.title }}</span>
-    <span class="spine__progress">{{ percentText }}</span>
+    <span v-show="showProgress" class="spine__progress">{{ percentText }}</span>
   </div>
 </template>
 
@@ -31,7 +31,34 @@ const props = defineProps<{
 
 const emit = defineEmits<{ (e: "open-edit"): void }>();
 
-const widthPx = computed(() => `${pagesToWidth(props.book.pages)}px`);
+const spineWidth = computed(() => pagesToWidth(props.book.pages));
+
+function calcFz(w: number) {
+  // 폭이 얇을수록 글자 크기 축소
+  if (w >= 28) return 12;
+  if (w >= 24) return 11.5;
+  if (w >= 20) return 10.5;
+  if (w >= 16) return 9.5;
+  if (w >= 13) return 9;
+  return 8; // 초슬림
+}
+
+const fz = computed(() => calcFz(spineWidth.value));
+const progressFz = computed(() => Math.max(8, fz.value - 2));
+const badgeFz = computed(() => Math.max(8, fz.value - 2));
+const padInline = computed(() => (spineWidth.value < 14 ? 2 : spineWidth.value < 18 ? 3 : 4) + "px");
+const letterSpace = computed(() => (spineWidth.value < 16 ? "-0.2px" : "0"));
+const showProgress = computed(() => spineWidth.value >= 14);
+
+const spineStyle = computed(() => ({
+  width: spineWidth.value + "px",
+  "--spine-fz": fz.value + "px",
+  "--spine-pad": padInline.value,
+  "--spine-ls": letterSpace.value,
+  "--spine-progress-fz": progressFz.value + "px",
+  "--spine-badge-fz": badgeFz.value + "px",
+}));
+
 const variantClass = computed(() => {
   const order = ["spine--dark", "spine--dark-2", "spine--accent", "spine--light"];
   const i = Math.abs(props.index ?? 0) % order.length;

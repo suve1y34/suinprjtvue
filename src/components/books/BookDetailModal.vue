@@ -20,6 +20,11 @@
         <div class="modal__actions">
           <button class="btn btn--outline-dark" type="button" @click="onConfig">책 추가</button>
         </div>
+
+        <PublicMemoList
+          class="mt-8"
+          :isbn13-code="(book as any).isbn13Code"
+        />
       </div>
     </form>
   </dialog>
@@ -28,6 +33,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import type { AladinBook } from '@/types/aladin';
+import PublicMemoList from './PublicMemoList.vue';
 
 const dlg = ref<HTMLDialogElement | null>(null);
 const book = ref<AladinBook | null>(null);

@@ -12,9 +12,9 @@
       </header>
 
       <div v-if="book">
-        <div class="book-head">
-          <div class="cover" v-if="coverUrl">
-            <img :src="coverUrl" :alt="book.title || 'cover'" @error="onImgError">
+        <div class="book-head" v-if="book">
+          <div class="cover">
+            <img v-if="coverUrl" :src="coverUrl" :alt="book.title || 'cover'" @error="onImgError">
           </div>
           <div class="meta">
             <h3 class="book-title">{{ book.title }}</h3>
@@ -69,6 +69,15 @@
           ></textarea>
         </div>
 
+        <div class="form-col">
+          <label class="form-label">메모 공개</label>
+          <label class="switch">
+            <input type="checkbox" v-model="memoPublic" />
+            <span class="slider"></span>
+            <span class="switch__label">{{ memoPublic ? '공개' : '비공개' }}</span>
+          </label>
+        </div>
+
         <div class="modal__actions">
           <button type="button" class="btn btn--outline-black" @click="onClickClose">취소</button>
           <button type="submit" class="btn btn--solid-gray">저장</button>
@@ -82,7 +91,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { useShelvesStore } from "@/stores/shelves.store";
 import type { AladinBook } from "@/types/aladin";
-import type { BookLike, ReadingStatus, ShelfUpdatePayload } from "@/types/shelf";
+import type { BookLike, ReadingStatus, ShelfUpdatePayload, MemoVisibility, AddPayload } from "@/types/shelf";
 
 
 const store = useShelvesStore();
@@ -94,7 +103,9 @@ const shelfBookId = ref<number | null>(null);
 const book = ref<BookLike | null>(null);
 const status = ref<ReadingStatus>("PLAN");
 const currentPage = ref<number>(0);
+
 const memo = ref<string>("");
+const memoPublic = ref<boolean>(false);
 
 const pages = computed<number | undefined>(() => book.value?.pages ?? undefined);
 
@@ -121,7 +132,8 @@ const coverUrl = computed<string | undefined>(() => {
 });
 
 function onImgError(e: Event) {
-  (e.target as HTMLImageElement).style.display = "none";
+  const img = e.target as HTMLImageElement;
+  if (img) img.style.display = "none";
 }
 
 const emit = defineEmits<{
@@ -164,6 +176,7 @@ function openFromSearch(b: AladinBook) {
   status.value = "PLAN";
   currentPage.value = 0;
   memo.value = "";
+  memoPublic.value = false;
 
   initial.value = {
     status: status.value,
@@ -184,6 +197,7 @@ async function openFromShelf(entry: {
   readingStatus?: ReadingStatus;
   currentPage?: number;
   memo?: string | null;
+  memoVisibility?: MemoVisibility;
   book?: { title?: string; author?: string; pages?: number; isbn13Code?: string };
 }) {
   mode.value = "edit";
@@ -201,6 +215,7 @@ async function openFromShelf(entry: {
   status.value = (fresh as any).readingStatus ?? entry.readingStatus ?? "PLAN";
   currentPage.value = (fresh as any).currentPage ?? entry.currentPage ?? 0;
   memo.value = (fresh as any).memo ?? entry.memo ?? "";
+  memoPublic.value = ((fresh as any).memoVisibility ?? entry.memoVisibility) === "PUBLIC";
 
   initial.value = {
     status: status.value,
@@ -227,38 +242,38 @@ function onConfirm() {
   if (typeof total === "number") cp = Math.max(0, Math.min(cp, total));
 
   const memoTrimmed = (memo.value ?? "").trim();
+  const visibility: MemoVisibility = memoPublic.value ? "PUBLIC" : "PRIVATE"; // ★
+
   const init = initial.value; // ★
   const initMemoTrimmed = (init?.memo ?? "").trim();
 
   if (mode.value === "add") {
-    const payload: { book: BookLike; status: ReadingStatus; currentPage: number; memo?: string | null } = {
-      book: book.value,
+    const payload: AddPayload = {
+      book: book.value as BookLike,
       status: status.value,
-      currentPage: cp
+      currentPage: cp,
+      memo: memoTrimmed || undefined,
+      memoVisibility: visibility,
     };
     if (memoTrimmed.length > 0) payload.memo = memoTrimmed;
     emit("confirm-add", payload);
   } else if (shelfBookId.value != null) {
+    const init = initial.value;
     const statusChanged = init ? status.value !== init.status : true;
-    const pageChanged   = init ? cp !== init.currentPage       : true;
-    const memoChanged   = init ? memoTrimmed !== initMemoTrimmed : (memoTrimmed.length > 0);
-
-    if (!statusChanged && !pageChanged && !memoChanged) {
-      close();
-      return;
-    }
+    const pageChanged   = init ? cp !== init.currentPage : true;
+    const memoChanged   = init ? memoTrimmed !== (init.memo ?? "").trim() : (memoTrimmed.length > 0);
 
     const payload: ShelfUpdatePayload & { totalPages?: number } = {
       shelfBookId: shelfBookId.value!,
-      
       currentPage: cp,
       readingStatus: status.value,
-      totalPages: total
+      totalPages: total,
+      memoVisibility: visibility,
     };
 
     if (memoChanged) {
       payload.memoChanged = true;
-      payload.memo = memoTrimmed.length > 0 ? memoTrimmed : null; // null = 비우기
+      payload.memo = memoTrimmed.length ? memoTrimmed : null;
     } else {
       payload.memoChanged = false;
     }

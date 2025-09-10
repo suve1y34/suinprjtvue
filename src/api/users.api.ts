@@ -4,7 +4,7 @@ import type { User, UserUpdatePayload, UserServerResponse } from "@/types/user";
 
 export const usersApi = {
   getMe(): Promise<User> {
-    return apiClient.get<User>(EP.users.myInfo);
+    return apiClient.post<User>(EP.users.myInfo);
   },
 
   async updateMe(payload: UserUpdatePayload): Promise<User> {

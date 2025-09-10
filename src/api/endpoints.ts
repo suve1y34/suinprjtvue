@@ -3,14 +3,12 @@ export const EP = {
     search: '/search/aladin',
   },
   auth: {
-    login: '/auth/login',
     logout: '/auth/logout',
-    resetPassword: "/auth/resetPw",
-    register: "/auth/register",
   },
   books: {
     list: '/books/list',
     detail: '/books/detail',
+    publicMemos: '/books/memos/public/list',
   },
   shelves: {
     myShelf: "/shelves/books/me",

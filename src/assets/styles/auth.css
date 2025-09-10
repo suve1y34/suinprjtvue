@@ -4,80 +4,19 @@
   background: var(--color-surface, #fff);
   border: 1px solid var(--color-border, #e5e7eb);
   border-radius: 12px;
-  padding: 24px;
+  padding: 32px; /* 살짝 키워서 여백감 */
   box-shadow: 0 6px 20px rgba(0,0,0,0.05);
-}
-.auth-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 18px;
-  text-align: center;
-}
-.auth-form{
-  margin-top: 50px;
-  display:grid;
-  gap:10px;
-}
-.auth-form input{ border:1px solid #ddd; border-radius:var(--radius); padding:10px; }
-.auth-form button{ padding:10px 12px; border:1px solid var(--color-ink); background:var(--color-ink); color:#fff; border-radius:var(--radius); cursor:pointer; }
-.auth-form button:disabled{ opacity:.6; cursor:default; }
-.auth-form .form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-.auth-form label {
-  font-size: 13px;
-  color: #374151;
-}
-.auth-form input {
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  outline: none;
-}
-.auth-form input:focus {
-  border-color: #6b7280;
+  text-align: center; /* 타이틀/버튼 수직 라인 정리 */
 }
 
-.is-invalid {
-  border-color: #ef4444 !important;
-}
-
-.error-text {
-  font-size: 12px;
-  color: #ef4444;
-}
-
-.success-text {
-  font-size: 12px;
-  color: #059669;
-}
-
-.row-inline {
-  align-items: center;
-}
-
-.checkbox {
+/* 브랜드 타이틀: 간격 크게 */
+.auth-card .brand {
   display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  user-select: none;
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 10px;
-}
-
-.auth-error{ color: var(--color-danger); font-size:14px; }
-
-.keep-login{
-  display:flex; align-items:center; gap:8px;
-  font-size:14px; color: var(--color-ink, #111);
+  gap: 6px;
+  font-weight: 800;
+  font-size: clamp(28px, 6vw, 48px);
+  line-height: 1.1;
+  margin: 0 0 48px;   /* ★ 타이틀과 버튼 사이 간격 크게 */
 }
 
 /* 중앙정렬 래퍼 강화 */
@@ -88,34 +27,33 @@
   min-height: 100vh; /* 화면 중앙 정렬 고정 */
 }
 
-.info__grid{ display:grid; gap:10px; }
-.info__row{ display:grid; grid-template-columns: 100px 1fr; gap:8px; align-items:center; }
-.info__label{ font-size:12px; opacity:.7; }
-.info__value{ font-size:14px; }
-
-.mt-8 {
-  margin-top: 8px;
-}
-
-.btn-google{
+/* ===== SNS 버튼 ===== */
+.btn-google {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 12px;
+  gap: 10px;
+  height: 48px;            /* ★ 버튼 키움 */
+  padding: 0 16px;         /* 좌우 여유 */
   border-radius: var(--radius, 6px);
   border: 1px solid #d1d5db;
   background: #fff;
   color: #111;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
+  transition: background .15s ease, box-shadow .15s ease, transform .02s ease;
 }
-.btn-google:hover{
-  background: #f8f9fa;
-}
-.btn-google svg{
+.btn-google:hover { background: #f8f9fa; }
+.btn-google:active { transform: translateY(1px); }
+.btn-google svg {
   width: 18px;
   height: 18px;
   display: block;
+}
+
+/* 버튼 묶음 래퍼 (여유 간격) */
+.sns-only {
+  display: grid;
+  gap: 12px;
+  margin-top: 8px; /* 필요시 더 키워도 됨 */
 }

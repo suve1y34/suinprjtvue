@@ -34,25 +34,6 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: (s) => !!s.accessToken && !!s.user,
   },
   actions: {
-    async login(email: string, password: string, opts?: LoginOptions) {
-      const resp = await api.auth.login({ email, password });
-      this.accessToken = resp.accessToken;
-      this.user = resp.user;
-
-      // 저장 전에 양쪽 스토리지 정리(중복 방지)
-      localStorage.removeItem(LS_TOKEN);
-      localStorage.removeItem(LS_USER);
-      sessionStorage.removeItem(LS_TOKEN);
-      sessionStorage.removeItem(LS_USER);
-
-      // 영속화
-      const store = getStore(opts?.remember ?? true);
-      store.setItem(LS_TOKEN, resp.accessToken);
-      store.setItem(LS_USER, JSON.stringify(resp.user));
-
-      return resp.user;
-    },
-
     async loginByToken(token: string) {
       this.accessToken = token;
 

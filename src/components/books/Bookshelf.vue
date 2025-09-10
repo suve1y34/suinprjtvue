@@ -1,5 +1,5 @@
 <template>
-  <div class="shelf shelf--tight shelf--wood" role="list">
+  <div class="shelf shelf--tight shelf--wood shelf--center" role="list">
     <!-- 로딩 시 스켈레톤 -->
     <template v-if="isLoading">
       <div class="shelf__cell" v-for="n in skeletonCount" :key="'sk-'+n" role="presentation">

@@ -19,6 +19,8 @@ function normalizeShelfItem(raw: any): ShelfBook {
     bookId: raw.bookId,
     currentPage: typeof raw.currentPage === "number" ? raw.currentPage : 0,
     readingStatus: (raw.readingStatus as any) ?? "PLAN",
+    memo: raw.memo ?? null,
+    memoVisibility: raw.memoVisibility ?? "PRIVATE",
     addedDatetime: raw.addedDatetime,
     modifiedDatetime: raw.modifiedDatetime,
     book,

@@ -10,7 +10,6 @@
       </h1>
 
       <div class="page__controls">
-        <!-- 테마 아이콘 버튼(기존 버튼 스타일은 유지) -->
         <button
           type="button"
           class="icon-btn"
@@ -49,9 +48,9 @@
         title="읽기 상태 필터"
       >
         <option value="">전체</option>
-        <option value="PLAN">PLAN</option>
-        <option value="READING">READING</option>
-        <option value="DONE">DONE</option>
+        <option value="PLAN">읽기전</option>
+        <option value="READING">읽는중</option>
+        <option value="DONE">다읽음</option>
       </select>
 
       <select

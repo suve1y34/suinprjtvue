@@ -4,6 +4,7 @@ export interface Bookshelf {
   bookshelfId: number;
 }
 
+export type MemoVisibility = "PRIVATE" | "PUBLIC";
 export type ReadingStatus = "PLAN" | "READING" | "DONE";
 export type BookLike = { title?: string; author?: string; pages?: number; isbn13Code?: string };
 
@@ -14,6 +15,7 @@ export interface ShelfBook {
   currentPage: number;     
   readingStatus: ReadingStatus;
   memo?: string | null;
+  memoVisibility?: MemoVisibility;
   addedDatetime: string;
   modifiedDatetime: string;
   book: Book;
@@ -29,6 +31,7 @@ export type ShelfAddByIsbn13Payload = {
   readingStatus?: "PLAN"|"READING"|"DONE";
   currentPage?: number;
   memo?: string;
+  memoVisibility?: MemoVisibility;
 };
 
 export type AddPayload = {
@@ -42,6 +45,8 @@ export type AddPayload = {
   };
   status: "PLAN" | "READING" | "DONE";
   currentPage: number;
+  memo?: string;
+  memoVisibility?: MemoVisibility;
 };
 
 export type ShelfAddPayload =
@@ -54,6 +59,7 @@ export type ShelfUpdatePayload = {
   readingStatus: ReadingStatus;
   memo?: string | null;
   memoChanged?: boolean | null;
+  memoVisibility?: MemoVisibility;
 };
 
 export type ShelfListOpts = {
