@@ -11,6 +11,16 @@
   --color-border:#eeeeee; /* 경계선 */
   --color-text:#222;      /* 일반 텍스트(검정계열) */
 
+  /* UI 배경/대비 레이어 */
+  --color-bg: #ffffff;          /* 페이지 바탕 */
+  --color-elev: #ffffff;        /* 카드/모달/드롭다운 */
+  --color-input-bg: #ffffff;    /* 입력/셀렉트 배경 */
+
+  /* 버튼(아웃라인류) 공통 변수 */
+  --btn-bg: #ffffff;
+  --btn-fg: var(--color-ink);
+  --btn-border: var(--color-ink);
+
   /* Sizes & radii */
   --radius-sm: 3px;
   --radius:    6px;  /* 버튼/입력 기본 라운드 */
@@ -42,5 +52,12 @@
   --color-accent:#ad6a49;
   --color-gray-600:#9aa0a6;
 
-  /* 공용 화이트는 실제 텍스트/배경에 직접 쓰지 않도록 유지 */
+  --color-bg: #0f0f12;
+  --color-elev: #1a1b20;
+  --color-input-bg: #1e1f25;
+
+  /* 잉크/텍스트/브랜드는 기존 정의를 사용 */
+  --btn-bg: transparent;                 /* 아웃라인은 투명 배경 */
+  --btn-fg: var(--color-text);           /* 밝은 글씨 */
+  --btn-border: var(--color-ink);        /* 다크에서의 라인 색 */
 }

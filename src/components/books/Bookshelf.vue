@@ -26,7 +26,7 @@
 </template>
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useShelvesStore } from "@/stores/shelves.store";
+import { useShelvesStore } from "@/stores";
 import BookSpine from "./BookSpine.vue";
 import BookAddConfigModal from "./BookAddConfigModal.vue";
 import type { ShelfBook, ShelfUpdatePayload } from "@/types/shelf";
@@ -36,7 +36,7 @@ defineProps<{ entries: ShelfBook[] }>();
 const store = useShelvesStore();
 const mutating = store.$state.mutating;
 const isLoading = computed(() => store.loading.items);
-const skeletonCount = 24; // 반응형 그리드에서 2~3줄 채울 정도의 기본 수
+const skeletonCount = 24;
 
 const editRef = ref<InstanceType<typeof BookAddConfigModal> | null>(null);
 
@@ -47,6 +47,7 @@ function onOpenEdit(entry: ShelfBook) {
 async function onConfirmEdit(p: ShelfUpdatePayload & { totalPages?: number }) {
   try {
     await store.updateShelfItem(p); // 단일 업데이트 API
+    try { editRef.value?.close?.(); } catch {}
   } catch (e: any) {
   }
 }

@@ -46,24 +46,36 @@
         <button type="button" @click="onSearch" :disabled="loading" class="btn btn--outline-black">검색</button>
       </div>
 
-      <div class="results-grid" v-if="list.length">
-        <div class="result-item" v-for="b in list" :key="b.isbn13Code" @click="openDetail(b)">
-          <div class="thumb">
-            <img :src="coverOf(b)" :alt="b.title" loading="lazy" @error="onImgError" />
-          </div>
-          <div class="result-meta">
-            <div class="t">{{ b.title }}</div>
-            <div class="s">
-              <span>{{ b.author }}</span>
-              <span v-if="(b as any).publisher">{{ (b as any).publisher }}</span>
-              <span v-if="(b as any).pubDate">{{ (b as any).pubDate }}</span>
-              <span v-if="(b as any).pages">{{ (b as any).pages }}</span>
+      <!-- 결과 영역(최대 높이 + 내부 스크롤) -->
+      <div class="results-wrap">
+        <div class="results-grid" v-if="list.length">
+          <div class="result-item" v-for="b in list" :key="b.isbn13Code || b.title + b.author" @click="openDetail(b)">
+            <div class="thumb">
+              <img :src="coverOf(b)" :alt="b.title" loading="lazy" @error="onImgError" />
+            </div>
+            <div class="result-meta">
+              <div class="t">{{ b.title }}</div>
+              <div class="s">
+                <span>{{ b.author }}</span>
+                <span v-if="(b as any).publisher"> · {{ (b as any).publisher }}</span>
+                <span v-if="(b as any).pubDate"> · {{ (b as any).pubDate }}</span>
+                <span v-if="(b as any).pages"> · {{ (b as any).pages }}p</span>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- 빈 상태: 상하좌우 중앙정렬 -->
+        <div class="empty centered" v-else-if="!loading">검색 결과가 없습니다.</div>
+
+        <!-- 로딩 상태: 상하좌우 중앙정렬 -->
+        <div class="loading centered" v-if="loading">검색 중…</div>
       </div>
-      <div class="empty" v-else-if="!loading">검색 결과가 없습니다.</div>
-      <div class="loading" v-if="loading">검색 중…</div>
+
+      <!-- 더 보기 버튼(페이지네이션) -->
+      <div class="loadmore" v-if="!loading && hasMore">
+        <button type="button" class="btn btn--outline-black" @click="loadMore" :disabled="loading">더 보기</button>
+      </div>
     </form>
   </dialog>
   <BookDetailModal ref="detailRef" @config="openConfig" />
@@ -73,9 +85,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { aladinApi } from "@/api/aladin.api";
-import { useShelvesStore } from "@/stores/shelves.store";
+import { useShelvesStore } from "@/stores";
 import type { AladinBook } from "@/types/aladin";
-import type { AddPayload } from "@/types/shelf";
+import type { AddPayload, ReadingStatus } from "@/types/shelf";
 
 import searchHistory from "@/utils/searchHistory";
 
@@ -87,10 +99,20 @@ const q = ref("");
 const list = ref<AladinBook[]>([]);
 const loading = ref(false);
 
+// 페이지네이션 상태
+const page = ref(1);
+const size = ref(20);
+const hasMore = ref(false);
+
 const store = useShelvesStore();
 const mutating = computed(() => store.mutating);
 
-function reset(){ q.value = ""; list.value = []; }
+function reset() {
+  q.value = "";
+  list.value = [];
+  page.value = 1;
+  hasMore.value = false;
+}
 function open() { dlg.value?.showModal(); }
 function close() { dlg.value?.close(); }
 defineExpose({ open, close });
@@ -150,7 +172,6 @@ function onClearHistory() {
   refreshHistory();
   showDropdown.value = true; // 남겨서 "없음" 메시지 보이게
 }
-// ▲▲▲ 검색어 히스토리 드롭다운 상태/로직 ▲▲▲
 
 async function onSearch() {
   const keyword = q.value.trim();
@@ -171,19 +192,47 @@ async function onSearch() {
   }
 }
 
+async function loadMore() {
+  if (loading.value || !hasMore.value) return;
+  loading.value = true;
+  try {
+    page.value += 1;
+    const res = await aladinApi.search(q.value.trim(), page.value, size.value);
+    if (Array.isArray(res) && res.length > 0) {
+      list.value = list.value.concat(res);
+      hasMore.value = res.length >= size.value;
+    } else {
+      hasMore.value = false;
+    }
+  } catch (e: any) {
+    alert(e?.message ?? "추가 로드 실패");
+  } finally {
+    loading.value = false;
+  }
+}
+
 // 커버 URL 우선순위
 function coverOf(b: any): string {
   return b.coverImageUrl || b.coverLargeUrl || b.cover || b.coverSmallUrl || "";
 }
 function onImgError(e: Event) {
-  (e.target as HTMLImageElement).src = ""; // 실패 시 비움(브라우저 기본 깨진이미지 숨김을 기대)
+  (e.target as HTMLImageElement).src = "";
 }
 
-async function onConfirmAdd({ book, status, currentPage }: AddPayload) {
+async function onConfirmAdd(p: AddPayload): Promise<void> {
+  const { book, status, currentPage, memo, memoVisibility } = p;
   const pages = (book as any).pages ?? (book as any).itemPage ?? undefined;
 
+  const deriveStatus = (cp: number, total?: number): ReadingStatus => {
+    if (typeof total === "number") {
+      if (cp >= total) return "DONE";
+      if (cp > 0)      return "READING";
+      return "PLAN";
+    }
+    return cp > 0 ? "READING" : "PLAN";
+  };
+
   try {
-    // 1) add(JSON, bookshelfId는 store에서 주입)
     await store.addBookToShelf({
       isbn13Code: (book as any).isbn13Code,
       title: book.title,
@@ -192,20 +241,28 @@ async function onConfirmAdd({ book, status, currentPage }: AddPayload) {
       publisher: (book as any).publisher,
       pubDate: (book as any).pubDate,
       readingStatus: status,
-      currentPage
-    });
+      currentPage,
+      memo: memo ?? undefined,
+      memoVisibility,
+    }); 
 
-    // 2) 진행도 보정 필요 시 (shelfBookId 모르면 재조회 후 찾기)
     if (currentPage > 0) {
       await store.fetchShelfItems();
       const added = store.shelfItems.find(e =>
         e.book?.isbn13Code === (book as any).isbn13Code
       );
       if (added) {
-        // await store.updateProgress(added.shelfBookId, currentPage, pages);
+        const nextStatus = deriveStatus(currentPage, pages);
+        await store.updateShelfItem({
+          shelfBookId: added.shelfBookId,
+          currentPage,
+          readingStatus: nextStatus,
+        });
       }
     }
 
+    try { configRef.value?.close?.(); } catch {}
+    try { detailRef.value?.close?.(); } catch {}
     close(); // 검색 모달 닫기
   } catch (e: any) {
     alert(e?.message ?? "추가 실패");

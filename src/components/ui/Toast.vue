@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useToastStore } from '@/stores/toast.store';
+import { useToastStore } from '@/stores';
 
 const toast = useToastStore();
 const { items } = storeToRefs(toast);

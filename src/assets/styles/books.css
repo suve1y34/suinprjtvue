@@ -2,23 +2,23 @@
 .shelf-wrap{
   display:flex;
   justify-content:center;
-  align-items:center;
-  min-height: calc(100vh - 140px);
-  padding: 12px 0;
+  align-items:flex-start;   /* 상단 정렬로 변경 */
+  /* min-height 제거: 콘텐츠가 적을 때 불필요 스크롤 방지 */
+  padding: 8px 0;           /* 상하 패딩 살짝만 */
 }
 
 /* -----------------------------------------------------
    Bookshelf Container
    ----------------------------------------------------- */
 .shelf{
-  /* 행/간격 변수: 필요 시 여기서 높이/간격만 바꾸면 됨 */
+  /* 행/간격 변수 */
   --shelf-row-height: 180px;   /* 책등 높이 */
-  --shelf-gap-y: 12px;         /* 행과 행 사이 간격 */
+  --shelf-gap-y: 12px;         /* 행 간격 */
 
-  position: relative;          /* 선반 배경 ::before/::after 기준 */
+  position: relative;
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;       /* 각 행 하단 정렬 */
+  align-items: flex-end;
   align-content: flex-start;
   gap: 0;                      /* 완전 밀착 */
 }
@@ -28,7 +28,6 @@
   margin-right:auto;
 }
 
-/* 밀착 보장(혹시 상위에서 덮을 때 대비) */
 .shelf--tight{
   gap: 0 !important;
 }
@@ -40,16 +39,26 @@
   align-items: flex-end;
 }
 
+.empty-shelf{
+  text-align: center;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  color: var(--color-text);
+}
+.empty-shelf__title{ font-weight: 700; font-size: 16px; }
+.empty-shelf__hint{ font-size: 13px; opacity: .8; margin-bottom: 6px; }
+
 /* -----------------------------------------------------
    Wooden Shelf (선반 배경/립)
    ----------------------------------------------------- */
 .shelf--wood{ position: relative; }
 .shelf--wood{
-  --wood:        #d8c3a8;                 /* 선반 면 색 */
-  --lip-shadow:  rgba(0,0,0,.14);         /* 립(그림자) */
+  --wood:        #d8c3a8;
+  --lip-shadow:  rgba(0,0,0,.14);
 }
 
-/* 선반 판넬 */
+/* 선반 판넬(배경 전용) */
 .shelf--wood::before,
 .shelf--wood::after{
   content:"";
@@ -87,16 +96,16 @@
    Book Spine (책등)
    ----------------------------------------------------- */
 .spine{
-  position: relative;                 /* 배지/진행률 기준 */
-  z-index: 1;                         /* 선반 배경 위로 */
-  height: var(--shelf-row-height);    /* 책 높이 고정 */
+  position: relative;
+  z-index: 1;
+  height: var(--shelf-row-height);
   display: inline-flex;
   vertical-align: bottom;
   align-items: center;
   justify-content: center;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  margin: 0;                          /* 완전 밀착 */
+  margin: 0;
   border: 0;
   box-shadow: none;
   border-radius: 2px;
@@ -105,14 +114,26 @@
   user-select: none;
 }
 
-/* 색상 테마(디자인 토큰 기준) */
+/* 색상 테마 */
 .spine--dark{    background: var(--color-ink);   color:#f0f0f0; }
 .spine--dark-2{  background: var(--color-ink-2); color:#f0f0f0; }
 .spine--accent{  background: var(--color-accent); color:#fff; }
 .spine--light{   background: var(--color-surface); color: var(--color-ink); }
 
-/* 제목 — BookSpine.vue에서 내려주는 CSS 변수 소비
-   (--spine-fz, --spine-ls, --spine-pad) */
+/* 다크 모드 대비 보정 */
+.theme-dark .spine--light{
+  background: var(--color-elev, #1f1f1f);
+  color: var(--color-text);
+}
+.theme-dark .spine--accent{
+  color: #fff; /* 유지 */
+}
+.theme-dark .spine--dark,
+.theme-dark .spine--dark-2{
+  color: #f0f0f0; /* 유지 */
+}
+
+/* 제목 */
 .spine__title{
   font-size: var(--spine-fz, 12px);
   letter-spacing: var(--spine-ls, 0);
@@ -126,7 +147,7 @@
   overflow: hidden;
 }
 
-/* 진행도(%) 하단 중앙 고정 */
+/* 진행도(%) 하단 중앙 */
 .spine__progress{
   position: absolute;
   bottom: 4px;
@@ -137,7 +158,7 @@
   pointer-events: none;
 }
 
-/* 상태 배지(우상단) */
+/* 상태 배지 */
 .badge{
   position:absolute;
   top:4px; right:4px;
@@ -154,7 +175,7 @@
 .badge--done{    background: var(--color-ink); color:#fff; border:0; }
 
 /* -----------------------------------------------------
-   Skeletons (로딩 상태)
+   Skeletons
    ----------------------------------------------------- */
 .spine--skeleton{
   position: relative;
@@ -218,3 +239,14 @@
 }
 .memo-empty{ font-size:14px; opacity:.8; }
 .memo-more{ display:flex; justify-content:center; }
+
+
+.select, .input{
+  padding: 6px 10px;
+  height: 34px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  min-width: 160px;
+  background: var(--color-input-bg);
+  color: var(--color-text);
+}

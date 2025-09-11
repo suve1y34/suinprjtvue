@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { api } from '@/api';
 import type { ShelfBook, ShelfAddByIsbn13Payload, ShelfAddPayload, ShelfUpdatePayload, ShelfListOpts } from "@/types/shelf";
 import type { Book } from "@/types/book";
+import { pagesToCm } from "@/utils/thickness";
 
 function normalizeShelfItem(raw: any): ShelfBook {
   const book: Book = {
@@ -39,13 +40,19 @@ export const useShelvesStore = defineStore("shelves", {
   getters: {
     books: (state) => state.shelfItems.map(i => i.book),
     shelfEntries: (state) => state.shelfItems,
+
+    readCount: (state) => state.shelfItems.length,
+    totalThicknessCm: (state) =>
+      state.shelfItems
+        .reduce((sum, i) => sum + pagesToCm(i.book?.pages), 0),
   },
 
   actions: {
+    // 내 책장 로드
     async fetchMyShelf(userId: number) {
       this.loading.shelf = true; this.error.shelf = null;
       try {
-        const shelf = await api.shelves.me(userId);
+        const shelf = await api.shelves.myShelf(userId);
         this.bookshelfId = shelf.bookshelfId ?? null;
       } catch (e: any) {
         this.error.shelf = e?.message ?? "책장 로드 실패";
@@ -55,6 +62,7 @@ export const useShelvesStore = defineStore("shelves", {
       }
     },
 
+    // 책장의 책 리스트 로드
     async fetchShelfItems(opts?: ShelfListOpts) {
       if (!this.bookshelfId) return;
       this.loading.items = true; this.error.items = null;
@@ -66,6 +74,7 @@ export const useShelvesStore = defineStore("shelves", {
       } finally { this.loading.items = false; }
     },
 
+    // 책 추가
     async addBookToShelf(arg: number | ShelfAddByIsbn13Payload) {
       if (!this.bookshelfId) throw new Error("책장이 없습니다.");
       const prev = [...this.shelfItems];
@@ -78,7 +87,7 @@ export const useShelvesStore = defineStore("shelves", {
             ? { bookshelfId: this.bookshelfId, bookId: arg }
             : { bookshelfId: this.bookshelfId, ...arg };
 
-        await api.shelves.addBook(payload);
+        await api.shelves.addShelfItem(payload);
         await this.fetchShelfItems();
       } catch (e) {
         this.shelfItems = prev;
@@ -88,6 +97,7 @@ export const useShelvesStore = defineStore("shelves", {
       }
     },
 
+    // 책 수정
     async updateShelfItem(payload: ShelfUpdatePayload) {
       const idx = this.shelfItems.findIndex(i => i.shelfBookId === payload.shelfBookId);
       if (idx < 0) throw new Error("대상 항목을 찾을 수 없습니다.");
@@ -103,8 +113,7 @@ export const useShelvesStore = defineStore("shelves", {
 
       try {
         await api.shelves.updateShelfItem(payload);
-        // 성공 시 서버 시간이 반영되어 있을 수 있으므로 최신화는 선택:
-        // await this.fetchShelfItems();
+        await this.fetchShelfItems();
       } catch (e: any) {
         // 롤백
         this.shelfItems.splice(idx, 1, snapshot);
@@ -113,12 +122,13 @@ export const useShelvesStore = defineStore("shelves", {
       }
     },
 
+    // 책 삭제
     async removeBookFromShelf(bookId: number) {
       if (!this.bookshelfId) return;
       const prev = [...this.shelfItems];
       this.shelfItems = prev.filter((i) => i.bookId !== bookId);
       try {
-        await api.shelves.removeBook(this.bookshelfId, bookId);
+        await api.shelves.removeShelfItem(this.bookshelfId, bookId);
       } catch (e) {
         this.shelfItems = prev; // 롤백
         throw e;

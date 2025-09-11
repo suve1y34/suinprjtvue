@@ -1,29 +1,11 @@
 import { defineStore } from 'pinia';
 import { api } from '@/api';
 import type { User, UserUpdatePayload, LoginOptions } from "@/types/user";
+import { isExpired } from '@/utils/jwt';
 
 // 로컬 스토리지 키
 const LS_TOKEN = 'auth.accessToken';
 const LS_USER = 'auth.user';
-
-function parseJwtExp(token: string): number | null {
-    try {
-        const base64 = token.split('.')[1];
-        const json = JSON.parse(atob(base64.replace(/-/g, '+').replace(/_/g, '/')));
-        return typeof json.exp === 'number' ? json.exp : null;
-    } catch { return null; }
-}
-
-function isExpired(token: string, leewaySec = 30): boolean {
-  const exp = parseJwtExp(token);
-  if (!exp) return false;
-  const now = Math.floor(Date.now() / 1000);
-  return exp - now <= leewaySec;
-}
-
-function getStore(remember?: boolean) {
-  return remember ? window.localStorage : window.sessionStorage;
-}
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({

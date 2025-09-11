@@ -31,8 +31,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
-import { booksApi, type PublicMemo } from "@/api/books.api";
+import { onMounted, ref, watch, computed } from "vue";
+import { booksApi } from "@/api/books.api";
+import type { PublicMemo } from "@/types/book";
 
 const props = defineProps<{
   bookId?: number;
@@ -41,36 +42,62 @@ const props = defineProps<{
 }>();
 
 const items = ref<PublicMemo[]>([]);
-const page = ref(1);
+const nextCursor = ref<number | null>(null);
 const size = ref(props.pageSize ?? 10);
-const hasMore = ref(false);
 const loading = ref(false);
 
-async function fetchPage(p = 1) {
+// nextCursor 존재 여부로 더보기 표시
+const hasMore = computed(() => nextCursor.value !== null);
+
+async function fetchFirst() {
+  // bookId, isbn13 둘 다 없으면 호출 안 함
+  if (!props.bookId && !props.isbn13Code) {
+    items.value = [];
+    nextCursor.value = null;
+    return;
+  }
+
   loading.value = true;
   try {
     const res = await booksApi.listPublicMemos({
       bookId: props.bookId,
       isbn13Code: props.isbn13Code,
-      page: p,
+      cursor: null,        // 최초 조회는 null
       size: size.value,
     });
-    if (p === 1) items.value = res.items;
-    else items.value = items.value.concat(res.items);
-
-    page.value = res.page;
-    size.value = res.size;
-    hasMore.value = res.hasMore;
-  } catch (e) {
+    items.value = res.items ?? [];
+    nextCursor.value = res.nextCursor ?? null;
+    size.value = res.size ?? size.value;
   } finally {
     loading.value = false;
   }
 }
 
-function loadMore() {
-  if (!loading.value) fetchPage(page.value + 1);
+async function loadMore() {
+  if (!hasMore.value || loading.value) return;
+
+  loading.value = true;
+  try {
+    const res = await booksApi.listPublicMemos({
+      bookId: props.bookId,
+      isbn13Code: props.isbn13Code,
+      cursor: nextCursor.value, // 다음 커서로 조회
+      size: size.value,
+    });
+    items.value = items.value.concat(res.items ?? []);
+    nextCursor.value = res.nextCursor ?? null;
+    size.value = res.size ?? size.value;
+  } finally {
+    loading.value = false;
+  }
 }
 
-onMounted(() => fetchPage(1));
-watch(() => [props.bookId, props.isbn13Code].join(":"), () => fetchPage(1));
+onMounted(fetchFirst);
+watch(
+  () => [props.bookId, props.isbn13Code, props.pageSize].join(":"),
+  () => {
+    size.value = props.pageSize ?? 10;
+    fetchFirst();
+  }
+);
 </script>

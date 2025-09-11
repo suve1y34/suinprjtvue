@@ -1,7 +1,7 @@
 // src/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
-import { useAuthStore } from '@/stores/auth.store';
+import { useAuthStore } from '@/stores';
 
 import LoginView from '@/views/LoginView.vue';
 import BookshelfView from '@/views/BookshelfView.vue';
@@ -19,12 +19,6 @@ const routes: RouteRecordRaw[] = [
     name: 'login-callback',
     component: LoginCallbackView,
     meta: { guestOnly: true }
-  },
-  {
-    path: '/signup',
-    name: 'signup',
-    component: () => import('@/views/SignupView.vue'),
-    meta: { guestOnly: true },
   },
   {
     path: '/',

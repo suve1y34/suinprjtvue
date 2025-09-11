@@ -1,6 +1,7 @@
 <template>
   <section class="page-auth">
     <div class="auth-card">
+      <p class="login-sub">나의 독서 과정을 기록하는 가장 쉬운 방법</p>
       <h1 class="brand">
         <span class="brand__chek">책</span><span class="brand__dam">담</span><span class="brand__chek">책</span><span class="brand__dam">담</span>
       </h1>
@@ -17,6 +18,7 @@
           <span>Google 로그인</span>
         </button>
       </div>
+      <p class="login-privacy">Google 로그인은 이메일/이름만 사용하며, 비밀번호는 저장하지 않습니다.</p>
     </div>
   </section>
 </template>

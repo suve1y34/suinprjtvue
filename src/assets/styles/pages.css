@@ -1,13 +1,13 @@
 .page{
-  min-height: 100vh;
+  min-height: 100dvh; /* 뷰포트 동적 높이 → 불필요 스크롤 방지 */
   display: grid;
-  grid-template-rows: auto 1fr;
-  display:grid;
-  gap:var(--sp-12);
+  grid-auto-rows: auto; /* 헤더/툴바/콘텐츠 순서대로 자동 배치 */
+  gap: var(--sp-12);
 }
 .page__head{ display:flex; justify-content:space-between; align-items:center; }
 .page__controls{ display:flex; gap:var(--sp-12); align-items:center; }
 .page__toolbar{ display:flex; gap:var(--sp-8); align-items:center; margin-bottom:var(--sp-8); justify-content: center; }
+
 /* 사이트 타이틀 크게 */
 .page-title--xl .brand { font-size: 34px; line-height: 1.1; }
 .state{ font-size:var(--fz-14); }
@@ -18,25 +18,31 @@
 .page-title{ display:flex; align-items:baseline; gap:10px; }
 .brand{
   display:flex;
-  justify-content:center;   /* 가운데 정렬 */
+  justify-content:center;
   gap: 6px;
   font-weight: 800;
-  font-size: clamp(28px, 6vw, 48px);  /* 폰트 커짐(반응형) */
+  font-size: clamp(28px, 6vw, 48px);
   line-height: 1.1;
   margin: 0 0 16px;
 }
 .brand__chek{ color: var(--color-brand); }
-.brand__dam{ color: var(--color-ink); } /* '담' 쪽 */
+.brand__dam{ color: var(--color-ink); }
 
 /* 상단 바(브랜드 연한 회색 배경, 타이틀 중앙, 우측 컨트롤) */
 .page__bar{
-  margin-bottom: 32px;
+  margin-bottom: 16px; /* 기존 32px → 16px로 줄여 상단 여백 축소 */
   display:grid;
-  grid-template-columns: 1fr auto 1fr; /* 좌-중앙-우 */
+  grid-template-columns: 1fr auto 1fr;
   align-items:center;
-  background: var(--color-surface);    /* #ebeaf0 */
+  background: var(--color-surface);
   padding: var(--sp-12);
   border-radius: var(--radius-lg);
+}
+
+.page__left{
+  justify-self: start;
+  display: flex;
+  align-items: center;
 }
 
 /* 중앙 타이틀 */
@@ -50,4 +56,53 @@
   display:flex;
   gap: var(--sp-12);
   align-items:center;
+}
+
+/* 페이지 내 통계 라인 */
+.page__stats{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap: 10px;
+  margin-top: -6px;
+  margin-bottom: 6px;
+  color: var(--color-text);
+  font-size: 13px;
+}
+.page__stats .stats__sep{ opacity:.6; }
+.page__stats strong{ font-weight: 800; }
+
+/* 로딩/에러 중앙정렬 */
+.state--center{
+  min-height: 40dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.user-greet{
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  color: var(--color-ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+.user-greet:hover{
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+.user-greet__name{
+  color: var(--color-brand);
+  margin-right: 2px;
+}
+
+/* 다크 모드 가독성 보강 */
+.theme-dark .user-greet{
+  color: var(--color-text);
+}
+.theme-dark .user-greet:hover{
+  background: rgba(255,255,255,0.06);
+  border-color: var(--color-border);
 }

@@ -30,19 +30,12 @@ export type ShelfAddByIsbn13Payload = {
   pubDate?: string; // "YYYY-MM-DD"
   readingStatus?: "PLAN"|"READING"|"DONE";
   currentPage?: number;
-  memo?: string;
+  memo?: string | null;
   memoVisibility?: MemoVisibility;
 };
 
 export type AddPayload = {
-  book: {
-    isbn13Code?: string;
-    title?: string;
-    author?: string;
-    pages?: number;
-    publisher?: string;
-    pubDate?: string;
-  };
+  book: BookLike;
   status: "PLAN" | "READING" | "DONE";
   currentPage: number;
   memo?: string;
@@ -50,8 +43,8 @@ export type AddPayload = {
 };
 
 export type ShelfAddPayload =
-  & { bookshelfId: number }
-  & ({ bookId: number } | ShelfAddByIsbn13Payload);
+  | { bookshelfId: number; bookId: number; readingStatus?: ReadingStatus; currentPage?: number; memo?: string | null; memoVisibility?: MemoVisibility }
+  | ({ bookshelfId: number } & ShelfAddByIsbn13Payload);
 
 export type ShelfUpdatePayload = {
   shelfBookId: number;

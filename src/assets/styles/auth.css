@@ -57,3 +57,34 @@
   gap: 12px;
   margin-top: 8px; /* 필요시 더 키워도 됨 */
 }
+
+
+.login-sub{
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--color-gray-600);
+  text-align: center;
+}
+
+.login-features{
+  margin: 18px 0 4px;
+  padding: 0 14px;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  color: var(--color-gray-600);
+  font-size: 13px;
+}
+.login-features li{ position: relative; padding-left: 12px; }
+.login-features li::before{
+  content: "•";
+  position: absolute; left: 0; top: 0;
+  opacity: .6;
+}
+
+.login-privacy{
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--color-gray-600);
+  text-align: center;
+}

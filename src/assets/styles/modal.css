@@ -25,7 +25,8 @@
   display: grid;
   gap: var(--sp-12);
   padding: var(--sp-12);
-  background: #fff;
+  background: var(--color-elev);
+  color: var(--color-text);
   border-radius: var(--radius-lg);
 }
 
@@ -99,6 +100,12 @@
   box-sizing: border-box;
 }
 
+.textarea{
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-line, var(--color-border));
+}
+
 /* 포커스 링(브랜드 컬러) */
 .modal__box .select:focus,
 .modal__box .input:focus,
@@ -125,3 +132,140 @@
 input:checked + .slider{ background: var(--color-brand, #c29a82); }
 input:checked + .slider::after{ left:20px; }
 .switch__label{ font-size:12px; opacity:.85; }
+
+.modal__box .info__grid{
+  display: grid;
+  gap: 10px;
+}
+
+.modal__box .info__row{
+  display: grid;
+  grid-template-columns: 100px 1fr; /* 라벨 100px, 값 자동 */
+  gap: 8px;
+  align-items: center;              /* 한 줄 수평 정렬 */
+  min-height: 32px;
+}
+
+.modal__box .info__label{
+  font-size: 12px;
+  color: var(--color-text);
+  opacity: .75;
+}
+
+.modal__box .info__value{
+  font-size: 14px;
+  color: var(--color-text);
+  word-break: break-all;
+}
+
+/* 닉네임 행(보기/편집 공존) */
+.modal__box .nick-row .info__value{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 보기 모드 뱃지/아이콘 */
+.nick-view{ display: inline-flex; align-items: center; gap: 6px; }
+.nick-text{ font-weight: 700; }
+
+/* 편집 모드 */
+.nick-edit{ display: grid; gap: 8px; align-items: start; }
+.nick-input{ max-width: 280px; }
+.edit-actions{ display: flex; gap: 8px; align-items: center; }
+.field-error{ color: var(--color-danger); font-size: 12px; }
+.field-hint{ font-size: 12px; opacity: .7; }
+
+/* 아이콘 버튼 크기 보정 */
+.nick-edit-btn{
+  width: 28px; height: 28px;
+  display: inline-grid; place-items: center;
+  border-radius: var(--radius);
+}
+
+.info__grid{ display:grid; gap:14px; }
+.info__row{
+  display:grid;
+  grid-template-columns: 120px 1fr;
+  gap:12px;
+  align-items: center; /* 행 세로 정렬 */
+}
+.info__label{ font-size:12px; color:var(--color-text); opacity:.7; }
+.info__value{ font-size:14px; }
+
+/* 닉네임 보기 모드 */
+.nick-view{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.nick-text{ font-weight: 700; }
+.nick-edit-btn{
+  width: 28px; height: 28px; display: inline-grid; place-items: center;
+  border-radius: var(--radius);
+}
+
+/* 닉네임 편집 모드 — 세 줄(세로 스택) */
+.nick-edit{
+  display: flex;
+  flex-direction: column;  /* << 핵심: 수직으로 쌓기 */
+  gap: 10px;
+  align-items: flex-start; /* 버튼 왼쪽 정렬 */
+}
+.nick-input{
+  max-width: 320px;
+}
+
+.edit-actions{
+  display: flex;
+  gap: 8px;
+}
+
+.field-error{
+  color: var(--color-danger);
+  font-size: 12px;
+}
+.field-hint{
+  font-size: 12px;
+  opacity: .7;
+}
+
+.title-row-fixed {
+  display: flex;
+  justify-content: space-between; /* 제목은 왼쪽, 버튼은 오른쪽 고정 */
+  align-items: center;
+  gap: 8px;
+}
+
+.book-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  flex: 1; /* 남은 공간 채우기 */
+}
+
+.btn--sm {
+  padding: 4px 10px;
+  font-size: 13px;
+  line-height: 1.2;
+  border-radius: 4px;
+  white-space: nowrap; /* 버튼 줄바꿈 방지 */
+}
+
+/* 다크 테마 대비 */
+.theme-dark .nick-input{
+  background: #1f1f22;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+/* 다크 테마 보정 */
+.theme-dark .modal__box{
+  background: var(--color-surface);
+}
+.theme-dark .nick-input{
+  background: #1f1f22;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+.theme-dark .field-hint{ opacity: .8; }

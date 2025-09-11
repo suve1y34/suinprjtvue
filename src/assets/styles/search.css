@@ -1,8 +1,22 @@
+.results-wrap{
+  /* 헤더/검색바 높이를 고려해 적당히 제한 */
+  max-height: min(60vh, 560px);
+  overflow: auto;
+  display: block;
+  position: relative;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--color-white, #fff);
+}
+
+/* 결과 그리드 */
 .results-grid{
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 12px;
 }
+
 .results-grid,
 .empty,
 .loading{
@@ -14,19 +28,35 @@
   gap: 10px;
   align-items: center;
   padding: 8px;
-  border: 1px solid var(--color-border, #ddd);
-  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   cursor: pointer;
 }
-.result-item:hover { background: rgba(0,0,0,0.03); }
-
-.thumb {
-  width: 72px; height: 108px; overflow: hidden; border-radius: 6px;
-  display: flex; align-items: center; justify-content: center; background: #f6f6f6;
+.result-item:hover{
+  background: var(--color-elev);
 }
-.thumb img { width: 100%; height: 100%; object-fit: cover; }
-.result-meta .t { font-weight: 600; line-height: 1.25; margin-bottom: 4px; }
-.result-meta .s { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #666; }
+
+.thumb{ width: 72px; height: 108px; border-radius: 6px; overflow: hidden; background: #f5f5f5; }
+.thumb img{ width:100%; height:100%; object-fit: cover; }
+
+.result-meta .t{ font-weight: 700; line-height: 1.3; }
+.result-meta .s{ font-size: 12px; opacity: .8; margin-top: 2px; }
+
+.centered{
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--color-text);
+  opacity: .9;
+}
+
+/* 더 보기 버튼 영역 */
+.loadmore{
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
 
 .result-item .add{
   padding: 10px 16px;
@@ -112,4 +142,53 @@
   color: #666;
   text-decoration: underline;
   cursor: pointer;
+}
+
+.modal__box .switch{ display:inline-flex; align-items:center; gap:8px; }
+
+.switch{ display:inline-flex; align-items:center; gap:8px; user-select:none; cursor:pointer; }
+.switch input{ display:none; }
+.slider{
+  position:relative; width:38px; height:20px; border-radius:999px;
+  background:#e5e7eb; transition:background .15s ease;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+}
+.slider::after{
+  content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%;
+  background:#fff; box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  transition:left .15s ease;
+}
+input:checked + .slider{ background: var(--color-brand, #c29a82); }
+input:checked + .slider::after{ left:20px; }
+.switch__label{ font-size:12px; opacity:.85; }
+
+
+/* 정보 그리드 예시(기존 유지) */
+.modal__box .info__grid{ display: grid; gap: 10px; }
+.modal__box .info__row{
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+}
+.modal__box .info__label{ font-size: 12px; color: var(--color-text); opacity: .75; }
+.modal__box .info__value{ font-size: 14px; color: var(--color-text); word-break: break-all; }
+
+/* 다크 테마 보정 */
+.theme-dark .modal__box{
+  background: var(--color-surface);
+}
+.theme-dark .textarea{
+  background: #1f1f22;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+/* (유틸) 중앙 정렬 컨테이너 — 필요시 다른 모달에서도 재사용 */
+.centered{
+  min-height: 160px;
+  display: grid;
+  place-items: center;
+  text-align: center;
 }

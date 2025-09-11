@@ -1,29 +1,9 @@
 import { apiClient } from './http';
 import { EP } from "./endpoints";
-import type { Book } from '@/types/book';
-
-export interface PublicMemo {
-  shelfBookId?: number;
-  nickname: string;
-  addedDatetime: string; // "YYYY-MM-DD HH:mm:ss"
-  memo: string;
-}
-
-export interface ListPublicMemosReq {
-  bookId?: number;
-  isbn13Code?: string;
-  page?: number; // 1-base
-  size?: number; // default 10
-}
-
-export interface ListPublicMemosRes {
-  items: PublicMemo[];
-  page: number;
-  size: number;
-  hasMore: boolean;
-}
+import type { Book, PublicMemo, ListPublicMemosReq, ListPublicMemosRes } from '@/types/book';
 
 export const booksApi = {
+  // 책 리스트/상세 -> 테스트용..
   list(): Promise<Book[]> {
     return apiClient.post<Book[]>(EP.books.list);
   },
@@ -31,39 +11,39 @@ export const booksApi = {
     return apiClient.post<Book>(EP.books.detail, null, { bookId });
   },
 
-  // ✅ 항상 동일한 결과 형태로 정규화
+  // 책 메모 리스트
   async listPublicMemos(params: ListPublicMemosReq): Promise<ListPublicMemosRes> {
-    const page = params.page ?? 1;
     const size = params.size ?? 10;
 
     const raw: any = await apiClient.post(EP.books.publicMemos, null, {
       isbn13Code: params.isbn13Code,
       bookId: params.bookId,
-      page,
+      cursor: params.cursor ?? null,
       size,
     });
 
-    const payload = raw?.items ?? raw?.data?.items ?? raw?.data ?? raw;
+    const data = raw?.data ?? raw;
 
     let items: PublicMemo[] = [];
-    let hasMore = false;
-    let outPage = page;
+    let nextCursor: number | null = null;
     let outSize = size;
 
-    if (Array.isArray(payload)) {
-      items = payload;
-      hasMore = items.length >= size; // 리스트 길이로 추정
-    } else if (payload && Array.isArray(payload.items)) {
-
-      items = payload.items;
-      outPage = payload.page ?? page;
-      outSize = payload.size ?? size;
-      hasMore = payload.hasMore ?? (items.length >= outSize);
+    if (Array.isArray(data)) {
+      items = data;
+    } else if (data && Array.isArray(data.items)) {
+      items = data.items;
+      nextCursor = data.nextCursor ?? null;
+      outSize = data.size ?? outSize;
     } else {
       items = [];
-      hasMore = false;
     }
 
-    return { items, page: outPage, size: outSize, hasMore };
+    if (nextCursor == null && items.length >= outSize) {
+      const last: any = items[items.length - 1];
+      const id = last?.memoId ?? last?.shelfBookId ?? null;
+      nextCursor = typeof id === "number" ? id : null;
+    }
+
+    return { items, nextCursor, size: outSize };
   },
 };

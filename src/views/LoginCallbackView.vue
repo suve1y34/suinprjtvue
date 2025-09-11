@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth.store';
+import { useAuthStore } from '@/stores';
 import { useRouter, useRoute } from 'vue-router';
 import { onMounted } from 'vue';
 
@@ -25,7 +25,7 @@ onMounted(async () => {
 
   if (token) {
     try {
-      await auth.loginByToken(token); // 토큰 저장 + /users/me 호출
+      await auth.loginByToken(token); // 토큰 저장 + 내정보 호출
       router.replace({ name: 'books-list' });
     } catch {
       alert('로그인 처리 중 오류가 발생했습니다.');

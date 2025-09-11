@@ -1,7 +1,18 @@
 <template>
   <section class="page">
     <header class="page__bar">
-      <div></div>
+      <div class="page__left">
+        <button
+          v-if="nickname"
+          type="button"
+          class="user-greet"
+          @click="openProfile"
+          :title="`${nickname} 님`"
+          aria-label="내 정보"
+        >
+          <span class="user-greet__name">{{ nickname }}</span> 님
+        </button>
+      </div>
 
       <h1 class="page-title page-title--xl">
         <span class="brand">
@@ -33,12 +44,34 @@
           </svg>
         </button>
 
-        <button type="button" class="btn btn--outline-black" @click="openSearch">책 추가</button>
-        <button @click="onLogout" class="btn btn--outline-danger">로그아웃</button>
+        <button
+          type="button"
+          class="icon-btn"
+          title="책 추가"
+          aria-label="책 추가"
+          @click="openSearch"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M4 5.5A1.5 1.5 0 015.5 4H18a2 2 0 012 2v12a1 1 0 01-1.5.87L16 17H5.5A1.5 1.5 0 014 15.5v-10z" stroke="currentColor" fill="none"/>
+            <path d="M12 8v6M9 11h6" stroke="currentColor" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="icon-btn"
+          title="로그아웃"
+          aria-label="로그아웃"
+          @click="onLogout"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M12 3v10" stroke="currentColor" fill="none"/>
+            <path d="M7 7a7 7 0 1010 0" stroke="currentColor" fill="none"/>
+          </svg>
+        </button>
       </div>
     </header>
 
-    <!-- ▼ 필터 툴바(왼쪽 정렬) -->
     <div class="page__toolbar">
       <select
         class="btn btn--outline-black"
@@ -90,25 +123,47 @@
       </button>
     </div>
 
-    <div v-if="loadingShelf" class="state">책장 불러오는 중…</div>
+    <!-- 통계 -->
+    <div class="page__stats" v-if="bookshelfId">
+      <span class="stats__item"><strong>{{ readCount }}</strong>권의 책</span>
+      <span class="stats__sep">·</span>
+      <span class="stats__item">총 <strong>{{ totalThicknessText }}</strong></span>
+    </div>
+    
+    <div v-if="loadingShelf" class="state state--center">책장 불러오는 중…</div>
     <div v-else-if="shelfError" class="state state--error">{{ shelfError }}</div>
 
     <div v-if="bookshelfId" class="shelf-wrap">
-      <Bookshelf class="shelf--center" :entries="store.shelfEntries" />
-      <BookSearchModal ref="searchRef" />
+      <template v-if="store.shelfEntries.length">
+        <Bookshelf class="shelf--center" :entries="store.shelfEntries" />
+        <BookSearchModal ref="searchRef" />
+      </template>
+      <template v-else>
+        <div class="empty-shelf">
+          <p class="empty-shelf__title">아직 책장에 책이 없어요.</p>
+          <p class="empty-shelf__hint">지금 바로 첫 책을 담아보세요.</p>
+          <button class="btn btn--outline-brand" @click="openSearch">책 추가</button>
+        </div>
+      </template>
     </div>
+    
+    <BookSearchModal ref="searchRef" />
+    <MyInfoModal ref="profileRef" />
   </section>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
 import { storeToRefs } from "pinia";
+
 import Bookshelf from "@/components/books/Bookshelf.vue";
 import BookSearchModal from "@/components/books/BookSearchModal.vue";
-import { useShelvesStore } from "@/stores/shelves.store";
-import { useAuthStore } from "@/stores/auth.store";
+import MyInfoModal from "@/components/user/MyInfoModal.vue";
+
+import { useShelvesStore } from "@/stores";
+import { useAuthStore } from "@/stores";
 import { useRouter } from "vue-router";
-import { useThemeStore } from "@/stores/theme.store";
+import { useThemeStore } from "@/stores";
 import type { ReadingStatus, ShelfListOpts } from "@/types/shelf";
 
 const store = useShelvesStore();
@@ -117,6 +172,9 @@ const { bookshelfId } = storeToRefs(store);
 const loadingShelf = computed(() => store.loading.shelf);
 const loadingItems = computed(() => store.loading.items);
 const shelfError = computed(() => store.error.shelf);
+
+const readCount = computed(() => store.readCount);
+const totalThicknessText = computed(() => `${store.totalThicknessCm.toFixed(1)} cm`);
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -130,6 +188,10 @@ const monthSel  = ref<string>(""); // ""=전체
 // 연도 목록(현재연도부터 10년치)
 const nowYear = new Date().getFullYear();
 const years = Array.from({ length: 11 }, (_, i) => nowYear - i);
+
+const profileRef = ref<InstanceType<typeof MyInfoModal> | null>(null);
+const nickname = computed(() => useAuthStore().user?.nickname ?? "");
+function openProfile(){ profileRef.value?.open?.(); }
 
 // 테마 토글 관련
 const themeStore = useThemeStore();
@@ -161,15 +223,13 @@ function reload() {
   });
 }
 
-function onChangeStatus() {
-  store.fetchShelfItems(currentFilter());
-}
-
 function onFilterChange() {
   store.fetchShelfItems(currentFilter());
 }
 
 async function onLogout() {
+  const ok = window.confirm("로그아웃 하시겠습니까?");
+  if (!ok) return;
   await auth.logout();
   router.replace({ name: 'login' });
 }
@@ -179,6 +239,7 @@ onMounted(async () => {
     router.replace({ name: 'login' });
     return;
   }
+  yearSel.value = String(nowYear);
   await reload();
 });
 </script>

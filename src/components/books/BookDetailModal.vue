@@ -12,13 +12,15 @@
             <img :src="coverUrl" :alt="book.title" @error="onImgError" />
           </div>
           <div class="meta">
-            <h3 class="book-title">{{ book.title }}</h3>
+            <div class="title-row-fixed">
+              <h3 class="book-title">{{ book.title }}</h3>
+              <button class="btn btn--outline-dark btn--sm" type="button" @click="onConfig">
+                내 책장에 추가
+              </button>
+            </div>
             <div class="book-author" v-if="book.author">{{ book.author }}</div>
             <div class="book-pages" v-if="(book as any).pages">{{ (book as any).pages }}p</div>
           </div>
-        </div>
-        <div class="modal__actions">
-          <button class="btn btn--outline-dark" type="button" @click="onConfig">책 추가</button>
         </div>
 
         <PublicMemoList

@@ -4,9 +4,12 @@ import type { Bookshelf, ShelfBook, ShelfAddPayload, ShelfUpdatePayload, ShelfLi
 
 
 export const shelvesApi = {
-  me(userId: number): Promise<Bookshelf> {
+  // 책장 정보
+  myShelf(userId: number): Promise<Bookshelf> {
     return apiClient.post(EP.shelves.myShelf, null, { userId })
   },
+
+  // 책장 안의 책
   listShelfBooks(bookshelfId: number, opts?: ShelfListOpts): Promise<ShelfBook[]> {
     const body: any = { bookshelfId };
     if (opts?.status) body.status = opts.status;
@@ -15,13 +18,19 @@ export const shelvesApi = {
     
     return apiClient.post<ShelfBook[]>(EP.shelves.list, body);
   },
-  addBook(payload: ShelfAddPayload) {
+
+  // 책 추가
+  addShelfItem(payload: ShelfAddPayload) {
     return apiClient.post(EP.shelves.add, payload);
   },
+
+  // 책 수정
   updateShelfItem(payload: ShelfUpdatePayload) {
     return apiClient.post(EP.shelves.update, payload);
   },
-  removeBook(bookshelfId: number, bookId: number) {
+
+  // 책 제거
+  removeShelfItem(bookshelfId: number, bookId: number) {
     return apiClient.post(EP.shelves.remove, null, { bookshelfId, bookId });
   },
 };

@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
-import { useShelvesStore } from "@/stores/shelves.store";
+import { useShelvesStore } from "@/stores";
 import type { AladinBook } from "@/types/aladin";
 import type { BookLike, ReadingStatus, ShelfUpdatePayload, MemoVisibility, AddPayload } from "@/types/shelf";
 
@@ -137,8 +137,8 @@ function onImgError(e: Event) {
 }
 
 const emit = defineEmits<{
-  (e: "confirm-add", payload: { book: BookLike; status: ReadingStatus; currentPage: number; memo?: string | null }): void;
-  (e: "confirm-edit", payload: ShelfUpdatePayload & { totalPages?: number }): void;
+  (e: 'confirm-add',  payload: AddPayload): void;
+  (e: 'confirm-edit', payload: ShelfUpdatePayload & { totalPages?: number }): void;
 }>();
 
 function resetState() {
@@ -150,6 +150,14 @@ function resetState() {
   memo.value = "";
   initial.value = null;
 }
+
+const statusLabel = computed(() => {
+  switch (status.value) {
+    case "READING": return "읽는중";
+    case "DONE":    return "다읽음";
+    default:        return "읽기전";
+  }
+});
 
 /* */
 async function ensureOpen() {
@@ -245,9 +253,11 @@ function onConfirm() {
   const visibility: MemoVisibility = memoPublic.value ? "PUBLIC" : "PRIVATE"; // ★
 
   const init = initial.value; // ★
-  const initMemoTrimmed = (init?.memo ?? "").trim();
 
   if (mode.value === "add") {
+    const ok = window.confirm(`‘${statusLabel.value}’ 상태로 책장에 추가하시겠습니까?`);
+    if (!ok) return;
+
     const payload: AddPayload = {
       book: book.value as BookLike,
       status: status.value,
@@ -257,10 +267,11 @@ function onConfirm() {
     };
     if (memoTrimmed.length > 0) payload.memo = memoTrimmed;
     emit("confirm-add", payload);
+
+    close();
+    return;
   } else if (shelfBookId.value != null) {
     const init = initial.value;
-    const statusChanged = init ? status.value !== init.status : true;
-    const pageChanged   = init ? cp !== init.currentPage : true;
     const memoChanged   = init ? memoTrimmed !== (init.memo ?? "").trim() : (memoTrimmed.length > 0);
 
     const payload: ShelfUpdatePayload & { totalPages?: number } = {
@@ -279,8 +290,8 @@ function onConfirm() {
     }
 
     emit("confirm-edit", payload);
+    close();
   }
-  close();
 }
 
 function handleDialogClose() {
