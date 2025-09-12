@@ -3,12 +3,16 @@ export type User = {
   userName: string;
   email: string;
   nickname?: string;
+  userPhone?: string;
+  goalYearlyCount?: number;
   createdDatetime?: string;
   modifiedDatetime?: string;
 };
 
 export type UserUpdatePayload = {
   nickname?: string;
+  userPhone?: string;
+  goalYearlyCount?: number;
 };
 
 export type UserServerResponse = {
@@ -16,8 +20,15 @@ export type UserServerResponse = {
   userEmail: string;
   userName: string;
   nickname?: string;
+  userPhone?: string;
   createdDatetime?: string;
   modifiedDatetime?: string;
+};
+
+export type GoalProgress = {
+  goal: number | null;
+  done: number;
+  progressPercent: number;
 };
 
 /* 로그인 옵션 */

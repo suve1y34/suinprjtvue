@@ -1,10 +1,14 @@
 import { apiClient } from "./http";
 import { EP } from "./endpoints";
-import type { User, UserUpdatePayload, UserServerResponse } from "@/types/user";
+import type { User, UserUpdatePayload, UserServerResponse, GoalProgress } from "@/types/user";
 
 export const usersApi = {
   getMe(): Promise<User> {
     return apiClient.post<User>(EP.users.myInfo);
+  },
+
+  async goalProgress(): Promise<GoalProgress> {
+    return await apiClient.get(EP.users.myGoal);
   },
 
   async updateMe(payload: UserUpdatePayload): Promise<User> {

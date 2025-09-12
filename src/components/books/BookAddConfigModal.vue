@@ -39,7 +39,7 @@
 
         <div class="form-col">
           <label class="form-label">독서 상태</label>
-          <select v-model="status" class="select">
+          <select v-model="status" class="select" @change="onStatusChange">
             <option value="PLAN">읽기전</option>
             <option value="READING">읽는중</option>
             <option value="DONE">다읽음</option>
@@ -59,6 +59,16 @@
           />
         </div>
 
+        <!-- 시작/종료 날짜 -->
+        <div class="form-col" v-if="status !== 'PLAN'">
+          <label class="form-label">시작일</label>
+          <input class="input" type="date" v-model="startDate" />
+        </div>
+        <div class="form-col" v-if="status === 'DONE'">
+          <label class="form-label">종료일</label>
+          <input class="input" type="date" v-model="endDate" />
+        </div>
+
         <div class="form-col">
           <label class="form-label">책 메모</label>
           <textarea
@@ -69,12 +79,23 @@
           ></textarea>
         </div>
 
+        <!-- 리뷰 + 공개여부 -->
         <div class="form-col">
-          <label class="form-label">메모 공개</label>
+          <label class="form-label">리뷰</label>
+          <textarea
+            class="textarea textarea--sm"
+            rows="4"
+            v-model="review"
+            placeholder="다른 사람과 공유할 수 있는 리뷰를 입력하세요"
+          ></textarea>
+        </div>
+
+        <div class="form-col">
+          <label class="form-label">리뷰 공개</label>
           <label class="switch">
-            <input type="checkbox" v-model="memoPublic" />
+            <input type="checkbox" v-model="reviewPublic" />
             <span class="slider"></span>
-            <span class="switch__label">{{ memoPublic ? '공개' : '비공개' }}</span>
+            <span class="switch__label">{{ reviewPublic ? '공개' : '비공개' }}</span>
           </label>
         </div>
 
@@ -91,7 +112,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { useShelvesStore } from "@/stores";
 import type { AladinBook } from "@/types/aladin";
-import type { BookLike, ReadingStatus, ShelfUpdatePayload, MemoVisibility, AddPayload } from "@/types/shelf";
+import type { BookLike, ReadingStatus, ShelfUpdatePayload, Visibility, AddPayload } from "@/types/shelf";
 
 
 const store = useShelvesStore();
@@ -104,10 +125,29 @@ const book = ref<BookLike | null>(null);
 const status = ref<ReadingStatus>("PLAN");
 const currentPage = ref<number>(0);
 
+const startDate = ref<string|null>(null);
+const endDate = ref<string|null>(null);
+
 const memo = ref<string>("");
-const memoPublic = ref<boolean>(false);
+const review = ref<string>("");
+const reviewPublic = ref<boolean>(false);
 
 const pages = computed<number | undefined>(() => book.value?.pages ?? undefined);
+
+const todayStr = () => new Date().toISOString().slice(0, 10);
+
+function onStatusChange() {
+  if (status.value === "READING") {
+    if (!startDate.value) startDate.value = todayStr();
+    endDate.value = null;
+  } else if (status.value === "DONE") {
+    if (!startDate.value) startDate.value = todayStr();
+    if (!endDate.value) endDate.value = todayStr();
+  } else if (status.value === "PLAN") {
+    startDate.value = null;
+    endDate.value = null;
+  }
+}
 
 const percentValue = computed<number>(() => {
   const tp = typeof pages.value === 'number' ? pages.value : 0;
@@ -123,7 +163,7 @@ const percentText = computed<string>(() => {
   return `${percentValue.value}%`;
 });
 
-const initial = ref<{ status: ReadingStatus; currentPage: number; memo: string } | null>(null);
+const initial = ref<{ status: ReadingStatus; currentPage: number; memo: string; review: string; reviewPublic: boolean; startDate: string|null; endDate: string|null } | null>(null);
 
 // 커버 미리보기 URL
 const coverUrl = computed<string | undefined>(() => {
@@ -148,6 +188,10 @@ function resetState() {
   status.value = "PLAN";
   currentPage.value = 0;
   memo.value = "";
+  review.value = "";
+  reviewPublic.value = false;
+  startDate.value = null;
+  endDate.value = null;
   initial.value = null;
 }
 
@@ -184,13 +228,21 @@ function openFromSearch(b: AladinBook) {
   status.value = "PLAN";
   currentPage.value = 0;
   memo.value = "";
-  memoPublic.value = false;
+  review.value = "";
+  reviewPublic.value = false;
 
   initial.value = {
     status: status.value,
     currentPage: currentPage.value,
-    memo: memo.value
+    memo: memo.value,
+    review: review.value,
+    reviewPublic: reviewPublic.value,
+    startDate: startDate.value,
+    endDate: endDate.value
   };
+
+  startDate.value=null;
+  endDate.value=null;
 
   ensureOpen();
 }
@@ -205,7 +257,10 @@ async function openFromShelf(entry: {
   readingStatus?: ReadingStatus;
   currentPage?: number;
   memo?: string | null;
-  memoVisibility?: MemoVisibility;
+  review?: string | null;
+  reviewVisibility?: Visibility;
+  startDate?: string | null;
+  endDate?: string | null;
   book?: { title?: string; author?: string; pages?: number; isbn13Code?: string };
 }) {
   mode.value = "edit";
@@ -223,12 +278,21 @@ async function openFromShelf(entry: {
   status.value = (fresh as any).readingStatus ?? entry.readingStatus ?? "PLAN";
   currentPage.value = (fresh as any).currentPage ?? entry.currentPage ?? 0;
   memo.value = (fresh as any).memo ?? entry.memo ?? "";
-  memoPublic.value = ((fresh as any).memoVisibility ?? entry.memoVisibility) === "PUBLIC";
+  review.value = (fresh as any).review ?? entry.review ?? "";
+  reviewPublic.value = ((fresh as any).reviewVisibility ?? entry.reviewVisibility) === "PUBLIC";
+
+
+  startDate.value=entry.startDate||null;
+  endDate.value=entry.endDate||null;
 
   initial.value = {
     status: status.value,
     currentPage: currentPage.value,
-    memo: memo.value ?? ""
+    memo: memo.value ?? "",
+    review: review.value ?? "",
+    reviewPublic: reviewPublic.value,
+    startDate: startDate.value,
+    endDate: endDate.value
   };
 
   ensureOpen();
@@ -250,9 +314,8 @@ function onConfirm() {
   if (typeof total === "number") cp = Math.max(0, Math.min(cp, total));
 
   const memoTrimmed = (memo.value ?? "").trim();
-  const visibility: MemoVisibility = memoPublic.value ? "PUBLIC" : "PRIVATE"; // ★
-
-  const init = initial.value; // ★
+  const reviewTrimmed = (review.value ?? "").trim();
+  const reviewVis: Visibility = reviewPublic.value ? "PUBLIC" : "PRIVATE";
 
   if (mode.value === "add") {
     const ok = window.confirm(`‘${statusLabel.value}’ 상태로 책장에 추가하시겠습니까?`);
@@ -261,9 +324,15 @@ function onConfirm() {
     const payload: AddPayload = {
       book: book.value as BookLike,
       status: status.value,
+      startDate:startDate.value||undefined,
+      endDate:endDate.value||undefined,
       currentPage: cp,
       memo: memoTrimmed || undefined,
-      memoVisibility: visibility,
+      memoVisibility: 'PRIVATE',
+
+      // 리뷰
+      review: reviewTrimmed || undefined,
+      reviewVisibility: reviewVis,
     };
     if (memoTrimmed.length > 0) payload.memo = memoTrimmed;
     emit("confirm-add", payload);
@@ -272,22 +341,25 @@ function onConfirm() {
     return;
   } else if (shelfBookId.value != null) {
     const init = initial.value;
-    const memoChanged   = init ? memoTrimmed !== (init.memo ?? "").trim() : (memoTrimmed.length > 0);
+    const memoChanged   = init ? memoTrimmed   !== (init.memo ?? "")         : (memoTrimmed.length > 0);
+    const reviewChanged = init ? reviewTrimmed !== (init.review ?? "") || reviewPublic.value !== init.reviewPublic
+                               : (reviewTrimmed.length > 0);
 
     const payload: ShelfUpdatePayload & { totalPages?: number } = {
       shelfBookId: shelfBookId.value!,
       currentPage: cp,
+      startDate:startDate.value||undefined,
+      endDate:endDate.value||undefined,
       readingStatus: status.value,
       totalPages: total,
-      memoVisibility: visibility,
+      memoChanged,
+      memo: memoChanged ? (memoTrimmed.length ? memoTrimmed : null) : undefined,
+      memoVisibility: 'PRIVATE',
+      // 리뷰
+      review: reviewChanged ? (reviewTrimmed.length ? reviewTrimmed : null) : undefined,
+      reviewVisibility: reviewChanged ? reviewVis : undefined,
+      reviewChanged,
     };
-
-    if (memoChanged) {
-      payload.memoChanged = true;
-      payload.memo = memoTrimmed.length ? memoTrimmed : null;
-    } else {
-      payload.memoChanged = false;
-    }
 
     emit("confirm-edit", payload);
     close();

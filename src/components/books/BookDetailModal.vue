@@ -23,7 +23,7 @@
           </div>
         </div>
 
-        <PublicMemoList
+        <PublicReviewList
           class="mt-8"
           :isbn13-code="(book as any).isbn13Code"
         />
@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import type { AladinBook } from '@/types/aladin';
-import PublicMemoList from './PublicMemoList.vue';
+import PublicReviewList from './PublicReviewList.vue';
 
 const dlg = ref<HTMLDialogElement | null>(null);
 const book = ref<AladinBook | null>(null);

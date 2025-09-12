@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { api } from '@/api';
-import type { ShelfBook, ShelfAddByIsbn13Payload, ShelfAddPayload, ShelfUpdatePayload, ShelfListOpts } from "@/types/shelf";
+import type { ShelfBook, ShelfAddByIsbn13Payload, ShelfAddPayload, ShelfUpdatePayload, ShelfListOpts, ShelfStats } from "@/types/shelf";
 import type { Book } from "@/types/book";
 import { pagesToCm } from "@/utils/thickness";
 
@@ -21,7 +21,9 @@ function normalizeShelfItem(raw: any): ShelfBook {
     currentPage: typeof raw.currentPage === "number" ? raw.currentPage : 0,
     readingStatus: (raw.readingStatus as any) ?? "PLAN",
     memo: raw.memo ?? null,
-    memoVisibility: raw.memoVisibility ?? "PRIVATE",
+    memoVisibility: 'PRIVATE',
+    review: raw.review ?? null,
+    reviewVisibility: (raw.reviewVisibility as any) ?? 'PRIVATE',
     addedDatetime: raw.addedDatetime,
     modifiedDatetime: raw.modifiedDatetime,
     book,
@@ -32,9 +34,11 @@ export const useShelvesStore = defineStore("shelves", {
   state: () => ({
     bookshelfId: null as number | null,
     shelfItems: [] as ShelfBook[],
-    loading: { shelf: false, items: false },
-    error:   { shelf: null as string | null, items: null as string | null },
+    loading: { shelf: false, items: false, stats: false },
+    error:   { shelf: null as string | null, items: null as string | null, stats: null as string | null },
     mutating: false as boolean, // 추가/삭제 중 상태
+    stats: null as ShelfStats | null,
+    statsYear: new Date().getFullYear() as number, // 선택 연도
   }),
 
   getters: {
@@ -82,10 +86,16 @@ export const useShelvesStore = defineStore("shelves", {
       this.mutating = true;
 
       try {
+        const base = {
+          bookshelfId: this.bookshelfId,
+          memoVisibility: 'PRIVATE' as const,
+          review: null as string | null,
+          reviewVisibility: 'PRIVATE' as const,
+        };
         const payload: ShelfAddPayload =
           typeof arg === "number"
-            ? { bookshelfId: this.bookshelfId, bookId: arg }
-            : { bookshelfId: this.bookshelfId, ...arg };
+            ? { ...base, bookId: arg }
+            : { ...base, ...arg };
 
         await api.shelves.addShelfItem(payload);
         await this.fetchShelfItems();
@@ -134,6 +144,22 @@ export const useShelvesStore = defineStore("shelves", {
         throw e;
       } finally {
         this.mutating = false;
+      }
+    },
+
+    async fetchStats(year?: number) {
+      this.loading.stats = true;
+      this.error.stats = null;
+      try {
+        const y = year ?? this.statsYear;
+        const res = await api.shelves.stats(y);
+        this.stats = res;
+        this.statsYear = y;
+      } catch (e: any) {
+        this.error.stats = e?.message ?? "통계 로드 실패";
+        this.stats = null;
+      } finally {
+        this.loading.stats = false;
       }
     },
   },

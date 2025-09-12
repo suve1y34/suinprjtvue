@@ -69,12 +69,23 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async fetchGoalProgress() {
+      return await api.users.goalProgress();
+    },
+
     async updateMe(payload: UserUpdatePayload) {
       const updated = await api.users.updateMe(payload);
       // 스토어 갱신
       this.user = this.user
-        ? { ...this.user, userName: updated.userName, nickname: updated.nickname, email: updated.email }
-        : updated;
+      ? { 
+          ...this.user,
+          userName: updated.userName,
+          nickname: updated.nickname,
+          email: updated.email,
+          userPhone: updated.userPhone,
+          goalYearlyCount: updated.goalYearlyCount,
+        }
+      : updated;
 
       // 저장된 토큰이 있는 저장소에만 사용자 정보 반영
       const userStr = JSON.stringify(this.user);

@@ -71,64 +71,122 @@
         </button>
       </div>
     </header>
+    <div class="page__stack">
+      <div class="page__toolbar">
+        <select
+          class="btn btn--outline-black"
+          v-model="statusSel"
+          @change="onFilterChange"
+          :disabled="loadingShelf || loadingItems"
+          title="읽기 상태 필터"
+        >
+          <option value="">독서 상태</option>
+          <option value="PLAN">읽기전</option>
+          <option value="READING">읽는중</option>
+          <option value="DONE">다읽음</option>
+        </select>
 
-    <div class="page__toolbar">
-      <select
-        class="btn btn--outline-black"
-        v-model="statusSel"
-        @change="onFilterChange"
-        :disabled="loadingShelf || loadingItems"
-        title="읽기 상태 필터"
-      >
-        <option value="">전체</option>
-        <option value="PLAN">읽기전</option>
-        <option value="READING">읽는중</option>
-        <option value="DONE">다읽음</option>
-      </select>
+        <select
+          class="btn btn--outline-black"
+          v-model="yearSel"
+          @change="onFilterChange"
+          :disabled="loadingShelf || loadingItems"
+          title="연도 필터"
+        >
+          <option value="">전체 연도</option>
+          <option v-for="y in years" :key="y" :value="String(y)">{{ y }}</option>
+        </select>
 
-      <select
-        class="btn btn--outline-black"
-        v-model="yearSel"
-        @change="onFilterChange"
-        :disabled="loadingShelf || loadingItems"
-        title="연도 필터"
-      >
-        <option value="">전체 연도</option>
-        <option v-for="y in years" :key="y" :value="String(y)">{{ y }}</option>
-      </select>
+        <select
+          class="btn btn--outline-black"
+          v-model="monthSel"
+          @change="onFilterChange"
+          :disabled="loadingShelf || loadingItems"
+          title="월 필터"
+        >
+          <option value="">전체 월</option>
+          <option v-for="m in 12" :key="m" :value="String(m)">{{ m }}</option>
+        </select>
+      </div>
 
-      <select
-        class="btn btn--outline-black"
-        v-model="monthSel"
-        @change="onFilterChange"
-        :disabled="loadingShelf || loadingItems"
-        title="월 필터"
-      >
-        <option value="">전체 월</option>
-        <option v-for="m in 12" :key="m" :value="String(m)">{{ m }}</option>
-      </select>
+      <div class="page__toolbar">
+        <!-- 검색 -->
+        <input
+          class="input"
+          type="search"
+          v-model.trim="keyword"
+          placeholder="제목/저자 검색"
+          @input="onKeywordInput"
+          @keyup.enter="onFilterChange"
+          style="min-width: 180px;"
+        />
 
-      <button
-        type="button"
-        class="icon-btn"
-        :disabled="loadingShelf || loadingItems"
-        title="새로고침"
-        aria-label="새로고침"
-        @click="reload"
-      >
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-          <path d="M4 4v6h6M20 20v-6h-6" stroke="currentColor" fill="none"/>
-          <path d="M20 9a7 7 0 00-12-5.2M4 15a7 7 0 0012 5.2" stroke="currentColor" fill="none"/>
-        </svg>
-      </button>
+        <!-- 정렬 -->
+        <select
+          class="btn btn--outline-black"
+          v-model="sortSel"
+          @change="onFilterChange"
+          :disabled="loadingShelf || loadingItems"
+          title="정렬"
+        >
+          <option value="">정렬 기준</option>
+          <option value="added">추가일</option>
+          <option value="title">제목</option>
+          <option value="pages">페이지</option>
+        </select>
+
+        <select
+          class="btn btn--outline-black"
+          v-model="orderSel"
+          @change="onFilterChange"
+          :disabled="loadingShelf || loadingItems"
+          title="정렬 방식"
+        >
+          <option value="">정렬 방식</option>
+          <option value="desc">내림차순</option>
+          <option value="asc">오름차순</option>
+        </select>
+
+        <button
+          type="button"
+          class="icon-btn"
+          :disabled="loadingShelf || loadingItems"
+          title="새로고침"
+          aria-label="새로고침"
+          @click="reload"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M4 4v6h6M20 20v-6h-6" stroke="currentColor" fill="none"/>
+            <path d="M20 9a7 7 0 00-12-5.2M4 15a7 7 0 0012 5.2" stroke="currentColor" fill="none"/>
+          </svg>
+        </button>
+      </div>
+
+      <div v-if="goalProgress" class="goal-progress">
+        <span class="goal-progress__label">목표</span>
+        <strong class="goal-progress__nums">{{ goalProgress.done }}</strong>
+        <span class="goal-progress__slash">/</span>
+        <strong class="goal-progress__nums">{{ goalProgress.goal ?? '—' }}</strong>
+        <span class="goal-progress__percent">({{ goalProgress.progressPercent }}%)</span>
+      </div>
+
+      <div class="page__stats" v-if="bookshelfId">
+        <span class="stats__item"><strong>{{ readCount }}</strong>권의 책</span>
+        <span class="stats__sep">·</span>
+        <span class="stats__item">총 <strong>{{ totalThicknessText }}</strong></span>
+
+        <button
+          type="button"
+          class="btn btn--outline-black stats-btn"
+          @click="openStats"
+        >
+          📊 통계 보기
+        </button>
+      </div>
+
+      
     </div>
-
-    <!-- 통계 -->
-    <div class="page__stats" v-if="bookshelfId">
-      <span class="stats__item"><strong>{{ readCount }}</strong>권의 책</span>
-      <span class="stats__sep">·</span>
-      <span class="stats__item">총 <strong>{{ totalThicknessText }}</strong></span>
-    </div>
+    
     
     <div v-if="loadingShelf" class="state state--center">책장 불러오는 중…</div>
     <div v-else-if="shelfError" class="state state--error">{{ shelfError }}</div>
@@ -149,6 +207,7 @@
     
     <BookSearchModal ref="searchRef" />
     <MyInfoModal ref="profileRef" />
+    <ReadingStatsModal ref="statsRef" />
   </section>
 </template>
 
@@ -159,11 +218,13 @@ import { storeToRefs } from "pinia";
 import Bookshelf from "@/components/books/Bookshelf.vue";
 import BookSearchModal from "@/components/books/BookSearchModal.vue";
 import MyInfoModal from "@/components/user/MyInfoModal.vue";
+import ReadingStatsModal from "@/components/books/ReadingStatsModal.vue";
 
 import { useShelvesStore } from "@/stores";
 import { useAuthStore } from "@/stores";
 import { useRouter } from "vue-router";
 import { useThemeStore } from "@/stores";
+import type { GoalProgress } from "@/types/user";
 import type { ReadingStatus, ShelfListOpts } from "@/types/shelf";
 
 const store = useShelvesStore();
@@ -189,6 +250,21 @@ const monthSel  = ref<string>(""); // ""=전체
 const nowYear = new Date().getFullYear();
 const years = Array.from({ length: 11 }, (_, i) => nowYear - i);
 
+const keyword  = ref<string>('');
+const sortSel  = ref<'added'|'title'|'pages'|''>('');
+const orderSel = ref<'asc'|'desc'|''>('');
+
+let kwTimer: number | undefined;
+function onKeywordInput() {
+  if (kwTimer) window.clearTimeout(kwTimer);
+  kwTimer = window.setTimeout(() => {
+    onFilterChange();
+  }, 300);
+}
+
+const statsRef = ref<InstanceType<typeof ReadingStatsModal>|null>(null);
+function openStats(){ statsRef.value?.open(); }
+
 const profileRef = ref<InstanceType<typeof MyInfoModal> | null>(null);
 const nickname = computed(() => useAuthStore().user?.nickname ?? "");
 function openProfile(){ profileRef.value?.open?.(); }
@@ -203,6 +279,12 @@ function toggleTheme() {
   themeStore.toggleCycle();
 }
 
+const goalProgress = ref<GoalProgress|null>(null);
+
+onMounted(async () => {
+  goalProgress.value = await auth.fetchGoalProgress();
+});
+
 const searchRef = ref<InstanceType<typeof BookSearchModal> | null>(null);
 
 function openSearch() {
@@ -213,7 +295,13 @@ function currentFilter(): ShelfListOpts {
   const status = statusSel.value || undefined;
   const year = yearSel.value ? Number(yearSel.value) : undefined;
   const month = monthSel.value ? Number(monthSel.value) : undefined;
-  return { status, year, month };
+
+  return {
+    status, year, month,
+    keyword: keyword.value || undefined,
+    sort: sortSel.value || undefined,
+    order: orderSel.value || undefined,
+  };
 }
 
 function reload() {

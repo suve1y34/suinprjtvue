@@ -3,7 +3,6 @@
   display:flex;
   justify-content:center;
   align-items:flex-start;   /* 상단 정렬로 변경 */
-  /* min-height 제거: 콘텐츠가 적을 때 불필요 스크롤 방지 */
   padding: 8px 0;           /* 상하 패딩 살짝만 */
 }
 

@@ -8,7 +8,7 @@ export const EP = {
   books: {
     list: '/books/list',
     detail: '/books/detail',
-    publicMemos: '/books/memos/public/list',
+    publicReviews: '/books/reviews/public/list',
   },
   shelves: {
     myShelf: "/shelves/books/me",
@@ -18,9 +18,11 @@ export const EP = {
     remove: "/shelves/books/remove",
     updateProgress: "/shelves/books/updateProgress",
     updateMemo: "/shelves/books/updateMemo",
+    stats: "/shelves/books/stats",
   },
   users: {
     myInfo: '/users/me',
+    myGoal: '/users/goal-progress',
   },
 
 } as const;

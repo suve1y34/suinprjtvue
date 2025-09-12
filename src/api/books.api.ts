@@ -1,6 +1,6 @@
 import { apiClient } from './http';
 import { EP } from "./endpoints";
-import type { Book, PublicMemo, ListPublicMemosReq, ListPublicMemosRes } from '@/types/book';
+import type { Book, PublicReivew, ListPublicReviewsReq, ListPublicReviewsRes } from '@/types/book';
 
 export const booksApi = {
   // 책 리스트/상세 -> 테스트용..
@@ -12,10 +12,10 @@ export const booksApi = {
   },
 
   // 책 메모 리스트
-  async listPublicMemos(params: ListPublicMemosReq): Promise<ListPublicMemosRes> {
+  async listPublicReviews(params: ListPublicReviewsReq): Promise<ListPublicReviewsRes> {
     const size = params.size ?? 10;
 
-    const raw: any = await apiClient.post(EP.books.publicMemos, null, {
+    const raw: any = await apiClient.post(EP.books.publicReviews, null, {
       isbn13Code: params.isbn13Code,
       bookId: params.bookId,
       cursor: params.cursor ?? null,
@@ -24,7 +24,7 @@ export const booksApi = {
 
     const data = raw?.data ?? raw;
 
-    let items: PublicMemo[] = [];
+    let items: PublicReivew[] = [];
     let nextCursor: number | null = null;
     let outSize = size;
 

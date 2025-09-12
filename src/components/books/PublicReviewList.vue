@@ -1,7 +1,7 @@
 <template>
   <section class="memo-section">
     <header class="memo-head">
-      <strong>공개 메모</strong>
+      <strong>공개 리뷰</strong>
       <span class="memo-count" v-if="items.length">({{ items.length }}개+)</span>
     </header>
 
@@ -16,11 +16,11 @@
           <span class="memo-dot">·</span>
           <span class="memo-date">{{ m.addedDatetime }}</span>
         </div>
-        <p class="memo-body">{{ m.memo }}</p>
+        <p class="memo-body">{{ m.review }}</p>
       </li>
     </ul>
 
-    <div class="memo-empty" v-else>아직 작성된 메모가 없어요.</div>
+    <div class="memo-empty" v-else>아직 작성된 리뷰가 없어요.</div>
 
     <div class="memo-more" v-if="hasMore">
       <button class="btn btn--outline-black" :disabled="loading" @click="loadMore">
@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch, computed } from "vue";
 import { booksApi } from "@/api/books.api";
-import type { PublicMemo } from "@/types/book";
+import type { PublicReivew } from "@/types/book";
 
 const props = defineProps<{
   bookId?: number;
@@ -41,7 +41,7 @@ const props = defineProps<{
   pageSize?: number;
 }>();
 
-const items = ref<PublicMemo[]>([]);
+const items = ref<PublicReivew[]>([]);
 const nextCursor = ref<number | null>(null);
 const size = ref(props.pageSize ?? 10);
 const loading = ref(false);
@@ -59,7 +59,7 @@ async function fetchFirst() {
 
   loading.value = true;
   try {
-    const res = await booksApi.listPublicMemos({
+    const res = await booksApi.listPublicReviews({
       bookId: props.bookId,
       isbn13Code: props.isbn13Code,
       cursor: null,        // 최초 조회는 null
@@ -78,7 +78,7 @@ async function loadMore() {
 
   loading.value = true;
   try {
-    const res = await booksApi.listPublicMemos({
+    const res = await booksApi.listPublicReviews({
       bookId: props.bookId,
       isbn13Code: props.isbn13Code,
       cursor: nextCursor.value, // 다음 커서로 조회

@@ -9,15 +9,15 @@ export interface Book {
   coverImageUrl?: string;
 }
 
-export interface PublicMemo {
+export interface PublicReivew {
   shelfBookId?: number;
   nickname: string;
   addedDatetime: string; // "YYYY-MM-DD HH:mm:ss"
-  memo: string;
+  review: string;
 }
 
 // 메모리스트 요청 param
-export interface ListPublicMemosReq {
+export interface ListPublicReviewsReq {
   bookId?: number;
   isbn13Code?: string;
   cursor?: number | null; // 마지막으로 본 memo id
@@ -25,8 +25,8 @@ export interface ListPublicMemosReq {
 }
 
 // 메모리스트 응답
-export interface ListPublicMemosRes {
-  items: PublicMemo[];
+export interface ListPublicReviewsRes {
+  items: PublicReivew[];
   nextCursor: number | null; // 다음 호출에 넘길 커서
   size: number;
 }
