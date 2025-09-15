@@ -6,7 +6,8 @@ export interface Bookshelf {
 
 export type Visibility = 'PUBLIC'|'PRIVATE';
 export type ReadingStatus = "PLAN" | "READING" | "DONE";
-export type BookLike = { title?: string; author?: string; pages?: number; isbn13Code?: string };
+export type memoVisibility = Visibility;
+export type BookLike = { title?: string; author?: string; pages?: number; isbn13Code?: string; coverImageUrl?: string; };
 
 export interface ShelfBook {
   shelfBookId: number;
@@ -17,7 +18,7 @@ export interface ShelfBook {
   endDate?: string;
   readingStatus: ReadingStatus;
   memo?: string | null;
-  memoVisibility: 'PRIVATE';
+  memoVisibility: Visibility;
   review: string | null;
   reviewVisibility: Visibility;
   addedDatetime: string;
@@ -37,7 +38,7 @@ export type ShelfAddByIsbn13Payload = {
   startDate?: string;
   endDate?: string;
   memo?: string | null;
-  memoVisibility: 'PRIVATE';
+  memoVisibility: Visibility;
   review: string | null;
   reviewVisibility: Visibility;
 };
@@ -49,7 +50,7 @@ export type AddPayload = {
   startDate?: string;
   endDate?: string;
   memo?: string;
-  memoVisibility?: 'PRIVATE';
+  memoVisibility?: Visibility;
 
   // 리뷰(공개 가능)
   review?: string | null;
@@ -65,7 +66,7 @@ export type ShelfAddPayload =
       startDate?: string;
       endDate?: string;
       memo?: string | null;
-      memoVisibility?: 'PRIVATE';
+      memoVisibility?: Visibility;
 
       // 리뷰(공개 가능)
       review?: string | null;
@@ -81,7 +82,7 @@ export type ShelfUpdatePayload = {
   endDate?: string;   // 'YYYY-MM-DD'
   memo?: string | null;
   memoChanged?: boolean | null;
-  memoVisibility?: 'PRIVATE';
+  memoVisibility?: Visibility;
 
   // 리뷰(공개 가능)
   review?: string | null;

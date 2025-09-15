@@ -6,9 +6,6 @@
     :title="titleAttr"
     @click="openEdit"
   >
-    <span class="badge" :class="badgeClass">
-      {{ statusLabel }}
-    </span>
     <span class="spine__title">{{ book.title }}</span>
     <span v-show="showProgress" class="spine__progress">{{ percentText }}</span>
   </div>
@@ -80,19 +77,6 @@ const percentText = computed(() => (tp.value ? `${percentValue.value}%` : '—%'
 const titleAttr = computed(() => {
   const status = props.readingStatus ?? "PLAN";
   return `${props.book.title} — ${cp.value}${tp.value ? " / " + tp.value : ""}p · ${status}`;
-});
-
-const badgeClass = computed(() => {
-  const s = (props.readingStatus ?? 'PLAN').toLowerCase(); // plan|reading|done
-  return `badge--${s}`;
-});
-
-const statusLabel = computed(() => {
-  switch (props.readingStatus) {
-    case "READING": return "읽는중";
-    case "DONE":    return "다읽음";
-    default:        return "읽기전";
-  }
 });
 
 function openEdit() { emit("open-edit"); }

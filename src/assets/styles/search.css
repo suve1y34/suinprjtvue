@@ -66,6 +66,7 @@
   align-items: stretch;
 }
 .search-input {
+  width: 100%;
   padding: 6px 10px;
   height: 20px;
 }
@@ -85,10 +86,7 @@
 }
 .searchbar__box > .search-input,
 .searchbar__box > input{
-  width: 100%;
-  box-sizing: border-box;
-  height: 36px;            /* 버튼 높이와 맞춤 */
-  line-height: 36px;
+  height: 36px; /* 공통과 맞춤 */
   padding: 0 12px;
 }
 
@@ -143,16 +141,6 @@
   text-decoration: underline;
   cursor: pointer;
 }
-
-.modal__box .switch{ display:inline-flex; align-items:center; gap:8px; }
-
-.switch{ display:inline-flex; align-items:center; gap:8px; user-select:none; cursor:pointer; }
-.switch input{ display:none; }
-.slider{
-  position:relative; width:38px; height:20px; border-radius:999px;
-  background:#e5e7eb; transition:background .15s ease;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
-}
 .slider::after{
   content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%;
   background:#fff; box-shadow: 0 1px 2px rgba(0,0,0,.15);
@@ -160,7 +148,6 @@
 }
 input:checked + .slider{ background: var(--color-brand, #c29a82); }
 input:checked + .slider::after{ left:20px; }
-.switch__label{ font-size:12px; opacity:.85; }
 
 
 /* 정보 그리드 예시(기존 유지) */

@@ -37,16 +37,56 @@
 
 /* --- 아이콘 버튼 --- */
 .icon-btn{
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
   border-radius: var(--radius);
-  border: 1px solid var(--color-ink);
-  background: #fff;
+  border: none;                 /* 테두리 제거로 상단바 깔끔 */
+  background: transparent;
   color: var(--color-ink);
   cursor: pointer;
 }
 .icon-btn:hover{ background: var(--color-surface); }
-.icon-btn:disabled{ opacity: .6; cursor: not-allowed; }
-.icon-btn svg{ width: 18px; height: 18px; display: block; }
+.icon-btn:disabled{ opacity:.6; cursor:not-allowed; }
+.icon-btn svg{ width:18px; height:18px; display:block; }
+.theme-dark .icon-btn{ color: var(--color-text); }
+.theme-dark .icon-btn:hover{ background: rgba(255,255,255,0.06); }
+
+.input, .select, .textarea{
+  box-sizing: border-box;
+  border:1px solid var(--color-border);
+  border-radius:6px;
+  background: var(--color-input-bg);
+  color: var(--color-text);
+}
+.input, .select{ height: 36px; padding: 8px 10px; }
+.textarea{ padding: 8px 10px; line-height: 1.45; resize: vertical; }
+
+.input:focus, .select:focus, .textarea:focus{
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(194,154,130,.2);
+  outline: none;
+}
+
+/* 다크 */
+.theme-dark .textarea,
+.theme-dark .input, .theme-dark .select{
+  background: #1f1f22;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.switch{ display:inline-flex; align-items:center; gap:8px; user-select:none; cursor:pointer; }
+.switch input{ display:none; }
+.slider{
+  position:relative; width:38px; height:20px; border-radius:999px;
+  background:#e5e7eb; transition:background .15s ease;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+}
+.slider::after{
+  content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%;
+  background:#fff; box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  transition:left .15s ease;
+}
+input:checked + .slider{ background: var(--color-brand); }
+input:checked + .slider::after{ left:20px; }
+.switch__label{ font-size:12px; opacity:.85; }

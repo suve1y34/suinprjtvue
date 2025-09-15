@@ -11,7 +11,7 @@
           <input
             v-model.trim="q"
             type="text"
-            class="search-input"
+            class="input search-input"
             placeholder="검색 키워드 입력(제목/저자)"
             @keyup.enter="onSearch"
             @focus="onFocus"
@@ -125,7 +125,28 @@ onBeforeUnmount(() => { dlg.value?.removeEventListener("close", onDlgClose); });
 const detailRef = ref<InstanceType<typeof BookDetailModal> | null>(null);
 const configRef = ref<InstanceType<typeof BookAddConfigModal> | null>(null);
 
-function openDetail(b: AladinBook) { detailRef.value?.open(b); }
+function openDetail(b: AladinBook) {
+  const code = (b as any).isbn13Code ?? (b as any).isbn13 ?? "";
+  const t = (b.title ?? "").trim().toLowerCase();
+  const a = (b.author ?? "").trim().toLowerCase();
+
+  const already = store.shelfItems.some(i => {
+    const ib = i.book || {};
+    console.log(ib)
+    // 1) ISBN 우선 비교
+    if (code && (ib.isbn13Code ?? "").trim() === code) return true;
+    // 2) ISBN 없으면 제목+저자 느슨 비교
+    const tt = (ib.title ?? "").trim().toLowerCase();
+    const aa = (ib.author ?? "").trim().toLowerCase();
+    return !code && !!t && !!a && tt === t && aa === a;
+  });
+
+  console.log('already', already)
+
+  // 두 번째 인자로 플래그 전달
+  detailRef.value?.open(b, { isAdded: already });
+}
+
 function openConfig(b: AladinBook) {
   configRef.value?.openFromSearch(b);
 }
@@ -220,7 +241,7 @@ function onImgError(e: Event) {
 }
 
 async function onConfirmAdd(p: AddPayload): Promise<void> {
-  const { book, status, currentPage, memo, memoVisibility } = p;
+  const { book, status, currentPage, memo, memoVisibility, review, reviewVisibility } = p;
   const pages = (book as any).pages ?? (book as any).itemPage ?? undefined;
 
   const deriveStatus = (cp: number, total?: number): ReadingStatus => {
@@ -243,7 +264,9 @@ async function onConfirmAdd(p: AddPayload): Promise<void> {
       readingStatus: status,
       currentPage,
       memo: memo ?? undefined,
-      memoVisibility,
+      memoVisibility: memoVisibility ?? "PRIVATE",
+      review: review ?? null,
+      reviewVisibility: reviewVisibility ?? "PRIVATE",
     }); 
 
     if (currentPage > 0) {

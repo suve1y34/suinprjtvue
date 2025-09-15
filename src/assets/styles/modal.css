@@ -9,9 +9,6 @@
   place-items: center;     /* 가로/세로 중앙 */
   inset: 0;                /* 백드롭 영역 꽉 채움 */
 }
-.modal::backdrop{
-  background: rgba(0,0,0,.35);
-}
 /* 오버레이 배경 */
 .modal::backdrop{ background: rgba(0,0,0,.35); }
 
@@ -68,57 +65,8 @@
   opacity: .85;
 }
 
-/* 입력 공통 (select / input) */
-.modal__box .select,
-.modal__box .input{
-  height: 36px;
-  padding: 8px 10px;
-  border: 1px solid var(--color-line, #ddd);
-  border-radius: 6px;
-  background: #fff;
-  color: var(--color-ink, #111);
-  outline: none;
-  box-sizing: border-box;
-}
+/* .modal__box .switch{ display:inline-flex; align-items:center; gap:8px; } */
 
-/* select 드롭다운 화살표 여백(기본 룩 유지, 필요시 appearance 제거 가능) */
-.modal__box .select{
-  padding-right: 28px;
-}
-
-/* textarea */
-.modal__box .textarea{
-  min-height: 96px;          /* 납작함 방지 */
-  padding: 8px 10px;
-  border: 1px solid var(--color-line, #ddd);
-  border-radius: 6px;
-  background: #fff;
-  color: var(--color-ink, #111);
-  line-height: 1.45;
-  resize: vertical;
-  outline: none;
-  box-sizing: border-box;
-}
-
-.textarea{
-  background: var(--color-input-bg);
-  color: var(--color-text);
-  border: 1px solid var(--color-line, var(--color-border));
-}
-
-/* 포커스 링(브랜드 컬러) */
-.modal__box .select:focus,
-.modal__box .input:focus,
-.modal__box .textarea:focus{
-  border-color: var(--color-brand, #c29a82);
-  box-shadow: 0 0 0 3px rgba(194,154,130,.2);
-}
-
-/* 스위치 라벨 정렬 보정(옆으로 너무 붙으면) */
-.modal__box .switch{ display:inline-flex; align-items:center; gap:8px; }
-
-.switch{ display:inline-flex; align-items:center; gap:8px; user-select:none; cursor:pointer; }
-.switch input{ display:none; }
 .slider{
   position:relative; width:38px; height:20px; border-radius:999px;
   background:#e5e7eb; transition:background .15s ease;
@@ -131,7 +79,6 @@
 }
 input:checked + .slider{ background: var(--color-brand, #c29a82); }
 input:checked + .slider::after{ left:20px; }
-.switch__label{ font-size:12px; opacity:.85; }
 
 .modal__box .info__grid{
   display: grid;

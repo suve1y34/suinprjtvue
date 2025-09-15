@@ -1,5 +1,6 @@
 <template>
   <section class="page">
+    <!-- 헤더 -->
     <header class="page__bar">
       <div class="page__left">
         <button
@@ -71,122 +72,111 @@
         </button>
       </div>
     </header>
+
+
     <div class="page__stack">
-      <div class="page__toolbar">
-        <select
-          class="btn btn--outline-black"
-          v-model="statusSel"
-          @change="onFilterChange"
-          :disabled="loadingShelf || loadingItems"
-          title="읽기 상태 필터"
-        >
-          <option value="">독서 상태</option>
-          <option value="PLAN">읽기전</option>
-          <option value="READING">읽는중</option>
-          <option value="DONE">다읽음</option>
-        </select>
+      <!-- 요약바 -->
+      <div class="summarybar">
+        <div class="summarybar__left">
+          <span class="summary-item" v-if="goalProgress">
+            목표 <b>{{ goalProgress.done }}</b>/<b>{{ goalProgress.goal ?? '—' }}</b>
+            <span class="muted">({{ goalProgress.progressPercent }}%)</span>
+          </span>
 
-        <select
-          class="btn btn--outline-black"
-          v-model="yearSel"
-          @change="onFilterChange"
-          :disabled="loadingShelf || loadingItems"
-          title="연도 필터"
-        >
-          <option value="">전체 연도</option>
-          <option v-for="y in years" :key="y" :value="String(y)">{{ y }}</option>
-        </select>
+          <span class="dot" v-if="goalProgress">·</span>
 
-        <select
-          class="btn btn--outline-black"
-          v-model="monthSel"
-          @change="onFilterChange"
-          :disabled="loadingShelf || loadingItems"
-          title="월 필터"
-        >
-          <option value="">전체 월</option>
-          <option v-for="m in 12" :key="m" :value="String(m)">{{ m }}</option>
-        </select>
+          <span class="summary-item" v-if="bookshelfId">
+            <strong>{{ readCount }}</strong>권 · 총 <strong>{{ totalThicknessText }}</strong>
+          </span>
+
+          <button
+            type="button"
+            class="btn btn--outline-black summary-btn"
+            @click="openStats"
+          >
+            📊 통계 보기
+          </button>
+        </div>
+
+        <div class="summarybar__right">
+          <!-- 검색 -->
+          <input
+            class="input input--sm"
+            type="search"
+            v-model.trim="keyword"
+            placeholder="제목/저자 검색"
+            @input="onKeywordInput"
+            @keyup.enter="onFilterChange"
+            aria-label="제목/저자 검색"
+          />
+
+          <!-- 정렬 -->
+          <select class="select select--sm" v-model="sortSel" @change="onFilterChange" :disabled="loadingShelf || loadingItems" title="정렬 기준">
+            <option value="">정렬 기준</option>
+            <option value="added">추가일</option>
+            <option value="title">제목</option>
+            <option value="pages">페이지</option>
+          </select>
+
+          <select class="select select--sm" v-model="orderSel" @change="onFilterChange" :disabled="loadingShelf || loadingItems" title="정렬 방식">
+            <option value="">정렬 방식</option>
+            <option value="desc">내림차순</option>
+            <option value="asc">오름차순</option>
+          </select>
+
+          <button type="button" class="icon-btn" :disabled="loadingShelf || loadingItems" title="새로고침" aria-label="새로고침" @click="reload">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M4 4v6h6M20 20v-6h-6" stroke="currentColor" fill="none"/>
+              <path d="M20 9a7 7 0 00-12-5.2M4 15a7 7 0 0012 5.2" stroke="currentColor" fill="none"/>
+            </svg>
+          </button>
+
+          <button type="button" class="icon-btn" title="책 추가" aria-label="책 추가" @click="openSearch">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M4 5.5A1.5 1.5 0 015.5 4H18a2 2 0 012 2v12a1 1 0 01-1.5.87L16 17H5.5A1.5 1.5 0 014 15.5v-10z" stroke="currentColor" fill="none"/>
+              <path d="M12 8v6M9 11h6" stroke="currentColor" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div class="page__toolbar">
-        <!-- 검색 -->
-        <input
-          class="input"
-          type="search"
-          v-model.trim="keyword"
-          placeholder="제목/저자 검색"
-          @input="onKeywordInput"
-          @keyup.enter="onFilterChange"
-          style="min-width: 180px;"
-        />
+      <!-- 접이식 필터 패널 -->
+      <details class="filter-panel" :open="filtersOpen" @toggle="onToggleFilters">
+        <summary>
+          <span class="filter-summary">
+            {{ filterSummary }}
+          </span>
+        </summary>
 
-        <!-- 정렬 -->
-        <select
-          class="btn btn--outline-black"
-          v-model="sortSel"
-          @change="onFilterChange"
-          :disabled="loadingShelf || loadingItems"
-          title="정렬"
-        >
-          <option value="">정렬 기준</option>
-          <option value="added">추가일</option>
-          <option value="title">제목</option>
-          <option value="pages">페이지</option>
-        </select>
+        <div class="filter-panel__grid">
+          <label class="fp-field">
+            <span class="fp-label">독서 상태</span>
+            <select v-model="statusSel" @change="onFilterChange" class="select select--sm" :disabled="loadingShelf || loadingItems">
+              <option value="">전체</option>
+              <option value="PLAN">읽기전</option>
+              <option value="READING">읽는중</option>
+              <option value="DONE">다읽음</option>
+            </select>
+          </label>
 
-        <select
-          class="btn btn--outline-black"
-          v-model="orderSel"
-          @change="onFilterChange"
-          :disabled="loadingShelf || loadingItems"
-          title="정렬 방식"
-        >
-          <option value="">정렬 방식</option>
-          <option value="desc">내림차순</option>
-          <option value="asc">오름차순</option>
-        </select>
+          <label class="fp-field">
+            <span class="fp-label">연도</span>
+            <select v-model="yearSel" @change="onFilterChange" class="select select--sm" :disabled="loadingShelf || loadingItems">
+              <option value="">전체</option>
+              <option v-for="y in years" :key="y" :value="String(y)">{{ y }}</option>
+            </select>
+          </label>
 
-        <button
-          type="button"
-          class="icon-btn"
-          :disabled="loadingShelf || loadingItems"
-          title="새로고침"
-          aria-label="새로고침"
-          @click="reload"
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-            <path d="M4 4v6h6M20 20v-6h-6" stroke="currentColor" fill="none"/>
-            <path d="M20 9a7 7 0 00-12-5.2M4 15a7 7 0 0012 5.2" stroke="currentColor" fill="none"/>
-          </svg>
-        </button>
-      </div>
-
-      <div v-if="goalProgress" class="goal-progress">
-        <span class="goal-progress__label">목표</span>
-        <strong class="goal-progress__nums">{{ goalProgress.done }}</strong>
-        <span class="goal-progress__slash">/</span>
-        <strong class="goal-progress__nums">{{ goalProgress.goal ?? '—' }}</strong>
-        <span class="goal-progress__percent">({{ goalProgress.progressPercent }}%)</span>
-      </div>
-
-      <div class="page__stats" v-if="bookshelfId">
-        <span class="stats__item"><strong>{{ readCount }}</strong>권의 책</span>
-        <span class="stats__sep">·</span>
-        <span class="stats__item">총 <strong>{{ totalThicknessText }}</strong></span>
-
-        <button
-          type="button"
-          class="btn btn--outline-black stats-btn"
-          @click="openStats"
-        >
-          📊 통계 보기
-        </button>
-      </div>
-
-      
+          <label class="fp-field">
+            <span class="fp-label">월</span>
+            <select v-model="monthSel" @change="onFilterChange" class="select select--sm" :disabled="loadingShelf || loadingItems">
+              <option value="">전체</option>
+              <option v-for="m in 12" :key="m" :value="String(m)">{{ m }}</option>
+            </select>
+          </label>
+        </div>
+      </details>
     </div>
-    
     
     <div v-if="loadingShelf" class="state state--center">책장 불러오는 중…</div>
     <div v-else-if="shelfError" class="state state--error">{{ shelfError }}</div>
@@ -261,6 +251,23 @@ function onKeywordInput() {
     onFilterChange();
   }, 300);
 }
+
+// 접이식 필터 패널 상태(로컬 저장)
+const filtersOpen = ref(localStorage.getItem("ui.filtersOpen") === "1");
+function onToggleFilters(e: Event){
+  const open = (e.target as HTMLDetailsElement)?.open ?? false;
+  filtersOpen.value = open;
+  try { localStorage.setItem("ui.filtersOpen", open ? "1" : "0"); } catch {}
+}
+// 필터 요약 문자열
+const filterSummary = computed(() => {
+  const statusMap: Record<string,string> = { PLAN:"읽기전", READING:"읽는중", DONE:"다읽음" };
+  const parts:string[] = [];
+  parts.push(`독서 상태: ${statusSel.value ? statusMap[statusSel.value] : "전체"}`);
+  parts.push(`연도: ${yearSel.value || "전체"}`);
+  parts.push(`월: ${monthSel.value || "전체"}`);
+  return `${parts.join(" · ")}`;
+});
 
 const statsRef = ref<InstanceType<typeof ReadingStatsModal>|null>(null);
 function openStats(){ statsRef.value?.open(); }

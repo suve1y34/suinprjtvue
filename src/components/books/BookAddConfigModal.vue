@@ -47,7 +47,7 @@
         </div>
 
         <div class="form-col" v-if="status === 'READING'">
-          <label class="form-label">독서량</label>
+          <label class="form-label">독서량 (페이지)</label>
           <input
             class="input"
             type="number"
@@ -117,11 +117,13 @@ import type { BookLike, ReadingStatus, ShelfUpdatePayload, Visibility, AddPayloa
 
 const store = useShelvesStore();
 
+
 const dlg = ref<HTMLDialogElement | null>(null);
 const isOpen = ref(false);
 const mode = ref<"add" | "edit">("add");
 const shelfBookId = ref<number | null>(null);
 const book = ref<BookLike | null>(null);
+
 const status = ref<ReadingStatus>("PLAN");
 const currentPage = ref<number>(0);
 
@@ -132,9 +134,39 @@ const memo = ref<string>("");
 const review = ref<string>("");
 const reviewPublic = ref<boolean>(false);
 
-const pages = computed<number | undefined>(() => book.value?.pages ?? undefined);
+const initial = ref<{
+  status: ReadingStatus;
+  currentPage: number;
+  memo: string;
+  review: string;
+  reviewPublic: boolean;
+  startDate: string|null;
+  endDate: string|null
+} | null>(null);
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
+
+function coverPick(b: any) {
+  const u = b.coverImageUrl || b.coverLargeUrl || b.cover || b.coverSmallUrl;
+  return u ? { coverImageUrl: u } : {};
+}
+
+const pages = computed<number | undefined>(() => book.value?.pages ?? undefined);
+
+const percentValue = computed<number>(() => {
+  const tp = typeof pages.value === 'number' ? pages.value : 0;
+  if (!tp || tp <= 0) return 0;
+  if (status.value === 'DONE') return 100;
+  const cp0 = Number.isFinite(currentPage.value) ? currentPage.value : 0;
+  const cp = Math.max(0, Math.min(cp0, tp));
+  return Math.floor((cp / tp) * 100);
+});
+
+const percentText = computed<string>(() => {
+  const tp = typeof pages.value === 'number' ? pages.value : 0;
+  if (!tp || tp <= 0) return '—%';
+  return `${percentValue.value}%`;
+});
 
 function onStatusChange() {
   if (status.value === "READING") {
@@ -149,37 +181,40 @@ function onStatusChange() {
   }
 }
 
-const percentValue = computed<number>(() => {
-  const tp = typeof pages.value === 'number' ? pages.value : 0;
-  if (!tp || tp <= 0) return 0;
-  if (status.value === 'DONE') return 100;
-  const cp0 = Number.isFinite(currentPage.value) ? currentPage.value : 0;
-  const cp = Math.max(0, Math.min(cp0, tp));
-  return Math.floor((cp / tp) * 100);
-});
-const percentText = computed<string>(() => {
-  const tp = typeof pages.value === 'number' ? pages.value : 0;
-  if (!tp || tp <= 0) return '—%';
-  return `${percentValue.value}%`;
-});
-
-const initial = ref<{ status: ReadingStatus; currentPage: number; memo: string; review: string; reviewPublic: boolean; startDate: string|null; endDate: string|null } | null>(null);
-
 // 커버 미리보기 URL
 const coverUrl = computed<string | undefined>(() => {
   const b: any = book.value || {};
   return b.coverImageUrl || b.coverLargeUrl || b.cover || b.coverSmallUrl || undefined;
 });
 
-function onImgError(e: Event) {
-  const img = e.target as HTMLImageElement;
-  if (img) img.style.display = "none";
-}
-
 const emit = defineEmits<{
   (e: 'confirm-add',  payload: AddPayload): void;
   (e: 'confirm-edit', payload: ShelfUpdatePayload & { totalPages?: number }): void;
 }>();
+
+async function ensureOpen() {
+  if (!dlg.value) return;
+  if (!isOpen.value) {
+    dlg.value.showModal();
+    isOpen.value = true;
+    await nextTick();
+  }
+}
+
+
+function close() {
+  if (!dlg.value || !isOpen.value) return;
+  dlg.value.close();
+}
+
+function handleDialogClose() {
+  isOpen.value = false;
+  resetState();
+}
+
+function onCancel(_e: Event) {
+  // no-op
+}
 
 function resetState() {
   mode.value = "add";
@@ -195,22 +230,16 @@ function resetState() {
   initial.value = null;
 }
 
-const statusLabel = computed(() => {
-  switch (status.value) {
-    case "READING": return "읽는중";
-    case "DONE":    return "다읽음";
-    default:        return "읽기전";
-  }
-});
-
-/* */
-async function ensureOpen() {
-  if (!dlg.value) return;
-  if (!isOpen.value) {
-    dlg.value.showModal();
-    isOpen.value = true;
-    await nextTick();
-  }
+function primeInitial() {
+  initial.value = {
+    status: status.value,
+    currentPage: currentPage.value,
+    memo: memo.value ?? "",
+    review: review.value ?? "",
+    reviewPublic: reviewPublic.value,
+    startDate: startDate.value,
+    endDate: endDate.value,
+  };
 }
 
 function openFromSearch(b: AladinBook) {
@@ -231,25 +260,8 @@ function openFromSearch(b: AladinBook) {
   review.value = "";
   reviewPublic.value = false;
 
-  initial.value = {
-    status: status.value,
-    currentPage: currentPage.value,
-    memo: memo.value,
-    review: review.value,
-    reviewPublic: reviewPublic.value,
-    startDate: startDate.value,
-    endDate: endDate.value
-  };
-
-  startDate.value=null;
-  endDate.value=null;
-
+  primeInitial();
   ensureOpen();
-}
-
-function coverPick(b: any) {
-  const u = b.coverImageUrl || b.coverLargeUrl || b.cover || b.coverSmallUrl;
-  return u ? { coverImageUrl: u } : {};
 }
 
 async function openFromShelf(entry: {
@@ -274,6 +286,7 @@ async function openFromShelf(entry: {
     author: fresh.book?.author ?? entry.book?.author,
     pages: fresh.book?.pages ?? entry.book?.pages,
     isbn13Code: fresh.book?.isbn13Code ?? entry.book?.isbn13Code,
+    coverImageUrl: fresh.book?.coverImageUrl ?? entry.book?.coverImageUrl,
   };
   status.value = (fresh as any).readingStatus ?? entry.readingStatus ?? "PLAN";
   currentPage.value = (fresh as any).currentPage ?? entry.currentPage ?? 0;
@@ -281,31 +294,14 @@ async function openFromShelf(entry: {
   review.value = (fresh as any).review ?? entry.review ?? "";
   reviewPublic.value = ((fresh as any).reviewVisibility ?? entry.reviewVisibility) === "PUBLIC";
 
+  startDate.value = entry.startDate||null;
+  endDate.value = entry.endDate||null;
 
-  startDate.value=entry.startDate||null;
-  endDate.value=entry.endDate||null;
-
-  initial.value = {
-    status: status.value,
-    currentPage: currentPage.value,
-    memo: memo.value ?? "",
-    review: review.value ?? "",
-    reviewPublic: reviewPublic.value,
-    startDate: startDate.value,
-    endDate: endDate.value
-  };
-
+  primeInitial();
   ensureOpen();
 }
 
-function close() {
-  if (!dlg.value || !isOpen.value) return;
-  dlg.value.close();
-}
-
-function onClickClose() {
-  close();
-}
+defineExpose({ openFromSearch, openFromShelf, close });
 
 function onConfirm() {
   if (!book.value) return;
@@ -366,13 +362,21 @@ function onConfirm() {
   }
 }
 
-function handleDialogClose() {
-  isOpen.value = false;
-  resetState();
+const statusLabel = computed(() => {
+  switch (status.value) {
+    case "READING": return "읽는중";
+    case "DONE":    return "다읽음";
+    default:        return "읽기전";
+  }
+});
+
+function onImgError(e: Event) {
+  const img = e.target as HTMLImageElement;
+  if (img) img.style.display = "none";
 }
 
-function onCancel(_e: Event) {
-  // no-op
+function onClickClose() {
+  close();
 }
 
 onMounted(() => {
@@ -384,7 +388,6 @@ onBeforeUnmount(() => {
   dlg.value?.removeEventListener("cancel", onCancel);
 });
 
-defineExpose({ openFromSearch, openFromShelf, close });
 </script>
 
 <style scoped>

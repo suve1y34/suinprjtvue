@@ -14,9 +14,15 @@
           <div class="meta">
             <div class="title-row-fixed">
               <h3 class="book-title">{{ book.title }}</h3>
-              <button class="btn btn--outline-dark btn--sm" type="button" @click="onConfig">
+              <button
+                v-if="!added"
+                class="btn btn--outline-dark btn--sm"
+                type="button"
+                @click="onConfig"
+              >
                 내 책장에 추가
               </button>
+              <span v-else class="already-tip">이미 내 책장에 있어요</span>
             </div>
             <div class="book-author" v-if="book.author">{{ book.author }}</div>
             <div class="book-pages" v-if="(book as any).pages">{{ (book as any).pages }}p</div>
@@ -40,9 +46,15 @@ import PublicReviewList from './PublicReviewList.vue';
 const dlg = ref<HTMLDialogElement | null>(null);
 const book = ref<AladinBook | null>(null);
 
+const added = ref(false);
+
 const emit = defineEmits<{ (e: "config", book: AladinBook): void }>();
 
-function open(b: AladinBook) { book.value = b; dlg.value?.showModal(); }
+function open(b: AladinBook, opts?: { isAdded?: boolean }) {
+  book.value = b;
+  added.value = !!opts?.isAdded;
+  dlg.value?.showModal();
+}
 function close() { dlg.value?.close(); book.value = null; }
 function onConfig() { if (book.value) emit("config", book.value); }
 

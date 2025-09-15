@@ -13,6 +13,7 @@ function normalizeShelfItem(raw: any): ShelfBook {
     pages: typeof raw.pages === "number" ? raw.pages : undefined,
     publisher: raw.publisher,
     pubDate: raw.pubDate,
+    coverImageUrl: raw.coverImageUrl ?? null,
   };
   return {
     shelfBookId: raw.shelfBookId,
@@ -26,6 +27,8 @@ function normalizeShelfItem(raw: any): ShelfBook {
     reviewVisibility: (raw.reviewVisibility as any) ?? 'PRIVATE',
     addedDatetime: raw.addedDatetime,
     modifiedDatetime: raw.modifiedDatetime,
+    startDate: raw.startDate,
+    endDate: raw.endDate,
     book,
   };
 }

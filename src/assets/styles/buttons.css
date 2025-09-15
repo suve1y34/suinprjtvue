@@ -2,70 +2,55 @@
 .btn{
   padding: var(--sp-6) var(--sp-10);
   border:1px solid transparent;
-  border-radius:var(--radius);
-  font-weight:600;
-  cursor:pointer;
+  border-radius: var(--radius);
+  font-weight:600; cursor:pointer;
+  background: var(--btn-bg, #fff);
+  color: var(--btn-fg, var(--color-ink));
 }
 .btn:disabled{ opacity:.6; cursor:not-allowed; }
 
-/* 기본 프라이머리 버튼(진한 배경) */
+/* primary */
 .btn--primary{
-  background:var(--color-ink);
-  color:var(--color-white);
-  border-color:var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-white);
+  border-color: var(--color-ink);
 }
-
-/* 프라이머리 hover/pressed */
 .btn--primary:hover{
-  background:var(--color-ink-2);
-  border-color:var(--color-ink-2);
+  background: var(--color-ink-2);
+  border-color: var(--color-ink-2);
 }
 
-/* 회색 솔리드 버튼(보조) */
+/* solid gray */
 .btn--solid-gray{
-  background:var(--color-gray-600);
-  color:var(--color-white);
-  border-color:var(--color-gray-600);
+  background: var(--color-gray-600);
+  color: var(--color-white);
+  border-color: var(--color-gray-600);
 }
 
-/* 아웃라인(검정/잉크) — 흰 배경, 테두리/텍스트만 컬러 */
+/* outline */
 .btn--outline-black{
   background: var(--btn-bg);
   color: var(--btn-fg);
   border-color: var(--btn-border);
 }
-.btn--outline-black:hover{ background:var(--color-surface); }
-
-/* 아웃라인(위험/삭제 등) */
+.btn--outline-brand{
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border-color: var(--color-brand);
+}
+.btn--outline-brand:hover,
+.btn--outline-black:hover{
+  background: var(--color-surface);
+}
 .btn--outline-danger{
   background: var(--btn-bg);
   color: var(--color-danger);
   border-color: var(--color-danger);
 }
 
-/* 아웃라인(브랜드 포커스) — 텍스트는 잉크, 테두리만 브랜드 컬러 */
 .btn--outline-brand{
   background: var(--btn-bg);
   color: var(--btn-fg);
   border-color: var(--color-brand);
 }
 .btn--outline-brand:hover{ background:var(--color-surface); }
-
-/* 아이콘 버튼(외곽선 제거, 닉네임 버튼과 톤 맞춤) */
-.icon-btn{
-  background: transparent;
-  border: none;
-  padding: 6px;
-  border-radius: var(--radius);
-  color: var(--color-ink);
-  cursor: pointer;
-}
-.icon-btn:hover{
-  background: var(--color-surface);
-}
-.theme-dark .icon-btn{
-  color: var(--color-text);
-}
-.theme-dark .icon-btn:hover{
-  background: rgba(255,255,255,0.06);
-}

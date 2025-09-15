@@ -25,6 +25,7 @@
 .shelf--center{
   margin-left:auto;
   margin-right:auto;
+  margin-top: clamp(6px, 1.2vw, 20px);
 }
 
 .shelf--tight{
@@ -44,6 +45,8 @@
   gap: 8px;
   justify-items: center;
   color: var(--color-text);
+  padding: clamp(10px, 2vw, 18px) 0 14px;
+  row-gap: 10px;
 }
 .empty-shelf__title{ font-weight: 700; font-size: 16px; }
 .empty-shelf__hint{ font-size: 13px; opacity: .8; margin-bottom: 6px; }
@@ -239,13 +242,11 @@
 .memo-empty{ font-size:14px; opacity:.8; }
 .memo-more{ display:flex; justify-content:center; }
 
-
-.select, .input{
-  padding: 6px 10px;
-  height: 34px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  min-width: 160px;
-  background: var(--color-input-bg);
-  color: var(--color-text);
+@media (min-width: 768px){
+  .shelf-wrap{ padding-block: 20px 28px; }
 }
+@media (min-width: 1200px){
+  .shelf-wrap{ padding-block: 22px 36px; }
+}
+
+.already-tip { margin-left: 8px; font-size: 12px; opacity: .75; }
