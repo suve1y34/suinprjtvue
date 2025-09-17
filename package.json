@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "dev:staging": "vite --mode staging",
-    "build:staging": "vite build --mode staging"
+    "dev:prod": "vite --mode production",
+    "build:prod": "vite build --mode production"
   },
   "dependencies": {
     "axios": "^1.9.0",
