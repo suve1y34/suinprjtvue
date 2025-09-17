@@ -6,7 +6,7 @@
         <button @click="close" type="button" aria-label="close" class="btn btn--outline-black">✕</button>
       </header>
 
-      <div v-if="book">
+      <div class="modal__content" v-if="book">
         <div class="book-head">
           <div class="cover" v-if="coverUrl">
             <img :src="coverUrl" :alt="book.title" @error="onImgError" />

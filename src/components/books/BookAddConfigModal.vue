@@ -11,8 +11,8 @@
         >✕</button>
       </header>
 
-      <div v-if="book">
-        <div class="book-head" v-if="book">
+      <div class="modal__content" v-if="book">
+        <div class="book-head">
           <div class="cover">
             <img v-if="coverUrl" :src="coverUrl" :alt="book.title || 'cover'" @error="onImgError">
           </div>
@@ -80,7 +80,7 @@
         </div>
 
         <!-- 리뷰 + 공개여부 -->
-        <div class="form-col">
+        <div class="form-col" v-if="status === 'DONE'">
           <label class="form-label">리뷰</label>
           <textarea
             class="textarea textarea--sm"
@@ -90,7 +90,7 @@
           ></textarea>
         </div>
 
-        <div class="form-col">
+        <div class="form-col" v-if="status === 'DONE'">
           <label class="form-label">리뷰 공개</label>
           <label class="switch">
             <input type="checkbox" v-model="reviewPublic" />
@@ -201,6 +201,28 @@ async function ensureOpen() {
   }
 }
 
+function isDirty() {
+  if (!initial.value) return false;
+  const memoTrimmed = (memo.value ?? "").trim();
+  const reviewTrimmed = (review.value ?? "").trim();
+  return (
+    status.value !== initial.value.status ||
+    currentPage.value !== initial.value.currentPage ||
+    memoTrimmed !== (initial.value.memo ?? "") ||
+    reviewTrimmed !== (initial.value.review ?? "") ||
+    reviewPublic.value !== initial.value.reviewPublic ||
+    (startDate.value || null) !== (initial.value.startDate || null) ||
+    (endDate.value || null) !== (initial.value.endDate || null)
+  );
+}
+
+function requestClose() {
+  if (isDirty()) {
+    const ok = window.confirm('변경사항이 저장되지 않습니다. 닫을까요?');
+    if (!ok) return;
+  }
+  close();
+}
 
 function close() {
   if (!dlg.value || !isOpen.value) return;
@@ -213,7 +235,8 @@ function handleDialogClose() {
 }
 
 function onCancel(_e: Event) {
-  // no-op
+  _e.preventDefault();
+  requestClose();
 }
 
 function resetState() {
@@ -294,17 +317,31 @@ async function openFromShelf(entry: {
   review.value = (fresh as any).review ?? entry.review ?? "";
   reviewPublic.value = ((fresh as any).reviewVisibility ?? entry.reviewVisibility) === "PUBLIC";
 
-  startDate.value = entry.startDate||null;
-  endDate.value = entry.endDate||null;
+  startDate.value = (fresh as any).startDate ?? entry.startDate ?? null;
+  endDate.value   = (fresh as any).endDate   ?? entry.endDate   ?? null;
 
   primeInitial();
   ensureOpen();
 }
 
-defineExpose({ openFromSearch, openFromShelf, close });
+defineExpose({ openFromSearch, openFromShelf, close: requestClose });
+
+function normalizedStart(): string | undefined {
+  if (status.value === 'PLAN') return undefined;
+  // 선택 안 했으면 오늘로
+  return (startDate.value && startDate.value !== '') ? startDate.value : todayStr();
+}
+function normalizedEnd(): string | undefined {
+  if (status.value !== 'DONE') return undefined;
+  return (endDate.value && endDate.value !== '') ? endDate.value : todayStr();
+}
 
 function onConfirm() {
   if (!book.value) return;
+
+  const start = normalizedStart();
+  const end   = normalizedEnd();
+
   const total = pages.value;
   let cp = Number.isFinite(currentPage.value) ? currentPage.value : 0;
   if (typeof total === "number") cp = Math.max(0, Math.min(cp, total));
@@ -320,17 +357,17 @@ function onConfirm() {
     const payload: AddPayload = {
       book: book.value as BookLike,
       status: status.value,
-      startDate:startDate.value||undefined,
-      endDate:endDate.value||undefined,
+      startDate: start,
+      endDate: end,
       currentPage: cp,
       memo: memoTrimmed || undefined,
       memoVisibility: 'PRIVATE',
-
-      // 리뷰
-      review: reviewTrimmed || undefined,
-      reviewVisibility: reviewVis,
+      ...(status.value === 'DONE' ? {
+        review: reviewTrimmed || undefined,
+        reviewVisibility: reviewVis,
+      } : {})
     };
-    if (memoTrimmed.length > 0) payload.memo = memoTrimmed;
+
     emit("confirm-add", payload);
 
     close();
@@ -344,17 +381,25 @@ function onConfirm() {
     const payload: ShelfUpdatePayload & { totalPages?: number } = {
       shelfBookId: shelfBookId.value!,
       currentPage: cp,
-      startDate:startDate.value||undefined,
-      endDate:endDate.value||undefined,
+      startDate: start,
+      endDate: end,
       readingStatus: status.value,
       totalPages: total,
       memoChanged,
       memo: memoChanged ? (memoTrimmed.length ? memoTrimmed : null) : undefined,
       memoVisibility: 'PRIVATE',
-      // 리뷰
-      review: reviewChanged ? (reviewTrimmed.length ? reviewTrimmed : null) : undefined,
-      reviewVisibility: reviewChanged ? reviewVis : undefined,
-      reviewChanged,
+      ...(status.value === 'DONE'
+        ? {
+            review: reviewChanged ? (reviewTrimmed.length ? reviewTrimmed : null) : undefined,
+            reviewVisibility: reviewChanged ? reviewVis : undefined,
+            reviewChanged,
+          }
+        : {
+            review: null,
+            reviewVisibility: undefined,
+            reviewChanged: true,
+          }
+      ),
     };
 
     emit("confirm-edit", payload);
@@ -376,7 +421,7 @@ function onImgError(e: Event) {
 }
 
 function onClickClose() {
-  close();
+  requestClose();
 }
 
 onMounted(() => {
