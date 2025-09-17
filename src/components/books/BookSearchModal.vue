@@ -6,7 +6,7 @@
         <button @click="close" type="button" class="btn btn--outline-black" aria-label="close">✕</button>
       </header>
 
-      <div class="form-row searchbar">
+      <div class="modal__content form-row searchbar">
         <div class="searchbar__box">
           <input
             v-model.trim="q"

@@ -7,7 +7,7 @@
   border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 8px;
-  background: var(--color-white, #fff);
+  background: var(--color-elev);
 }
 
 /* 결과 그리드 */
@@ -112,8 +112,8 @@
   right: 0;                /* 래퍼 너비까지만 */
   max-height: 280px;
   overflow-y: auto;
-  background: #fff;
-  border: 1px solid #ddd;
+  background: var(--color-elev);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
   z-index: 10;             /* 버튼보다 낮게, 입력영역 위 */

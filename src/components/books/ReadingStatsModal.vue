@@ -83,11 +83,32 @@ const donutStyle = computed(() => {
 });
 
 const barData = computed(() => {
-  const m = stats.value?.monthly ?? [];
-  const max = Math.max(1, ...m.map(x => x.value));
-  return m.map(x => ({
-    name: x.label, value: x.value, h: Math.round((x.value / max) * 100)
+  const base = Array.from({ length: 12 }, (_, i) => ({
+    month: i + 1,
+    label: String(i + 1),
+    value: 0
   }));
+
+  const raw = stats.value?.monthly ?? [];
+  for (const x of raw) {
+    // month 번호 추출 (문자/숫자/label 모두 수용)
+    const mRaw = (x as any).month ?? (x as any).m ?? (x as any).key ?? (x as any).label;
+    const mNum = typeof mRaw === 'string' ? parseInt(mRaw, 10) : Number(mRaw);
+    const idx = mNum - 1;
+    if (idx >= 0 && idx < 12) {
+      const val = (x as any).value ?? (x as any).count ?? (x as any).total ?? 0;
+      base[idx].value = Number(val) || 0;
+    }
+  }
+
+  // ③ 퍼센트/최소 높이 계산
+  const max = Math.max(1, ...base.map(b => b.value));
+  return base.map(b => {
+    const hPct = Math.round((b.value / max) * 100);
+    // 값이 있으면 너무 얇지 않게 최소 6% 보장(160px 기준 약 10px)
+    const h = b.value > 0 ? Math.max(6, hPct) : 0;
+    return { name: b.label, value: b.value, h };
+  });
 });
 
 defineExpose({ open, close });

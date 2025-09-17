@@ -250,3 +250,27 @@
 }
 
 .already-tip { margin-left: 8px; font-size: 12px; opacity: .75; }
+
+
+/* ===== Spine text color theming (drop-in) ===== */
+
+/* 1) 기본: spine은 변수(--spine-fg)를 통해 글자색을 먹는다 */
+.spine{
+  /* 기본값: 현재 컬러(currentColor) → 아래에서 변형/테마가 덮어씀 */
+  --spine-fg: currentColor;
+  color: var(--spine-fg);
+}
+.spine__title,
+.spine__progress{ color: inherit; }
+
+/* 2) 변형별 기본 글자색 (라이트/다크/악센트) */
+.spine--light  { --spine-fg: #111; }   /* 밝은 배경 → 어두운 글자 */
+.spine--dark,
+.spine--dark-2,
+.spine--accent { --spine-fg: #fff; }   /* 어두운/강조 배경 → 밝은 글자 */
+
+/* 3) 테마별 보정
+   - 요청 사항: "다크 테마에서는 글씨도 검은색으로"
+   - 다크 테마에서 특히 '라이트' 변형은 검은 글자(#000)로 강제
+*/
+.theme-dark .spine--light { --spine-fg: #000; }
