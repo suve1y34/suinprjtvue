@@ -24,13 +24,12 @@
 </template>
 
 <script setup lang="ts">
-import { OAUTH2_AUTH_URL } from '@/utils/constants';
+import { OAUTH2_AUTH_URL, FRONT_ORIGIN } from '@/utils/constants';
 
 function snsLogin(provider: keyof typeof OAUTH2_AUTH_URL) {
-  const redirectUri = window.location.origin + '/login/callback';
-  const base = OAUTH2_AUTH_URL[provider];
-  const url = `${base}?redirect_uri=${encodeURIComponent(redirectUri)}`;
-  window.location.href = url;
+  const redirectUri = `${FRONT_ORIGIN}/#/login/callback`;
+  const url = `${OAUTH2_AUTH_URL[provider]}?redirect_uri=${encodeURIComponent(redirectUri)}`;
+  window.location.assign(url); // XHR 금지, 브라우저 네비게이션
 }
 </script>
 

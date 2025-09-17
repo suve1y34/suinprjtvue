@@ -80,7 +80,7 @@
   </dialog>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useAuthStore } from "@/stores";
 import type { UserUpdatePayload } from "@/types/user";
 
@@ -91,29 +91,47 @@ const me = computed(() => auth.user);
 const busy = ref(false);
 
 // 입력값
-const nickInput = ref("");
+const nickInput  = ref("");
 const phoneInput = ref("");
+const goalInput  = ref<number | null>(null);
 
 // 초기 스냅샷(변경 여부 비교용)
-const initialNick = ref("");
+const initialNick  = ref("");
 const initialPhone = ref("");
+const initialGoal  = ref<number | null>(null);
 
-const goalInput = ref<number | null>(null);
-const initialGoal = ref<number | null>(null);
-
-// 열기/닫기
-function close() { dlg.value?.close(); }
-function open() {
-  if (!auth.accessToken || !auth.user) auth.loadMe();
-  dlg.value?.showModal();
-
-  initialNick.value  = auth.user?.nickname   ?? "";
+/** 현재 auth.user로부터 입력 필드/스냅샷을 재프라임 */
+function primeFieldsFromStore() {
+  initialNick.value  = auth.user?.nickname ?? "";
   initialPhone.value = auth.user?.userPhone ?? "";
-  initialGoal.value  = typeof auth.user?.goalYearlyCount === 'number' ? auth.user!.goalYearlyCount! : null;
+  initialGoal.value  = typeof auth.user?.goalYearlyCount === 'number'
+    ? auth.user!.goalYearlyCount!
+    : null;
 
   nickInput.value  = initialNick.value;
   phoneInput.value = initialPhone.value;
   goalInput.value  = initialGoal.value;
+}
+
+/** 서버에서 me 재조회 후 store 동기화 */
+async function refreshMeFromServer() {
+  if (!auth.accessToken) {
+    auth.user = null;
+    return;
+  }
+  try {
+    await auth.fetchMe(true); // ★ 강제 재조회
+  } catch {
+    // 전역 인터셉터(401 등)에서 처리
+  }
+}
+
+// 열기/닫기
+function close() { dlg.value?.close(); }
+async function open() {
+  await refreshMeFromServer(); // 항상 최신
+  primeFieldsFromStore();      // 한 번만 프라임
+  dlg.value?.showModal();
 }
 defineExpose({ open, close });
 
@@ -138,7 +156,7 @@ const phoneError = computed(() => {
 });
 
 const goalError = computed(() => {
-  if (goalInput.value == null || goalInput.value === undefined || goalInput.value === 0) return ""; // 미설정 허용
+  if (goalInput.value == null || goalInput.value === 0) return ""; // 미설정 허용
   if (goalInput.value < 0) return "0 이상을 입력하세요.";
   if (!Number.isInteger(goalInput.value)) return "정수를 입력하세요.";
   if (goalInput.value > 999) return "너무 큰 값입니다.";
@@ -154,12 +172,12 @@ const dirty = computed(() => {
   );
 });
 
-// 저장 버튼 노출 조건
-const showSave = computed(() => dirty.value);
-
 async function onSave() {
-  if (busy.value || nickError.value || phoneError.value) return;
+  if (busy.value || nickError.value || phoneError.value || goalError.value) return;
   if (!dirty.value) return;
+
+  const ok = window.confirm('변경 내용을 저장할까요?');
+  if (!ok) return;
 
   busy.value = true;
   try {
@@ -168,13 +186,10 @@ async function onSave() {
       userPhone: phoneInput.value.trim(),
       ...(goalInput.value == null ? {} : { goalYearlyCount: goalInput.value }),
     };
-    console.log(payload);
-    await auth.updateMe(payload);
 
-    // 저장 후 초기 스냅샷 갱신
-    initialNick.value  = nickInput.value.trim();
-    initialPhone.value = phoneInput.value.trim();
-    initialGoal.value  = goalInput.value ?? null;
+    await auth.updateMe(payload); // 서버 저장 + store 일부 갱신
+    await refreshMeFromServer();  // 서버 기준 최신 동기화
+    primeFieldsFromStore();       // 스냅샷 갱신
 
     window.dispatchEvent(new CustomEvent('toast:info', { detail: { message: '내 정보가 저장되었습니다.' } }));
     close();
@@ -184,4 +199,14 @@ async function onSave() {
     busy.value = false;
   }
 }
+
+// store user가 바뀌면, 모달이 열린 상태에서 즉시 반영
+watch(
+  () => auth.user,
+  () => {
+    if (dlg.value?.open) {
+      primeFieldsFromStore();
+    }
+  }
+);
 </script>

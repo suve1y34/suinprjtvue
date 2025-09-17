@@ -73,6 +73,22 @@ export const useAuthStore = defineStore('auth', {
       return await api.users.goalProgress();
     },
 
+    async fetchMe(force = false) {
+      // 이미 user가 있고 강제 갱신이 아니면 반환
+      if (this.user && !force) return this.user;
+
+      // 캐시 무효화를 위해 timestamp 파라미터 추가
+      const me = await api.users.getMe();
+      this.user = me;
+
+      // 저장된 토큰이 있는 저장소에만 사용자 정보 반영
+      const userStr = JSON.stringify(this.user);
+      if (localStorage.getItem('auth.accessToken')) localStorage.setItem('auth.user', userStr);
+      if (sessionStorage.getItem('auth.accessToken')) sessionStorage.setItem('auth.user', userStr);
+
+      return this.user;
+    },
+
     async updateMe(payload: UserUpdatePayload) {
       const updated = await api.users.updateMe(payload);
       // 스토어 갱신
