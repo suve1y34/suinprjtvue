@@ -202,7 +202,7 @@ async function onSearch() {
   try {
     list.value = await aladinApi.search(keyword, 1, 20);
 
-    // ★ DoD: "검색 시 push" — 확정 검색 시 기록 저장
+    // DoD: "검색 시 push" — 확정 검색 시 기록 저장
     searchHistory.push(keyword);
     refreshHistory();
     hideDropdownSoon(true); // 검색 후 드롭다운 닫기
@@ -241,7 +241,7 @@ function onImgError(e: Event) {
 }
 
 async function onConfirmAdd(p: AddPayload): Promise<void> {
-  const { book, status, currentPage, memo, memoVisibility, review, reviewVisibility } = p;
+  const { book, status, currentPage, memo, memoVisibility, review, reviewVisibility, startDate, endDate } = p;
   const pages = (book as any).pages ?? (book as any).itemPage ?? undefined;
 
   const deriveStatus = (cp: number, total?: number): ReadingStatus => {
@@ -263,6 +263,8 @@ async function onConfirmAdd(p: AddPayload): Promise<void> {
       pubDate: (book as any).pubDate,
       readingStatus: status,
       currentPage,
+      startDate,
+      endDate,
       memo: memo ?? undefined,
       memoVisibility: memoVisibility ?? "PRIVATE",
       review: review ?? null,

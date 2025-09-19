@@ -64,15 +64,14 @@
             </div>
           </div>
           
-          <div class="info__row" style="justify-content:flex-end; gap:8px; margin-top:16px;">
-          <button
-            v-if="dirty"
-            type="submit"
-            class="btn btn--solid-gray"
-            :disabled="busy || !!nickError || !!phoneError || !!goalError"
-          >
-            {{ busy ? '저장 중…' : '저장' }}
-          </button>
+          <div class="modal__actions">
+            <button
+              type="submit"
+              class="btn btn--solid-gray"
+              :disabled="dirty && (busy || !!nickError || !!phoneError || !!goalError)"
+            >
+              {{ busy ? '저장 중…' : '저장' }}
+            </button>
         </div>
         </div>
       </template>
@@ -120,7 +119,7 @@ async function refreshMeFromServer() {
     return;
   }
   try {
-    await auth.fetchMe(true); // ★ 강제 재조회
+    await auth.fetchMe(true); // 강제 재조회
   } catch {
     // 전역 인터셉터(401 등)에서 처리
   }
@@ -189,6 +188,7 @@ async function onSave() {
 
     await auth.updateMe(payload); // 서버 저장 + store 일부 갱신
     await refreshMeFromServer();  // 서버 기준 최신 동기화
+    await auth.fetchGoalProgress().catch(()=>{});
     primeFieldsFromStore();       // 스냅샷 갱신
 
     window.dispatchEvent(new CustomEvent('toast:info', { detail: { message: '내 정보가 저장되었습니다.' } }));

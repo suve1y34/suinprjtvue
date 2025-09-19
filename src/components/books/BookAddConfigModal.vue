@@ -144,7 +144,13 @@ const initial = ref<{
   endDate: string|null
 } | null>(null);
 
-const todayStr = () => new Date().toISOString().slice(0, 10);
+const todayStr = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+};
 
 function coverPick(b: any) {
   const u = b.coverImageUrl || b.coverLargeUrl || b.cover || b.coverSmallUrl;
@@ -373,6 +379,9 @@ function onConfirm() {
     close();
     return;
   } else if (shelfBookId.value != null) {
+    const ok = window.confirm(`‘${statusLabel.value}’ 상태로 책을 수정하시겠습니까?`);
+    if (!ok) return;
+    
     const init = initial.value;
     const memoChanged   = init ? memoTrimmed   !== (init.memo ?? "")         : (memoTrimmed.length > 0);
     const reviewChanged = init ? reviewTrimmed !== (init.review ?? "") || reviewPublic.value !== init.reviewPublic

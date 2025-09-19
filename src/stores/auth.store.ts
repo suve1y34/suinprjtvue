@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from '@/api';
-import type { User, UserUpdatePayload, LoginOptions } from "@/types/user";
+import type { User, UserUpdatePayload, GoalProgress } from "@/types/user";
 import { isExpired } from '@/utils/jwt';
 
 // 로컬 스토리지 키
@@ -11,6 +11,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
     accessToken: null as string | null,
+    goalProgress: null as GoalProgress | null,
   }),
   getters: {
     isAuthenticated: (s) => !!s.accessToken && !!s.user,
@@ -70,7 +71,9 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async fetchGoalProgress() {
-      return await api.users.goalProgress();
+      const gp = await api.users.goalProgress();
+      this.goalProgress = gp;
+      return gp;
     },
 
     async fetchMe(force = false) {

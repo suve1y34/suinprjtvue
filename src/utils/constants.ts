@@ -13,7 +13,7 @@ const RAW_PREFIX = import.meta.env.VITE_API_PREFIX as string | undefined;
 // 예: http://ckk122.cafe24.com/api
 export const API_BASE = join(RAW_BASE, RAW_PREFIX);
 
-// ★ 해시 모드에서는 FE 기원(origin)만 정확하면 됨
+// 해시 모드에서는 FE 기원(origin)만 정확하면 됨
 export const FRONT_ORIGIN =
   (import.meta.env.VITE_FRONT_ORIGIN ?? window.location.origin) as string;
 

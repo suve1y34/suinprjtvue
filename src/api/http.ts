@@ -65,11 +65,16 @@ http.interceptors.response.use(
     return body;
   },
   (err) => {
+    // 요청 취소는 조용히 패스(토스트 X)
+    if ((axios as any).isCancel?.(err) || err?.code === 'ERR_CANCELED') {
+      return Promise.reject(err);
+    }
+
     const res = err?.response;
     const body = res?.data;
     const status = res?.status;
 
-    // 401: 단 한 번만 로그아웃 플로우 트리거, 토스트는 띄우지 않음
+    // 401: 단 한 번만 로그아웃 플로우 + 커스텀 토스트, 반드시 reject
     if (status === 401) {
       if (!handling401) {
         handling401 = true;
@@ -80,17 +85,28 @@ http.interceptors.response.use(
           sessionStorage.removeItem('auth.user');
         } catch {}
         try { window.dispatchEvent(new CustomEvent('auth:unauthorized')); } catch {}
+        toastOnce('로그인이 필요합니다');
         setTimeout(() => { handling401 = false; }, 1500);
       }
-      const code = (body && typeof body === 'object' && 'code' in body) ? body.code : undefined;
+      const code =
+        body && typeof body === 'object' && 'code' in body ? (body as any).code : undefined;
       return Promise.reject(new ApiError('UNAUTHORIZED', { status, code, payload: body }));
     }
 
-    // 그 외 오류: 디바운스 토스트 1회
-    const message = body?.message || err?.message || '요청 중 오류가 발생했습니다.';
-    toastOnce(message);
+    // 응답 자체가 없으면 네트워크/CORS/서버다운 계열
+    if (!res) {
+      if (!handling401) toastOnce('네트워크 오류가 발생했습니다.');
+      return Promise.reject(
+        new ApiError('NETWORK_ERROR', { status: 0, code: err?.code, payload: null })
+      );
+    }
 
-    const code = (body && typeof body === 'object' && 'code' in body) ? body.code : undefined;
+    // 그 외 오류: 디바운스 토스트 1회
+    const message = (body as any)?.message || err?.message || '요청 중 오류가 발생했습니다.';
+    if (!handling401) toastOnce(message);
+
+    const code =
+      body && typeof body === 'object' && 'code' in body ? (body as any).code : undefined;
     return Promise.reject(new ApiError(message, { status, code, payload: body }));
   }
 );
