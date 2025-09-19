@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { api } from '@/api';
-import type { ShelfBook, ShelfAddByIsbn13Payload, ShelfAddPayload, ShelfUpdatePayload, ShelfListOpts, ShelfStats } from "@/types/shelf";
+import type { ShelfBook, ShelfAddByIsbn13Payload, ShelfAddPayload, ShelfUpdatePayload, ShelfListOpts, ShelfStats, FinishedMonthResp, FinishedFlatItem, FinishedBook } from "@/types/shelf";
 import type { Book } from "@/types/book";
 import { pagesToCm } from "@/utils/thickness";
 
@@ -42,6 +42,7 @@ export const useShelvesStore = defineStore("shelves", {
     mutating: false as boolean, // 추가/삭제 중 상태
     stats: null as ShelfStats | null,
     statsYear: new Date().getFullYear() as number, // 선택 연도
+    readLogMonthCache: {} as Record<string, FinishedMonthResp>,
   }),
 
   getters: {
@@ -164,6 +165,32 @@ export const useShelvesStore = defineStore("shelves", {
       } finally {
         this.loading.stats = false;
       }
+    },
+
+    async fetchReadLogByMonth(year: number, month: number, useCache = true) {
+      const key = `${year}-${String(month).padStart(2, '0')}`;
+      if (useCache && this.readLogMonthCache[key]) return this.readLogMonthCache[key];
+
+      const flat: FinishedFlatItem[] = await api.shelves.finishedByMonth({ year, month });
+
+      const days: Record<string, FinishedBook[]> = {};
+      for (const it of flat) {
+        const k = it.dateStr;
+        if (!k) continue; // 안전장치
+        if (!days[k]) days[k] = [];
+        days[k].push({
+          dateStr: it.dateStr,
+          shelfBookId: it.shelfBookId,
+          bookId: it.bookId,
+          title: it.title,
+          coverImageUrl: it.coverImageUrl ?? undefined,
+          isbn13Code: it.isbn13Code ?? undefined,
+        });
+      }
+
+      const resp: FinishedMonthResp = { year, month, days };
+      this.readLogMonthCache[key] = resp;
+      return resp;
     },
   },
 });

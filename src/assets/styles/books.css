@@ -11,8 +11,8 @@
    ----------------------------------------------------- */
 .shelf{
   /* 행/간격 변수 */
-  --shelf-row-height: 180px;   /* 책등 높이 */
-  --shelf-gap-y: 12px;         /* 행 간격 */
+  --shelf-row-height: clamp(200px, 22vw, 260px);   /* 책등 높이 */
+  --shelf-gap-y: 14px;         /* 행 간격 */
 
   position: relative;
   display: flex;
@@ -137,7 +137,7 @@
 
 /* 제목 */
 .spine__title{
-  font-size: var(--spine-fz, 12px);
+  font-size: var(--spine-fz, 14px);
   letter-spacing: var(--spine-ls, 0);
   padding-inline: var(--spine-pad, 4px);
   line-height: 1.05;
@@ -239,8 +239,42 @@
   display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
   overflow:hidden; white-space:normal;
 }
+
+.memo-body.is-expanded{
+  display:block;
+  -webkit-line-clamp:unset;
+  -webkit-box-orient:unset;
+  overflow:visible;
+  white-space:normal;
+}
 .memo-empty{ font-size:14px; opacity:.8; }
 .memo-more{ display:flex; justify-content:center; }
+
+
+/* 우하단 토글 버튼 배치 */
+.memo-item{
+  position: relative;
+}
+.memo-toggle{
+  margin-top: 6px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 텍스트 링크형 버튼 */
+.btn-link{
+  appearance:none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--color-brand, #444);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.btn-link:disabled{
+  opacity:.6; cursor: default; text-decoration: none;
+}
 
 @media (min-width: 768px){
   .shelf-wrap{ padding-block: 20px 28px; }

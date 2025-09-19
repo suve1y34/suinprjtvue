@@ -19,6 +19,7 @@ export const EP = {
     updateProgress: "/shelves/books/updateProgress",
     updateMemo: "/shelves/books/updateMemo",
     stats: "/shelves/books/stats",
+    finishedByMonth: '/shelves/books/calendar',
   },
   users: {
     myInfo: '/users/me',

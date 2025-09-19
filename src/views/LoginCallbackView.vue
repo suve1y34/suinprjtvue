@@ -1,6 +1,9 @@
 <template>
-  <div class="login-callback">
-    <p>로그인 처리 중...</p>
+  <div class="login-callback" role="status" aria-live="polite" aria-busy="true">
+    <div class="panel">
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="msg">로그인 처리 중...</p>
+    </div>
   </div>
 </template>
 
@@ -18,7 +21,7 @@ onMounted(async () => {
   const error = route.query.error as string | undefined;
 
   if (error) {
-    alert('SNS 로그인 실패: ' + error);
+    alert('구글 로그인 실패: ' + error);
     router.replace({ name: 'login' });
     return;
   }

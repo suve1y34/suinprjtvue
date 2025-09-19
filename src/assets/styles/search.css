@@ -20,7 +20,7 @@
 .results-grid,
 .empty,
 .loading{
-  min-height: 320px;        /* ★ 결과가 없어도 공간 유지 */
+  min-height: 320px;        /* 결과가 없어도 공간 유지 */
 }
 .result-item{
   display: grid;
@@ -82,7 +82,7 @@
   display: flex;           /* 입력 높이/정렬 안정화 */
   align-items: center;
   flex: 1 1 0;             /* 남는 공간 모두 차지, 필요 시 수축 */
-  min-width: 0;            /* ★ flex 수축 허용 (겹침 방지의 핵심) */
+  min-width: 0;            /* flex 수축 허용 (겹침 방지의 핵심) */
 }
 .searchbar__box > .search-input,
 .searchbar__box > input{
@@ -178,4 +178,26 @@ input:checked + .slider::after{ left:20px; }
   display: grid;
   place-items: center;
   text-align: center;
+}
+
+.search-dropdown-portal{
+  position: absolute;
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  background: var(--color-elev,#fff);
+  color: var(--color-text,#111);
+  border: 1px solid var(--color-border,#ddd);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.12);
+  overflow: auto;
+  max-height: 280px;
+}
+.searchbar__item{ padding: 8px 12px; cursor: pointer; }
+.searchbar__item:hover{ background: rgba(0,0,0,.05); }
+.searchbar__empty,
+.searchbar__footer{ padding: 8px 12px; font-size: 12px; opacity: .8; }
+.link-clear{
+  appearance:none; background:none; border:0; padding:0; font:inherit;
+  color: var(--color-brand,#444); text-decoration: underline; cursor: pointer;
 }

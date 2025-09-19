@@ -32,7 +32,7 @@
 
 /* 모달 헤더: 타이틀/우측 닫기 버튼 정렬 */
 .modal__head{
-  /* position: sticky; top: 0;  ← 제거 */
+  position: sticky; top: 0;
   z-index: 2;
   display:flex;
   justify-content:space-between;
@@ -282,3 +282,113 @@ input:checked + .slider::after{ left:20px; }
 .bar{ display:flex; flex-direction:column; align-items:center; gap:6px; width: 24px; }
 .bar__col{ width: 100%; background: var(--color-brand); border-radius: 4px 4px 0 0; }
 .bar__label{ font-size: 10px; opacity:.8; }
+
+.cal-wrap{
+  width: 100%;
+  display: grid;
+  justify-content:center;
+}
+
+/* v-calendar를 블록 + 100% */
+:deep(.vc-container){
+  display: block;         /* inline-block → block */
+  width: 100%;
+}
+
+/* 내부 pane들이 가로 제약 없이 부모를 따라가게 */
+:deep(.vc-pane-container),
+:deep(.vc-pane),
+:deep(.vc-weeks){
+  width: 100%;
+  max-width: none;
+}
+
+.cal-loading{
+  position:absolute; inset:0;
+  display:grid; place-items:center;
+  background: rgba(0,0,0,.04);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* 날짜 셀 버튼화 */
+.day-cell{
+  width: 100%; height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  justify-items: center;
+  align-items: start;
+  gap: 6px;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.day-cell:hover{
+  background: rgba(0,0,0,.04);
+}
+.theme-dark .day-cell:hover{
+  background: rgba(255,255,255,.06);
+}
+
+.day-num{
+  font-size: 12px;
+  opacity: .85;
+  justify-self: end;
+  width: 100%;
+  text-align: right;
+}
+
+.cover-wrap{
+  width: 38px; height: 56px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,.12);
+}
+.cover-img{
+  width: 100%; height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.picked-title{
+  margin: 14px 0 8px 0;
+  font-size: 14px;
+}
+.picked-empty{
+  justify-content:center;
+  margin-top: 12px;
+  font-size: 13px;
+  opacity: .75;
+}
+
+/* 그리드: 선택일 책 리스트 */
+.picked-grid{
+  list-style: none; margin: 0; padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+}
+.picked-item{
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-elev);
+}
+.picked-thumb{
+  width: 42px; height: 62px;
+  border-radius: 4px; overflow: hidden;
+  background: #f5f5f5;
+}
+.picked-thumb img{ width:100%; height:100%; object-fit: cover; display:block; }
+.picked-title-t{ font-weight: 700; line-height: 1.25; font-size: 13px; }
+
+/* 헤더의 월 표시 */
+.month-label{
+  min-width: 86px; text-align: center; font-weight: 700;
+}

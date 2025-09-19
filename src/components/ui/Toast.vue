@@ -9,11 +9,6 @@
           :class="`toast--${t.type}`"
           role="status"
         >
-          <div class="toast__icon" aria-hidden="true">
-            <span v-if="t.type==='success'">✔</span>
-            <span v-else-if="t.type==='error'">✖</span>
-            <span v-else>ℹ</span>
-          </div>
           <div class="toast__msg">{{ t.message }}</div>
           <button class="toast__close" @click="remove(t.id)" aria-label="닫기">×</button>
         </div>

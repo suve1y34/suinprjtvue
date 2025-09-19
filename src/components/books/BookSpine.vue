@@ -6,7 +6,7 @@
     :title="titleAttr"
     @click="openEdit"
   >
-    <span class="spine__title">{{ book.title }}</span>
+    <span class="spine__title">{{ shortTitle  }}</span>
     <span v-show="showProgress" class="spine__progress">{{ percentText }}</span>
   </div>
 </template>
@@ -78,6 +78,17 @@ const titleAttr = computed(() => {
   const status = props.readingStatus ?? "PLAN";
   return `${props.book.title} — ${cp.value}${tp.value ? " / " + tp.value : ""}p · ${status}`;
 });
+
+function truncateKorean(input = '', maxChars = 20): string {
+  const s = String(input).trim()
+  if (s.length <= maxChars) return s
+  // 이모지/서로게이트 대응: codePoint 단위 절단
+  const arr = Array.from(s)
+  return arr.slice(0, maxChars).join('') + '…'
+}
+
+// 표시용 짧은 제목
+const shortTitle = computed(() => truncateKorean(props.book?.title, 20))
 
 function openEdit() { emit("open-edit"); }
 </script>

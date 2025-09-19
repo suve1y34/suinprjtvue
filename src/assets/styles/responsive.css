@@ -1,0 +1,127 @@
+/* === 공통: 터치 타겟, 폰트, 여백 스케일 다운 === */
+@media (max-width: 640px){
+  html { font-size: 15px; } /* 살짝 축소, 타이틀 대비만 유지 */
+
+  .icon-btn{ width:40px; height:40px; }                /* 터치 타겟 */
+  .btn{ padding: 10px 12px; }                          /* 버튼 여백 약간 키움(터치감) */
+  .input, .select{ height: 40px; padding: 8px 12px; }  /* 입력 높이 증가 */
+  .textarea{ padding: 10px 12px; }
+
+  /* 모달: 화면 꽉-차는 레이아웃에 가깝게 */
+  .modal__box{
+    width: 92vw !important;
+    max-width: 92vw !important;
+    max-height: 92svh !important;
+    padding: 12px !important;
+    gap: 10px !important;
+    border-radius: 10px !important;
+  }
+  .modal__head{ padding-bottom: 8px; }
+  .modal__content{ padding: 10px 8px; }
+  .modal--lg .modal__box,
+  .modal--md .modal__box,
+  .modal--sm .modal__box{ width: 92vw !important; }
+
+  /* 검색 드롭다운: 작은 화면에서 모달 헤더 안쪽에 붙도록 */
+  .searchbar__dropdown{
+    max-height: 46svh;
+  }
+
+  /* 검색 결과 리스트: 카드 그리드 → 1열로 */
+  .results-grid{
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .results-wrap{
+    max-height: 56svh !important;  /* 모달 상단/하단 고려 */
+    padding: 6px !important;
+  }
+  .result-item{
+    grid-template-columns: 64px 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+  .thumb{ width: 64px; height: 96px; }
+
+  /* 페이지 상단바: 3열 grid → 단일 컬럼 스택 */
+  .page__bar{
+    grid-template-columns: 1fr !important;
+    row-gap: 6px !important;
+    padding: 8px 10px !important;
+    max-height: none !important;
+  }
+  .page__bar .page-title{ justify-self: start; }
+  .page__bar .page__controls{ justify-self: start; gap: 8px; }
+
+  /* 브랜드/타이틀 크기 보정 */
+  .brand{ font-size: 22px; }
+  .page-title--xl .brand{ font-size: 24px; }
+
+  /* 요약바/필터 패널: 줄바꿈 허용 + 여백 보정 */
+  .summarybar{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0;
+  }
+  .filter-panel{ margin: 8px 0 6px; }
+  .filter-panel__grid{
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  /* 책장(선반) 여백/크기 다운 */
+  .shelf-wrap{ padding-block: 6px 10px; }
+  .shelf{ --shelf-row-height: clamp(168px, 28vw, 220px); --shelf-gap-y: 12px; }
+  .spine__title{ --spine-fz: 11px; --spine-pad: 3px; }
+  .spine__progress{ --spine-progress-fz: 10px; }
+
+  /* 리뷰 카드: 말줄임 + 토글 버튼 정렬 유지 */
+  .memo-item{ padding: 10px; }
+  .memo-meta{ font-size: 12px; }
+  .memo-body{ -webkit-line-clamp: 3; }
+}
+
+/* 초소형 폰(아이폰 SE 등) */
+@media (max-width: 480px){
+  .brand{ font-size: 20px; }
+  .page-title--xl .brand{ font-size: 22px; }
+
+  .auth-card{
+    max-width: 94vw;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  .auth-card .brand{ margin-bottom: 28px; }
+
+  .book-head{
+    grid-template-columns: 72px 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .cover{ width: 72px; height: 108px; }
+
+  .goal-progress{ font-size: 14px; }
+  .summary-item .muted{ display: inline-block; margin-left: 0; }
+}
+
+/* 태블릿(가로 900px 이하): 필터 2열 */
+@media (max-width: 900px){
+  .filter-panel__grid{
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* 아주 작은 폭 보호 (<=360px): 아이콘/텍스트 간격 최소화 */
+@media (max-width: 360px){
+  .icon-btn{ width:38px; height:38px; }
+  .page__bar{ padding: 6px 8px; }
+  .summarybar{ gap: 6px; }
+  .results-wrap{ max-height: 52svh; }
+}
+
+/* 다크 테마 미세 보정(모바일) */
+@media (max-width: 640px){
+  .theme-dark .icon-btn:hover{ background: rgba(255,255,255,.04); }
+}

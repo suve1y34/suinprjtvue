@@ -1,6 +1,6 @@
 import { apiClient  } from "./http";
 import { EP } from "./endpoints";
-import type { Bookshelf, ShelfBook, ShelfAddPayload, ShelfUpdatePayload, ShelfListOpts, ShelfStats  } from "@/types/shelf";
+import type { Bookshelf, ShelfBook, ShelfAddPayload, ShelfUpdatePayload, ShelfListOpts, ShelfStats, FinishedFlatItem  } from "@/types/shelf";
 
 
 export const shelvesApi = {
@@ -41,5 +41,10 @@ export const shelvesApi = {
   // 통계
   stats(year?: number): Promise<ShelfStats> {
     return apiClient.get<ShelfStats>(EP.shelves.stats, { year });
+  },
+
+  // 월별 독서
+  finishedByMonth(params: { year: number; month: number }): Promise<FinishedFlatItem[]> {
+    return apiClient.get<FinishedFlatItem[]>(EP.shelves.finishedByMonth, params);
   },
 };

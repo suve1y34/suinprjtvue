@@ -1,7 +1,7 @@
 <template>
   <section class="memo-section">
     <header class="memo-head">
-      <strong>공개 리뷰</strong>
+      <strong>리뷰</strong>
       <span class="memo-count" v-if="items.length">({{ items.length }}개+)</span>
     </header>
 
@@ -16,7 +16,22 @@
           <span class="memo-dot">·</span>
           <span class="memo-date">{{ m.addedDatetime }}</span>
         </div>
-        <p class="memo-body">{{ m.review }}</p>
+        <p
+          class="memo-body"
+          :class="{ 'is-expanded': isExpanded(itemKey(m, idx)) }"
+        >
+          {{ m.review }}
+        </p>
+
+        <div class="memo-toggle" v-if="isLong(m.review)">
+          <button
+            type="button"
+            class="btn-link"
+            @click="toggleExpand(itemKey(m, idx))"
+          >
+            {{ isExpanded(itemKey(m, idx)) ? '접기' : '더 보기' }}
+          </button>
+        </div>
       </li>
     </ul>
 
@@ -45,6 +60,33 @@ const items = ref<PublicReivew[]>([]);
 const nextCursor = ref<number | null>(null);
 const size = ref(props.pageSize ?? 10);
 const loading = ref(false);
+
+// ===== 펼침 상태 관리 =====
+const expanded = ref<Set<string>>(new Set());
+
+// 아이템 키(고유/안전)
+function itemKey(m: PublicReivew, idx: number): string {
+  return String(m.shelfBookId ?? `${m.nickname}-${m.addedDatetime}-${idx}`);
+}
+function isExpanded(key: string): boolean {
+  return expanded.value.has(key);
+}
+function toggleExpand(key: string) {
+  if (expanded.value.has(key)) {
+    expanded.value.delete(key);
+  } else {
+    expanded.value.add(key);
+  }
+  // 참조형 Set 변경을 Vue가 감지하도록 재할당
+  expanded.value = new Set(expanded.value);
+}
+
+// 길이 기준(문자 수) — 필요 시 조절 가능
+const LONG_THRESHOLD = 140;
+function isLong(text?: string | null): boolean {
+  const s = (text ?? "").trim();
+  return s.length > LONG_THRESHOLD;
+}
 
 // nextCursor 존재 여부로 더보기 표시
 const hasMore = computed(() => nextCursor.value !== null);

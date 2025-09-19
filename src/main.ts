@@ -2,6 +2,10 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from '@/router';
+
+import { setupCalendar } from 'v-calendar';
+import 'v-calendar/style.css';
+
 import { useAuthStore } from '@/stores/auth.store';
 import { useThemeStore } from '@/stores/theme.store';
 
@@ -10,6 +14,9 @@ import "@/assets/styles/index.css";
 const app = createApp(App);
 app.use(createPinia());
 app.use(router);
+app.use(setupCalendar, {
+  masks: { title: 'YYYY MMM' },
+});
 
 const theme = useThemeStore();
 theme.init();

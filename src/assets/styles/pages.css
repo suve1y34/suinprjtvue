@@ -16,7 +16,6 @@
 /* 사이트 타이틀 크게 */
 .page-title--xl .brand { font-size: 26px; line-height: 1.1; }
 .state{ font-size:var(--fz-14); }
-.state--error{ color: var(--color-danger); }
 .spinner{ font-size:13px; opacity:.8; }
 
 /* Title + Brand */
@@ -38,7 +37,7 @@
   background: var(--color-surface);
   padding: 6px 10px;              /* 적당한 패딩 */
   border-radius: var(--radius-lg);
-  max-height: 100px;               /* ★ 최대 높이 제한 */
+  max-height: 100px;               /* 최대 높이 제한 */
   overflow: hidden;               /* 내용이 커져도 바 높이 안 넘김 */
 }
 
@@ -171,3 +170,62 @@
 /* (선택) 큰 화면에서도 과대 확장 막기 — 필요시 유지 */
 @media (min-width: 768px){ .page-title--xl .brand{ font-size: 30px; } }
 @media (min-width: 1200px){ .page-title--xl .brand{ font-size: 32px; } }
+
+/* ===== 로딩 오버레이 ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.28);      /* 어둡게 */
+  backdrop-filter: blur(4px);            /* 배경 블러 */
+  -webkit-backdrop-filter: blur(4px);    /* Safari */
+}
+
+/* 중앙 패널 */
+.overlay__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 26px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+/* 다크 모드 대비 */
+@media (prefers-color-scheme: dark) {
+  .overlay__panel {
+    background: rgba(24, 24, 28, 0.82);
+    color: #e9e9e9;
+  }
+}
+
+/* 스피너 */
+.overlay__spinner {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid currentColor;
+  border-top-color: transparent;   /* 회전 효과 */
+  animation: spin 0.9s linear infinite;
+  opacity: 0.9;
+}
+
+.overlay__msg {
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+
+/* 회전 애니메이션 */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* (선택) 오류 텍스트 스타일 - 기존 클래스가 있으면 유지해도 됨 */
+.state--error {
+  color: #c03221;
+  padding: 8px 0;
+}

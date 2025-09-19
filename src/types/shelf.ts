@@ -104,3 +104,28 @@ export interface ShelfStats {
   statusRatio: { label: string; value: number; key: string }[];
   monthly: { label: string; value: number; month: number }[];
 };
+
+export type FinishedFlatItem = {
+  dateStr: string;          // 'YYYY-MM-DD'
+  shelfBookId: number;
+  bookId: number;
+  title: string;
+  coverImageUrl?: string;
+  isbn13Code?: string;
+};
+
+export type FinishedBook = {
+  dateStr: string;          // 'YYYY-MM-DD'
+  shelfBookId: number;
+  bookId: number;
+  title: string;
+  coverImageUrl?: string;
+  isbn13Code?: string;
+};
+
+// 서버 response 형식
+export type FinishedMonthResp = {
+  year: number;
+  month: number; // 1-12
+  days: Record<string, FinishedBook[]>;
+};

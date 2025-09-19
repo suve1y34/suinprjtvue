@@ -91,13 +91,28 @@
             <strong>{{ readCount }}</strong>권 · 두께 총 <strong>{{ totalThicknessText }}</strong>
           </span>
 
-          <button
+          <!-- <button
             type="button"
             class="btn btn--outline-black summary-btn"
             @click="openStats"
           >
             📊 통계 보기
           </button>
+          <button type="button" class="icon-btn" :disabled="loadingShelf || loadingItems" title="새로고침" aria-label="새로고침" @click="refreshWithReset">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M4 4v6h6M20 20v-6h-6" stroke="currentColor" fill="none"/>
+              <path d="M20 9a7 7 0 00-12-5.2M4 15a7 7 0 0012 5.2" stroke="currentColor" fill="none"/>
+            </svg>
+          </button> -->
+
+          <button
+            type="button"
+            class="btn btn--outline-black summary-btn"
+            @click="openCalendar"
+          >
+            독서 달력
+          </button>
+
           <button type="button" class="icon-btn" :disabled="loadingShelf || loadingItems" title="새로고침" aria-label="새로고침" @click="refreshWithReset">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
               <path d="M4 4v6h6M20 20v-6h-6" stroke="currentColor" fill="none"/>
@@ -180,9 +195,6 @@
       </details>
     </div>
     
-    <div v-if="loadingShelf" class="state state--center">책장 불러오는 중…</div>
-    <div v-else-if="shelfError" class="state state--error">{{ shelfError }}</div>
-
     <div v-if="bookshelfId" class="shelf-wrap">
       <template v-if="store.shelfEntries.length">
         <Bookshelf class="shelf--center" :entries="store.shelfEntries" />
@@ -200,6 +212,20 @@
     <BookSearchModal ref="searchRef" />
     <MyInfoModal ref="profileRef" />
     <ReadingStatsModal ref="statsRef" />
+    <BooksCalendarModal ref="calendarRef" />
+
+    <div
+      v-if="loadingShelf"
+      class="overlay"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <div class="overlay__panel">
+        <div class="overlay__spinner" aria-hidden="true"></div>
+        <p class="overlay__msg">책장 불러오는 중…</p>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -211,6 +237,7 @@ import Bookshelf from "@/components/books/Bookshelf.vue";
 import BookSearchModal from "@/components/books/BookSearchModal.vue";
 import MyInfoModal from "@/components/user/MyInfoModal.vue";
 import ReadingStatsModal from "@/components/books/ReadingStatsModal.vue";
+import BooksCalendarModal from "@/components/books/BooksCalendarModal.vue";
 
 import { useShelvesStore } from "@/stores";
 import { useAuthStore } from "@/stores";
@@ -276,6 +303,11 @@ const filterSummary = computed(() => {
 const statsRef = ref<InstanceType<typeof ReadingStatsModal>|null>(null);
 function openStats(){ statsRef.value?.open(); }
 
+const calendarRef = ref<InstanceType<typeof BooksCalendarModal> | null>(null);
+function openCalendar() {
+  calendarRef.value?.open();
+}
+
 const profileRef = ref<InstanceType<typeof MyInfoModal> | null>(null);
 const nickname = computed(() => useAuthStore().user?.nickname ?? "");
 function openProfile(){ profileRef.value?.open?.(); }
@@ -290,14 +322,10 @@ function toggleTheme() {
   themeStore.toggleCycle();
 }
 
-const goalProgress = ref<GoalProgress|null>(null);
+const goalProgress = computed<GoalProgress|null>(() => useAuthStore().goalProgress);
 const goalAchieved = computed(() => {
   const g = goalProgress.value;
   return !!(g && typeof g.goal === 'number' && g.goal > 0 && g.done >= g.goal);
-});
-
-onMounted(async () => {
-  goalProgress.value = await auth.fetchGoalProgress();
 });
 
 const searchRef = ref<InstanceType<typeof BookSearchModal> | null>(null);
@@ -358,6 +386,10 @@ onMounted(async () => {
   }
   yearSel.value = String(nowYear);
   await reload();
+});
+
+onMounted(() => {
+  auth.fetchGoalProgress().catch(() => {});
 });
 </script>
 

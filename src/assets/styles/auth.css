@@ -16,7 +16,7 @@
   font-weight: 800;
   font-size: clamp(28px, 6vw, 48px);
   line-height: 1.1;
-  margin: 0 0 48px;   /* ★ 타이틀과 버튼 사이 간격 크게 */
+  margin: 0 0 48px;   /* 타이틀과 버튼 사이 간격 크게 */
 }
 
 /* 중앙정렬 래퍼 강화 */
@@ -33,7 +33,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  height: 48px;            /* ★ 버튼 키움 */
+  height: 48px;            /* 버튼 키움 */
   padding: 0 16px;         /* 좌우 여유 */
   border-radius: var(--radius, 6px);
   border: 1px solid #d1d5db;
@@ -87,4 +87,56 @@
   font-size: 12px;
   color: var(--color-gray-600);
   text-align: center;
+}
+
+.login-callback {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.28);      /* 살짝 어둡게 */
+  backdrop-filter: blur(4px);            /* 배경 흐림 */
+  -webkit-backdrop-filter: blur(4px);    /* Safari */
+}
+
+/* 중앙 패널 */
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 28px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* 다크 모드 대비 */
+@media (prefers-color-scheme: dark) {
+  .panel {
+    background: rgba(24, 24, 28, 0.8);
+    color: #e9e9e9;
+  }
+}
+
+/* 스피너 */
+.spinner {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid currentColor;
+  border-top-color: transparent; /* 회전 느낌 */
+  animation: spin 0.9s linear infinite;
+  opacity: 0.9;
+}
+
+.msg {
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+
+/* 회전 애니메이션 */
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
