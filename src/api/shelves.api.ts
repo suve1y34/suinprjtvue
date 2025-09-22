@@ -47,4 +47,9 @@ export const shelvesApi = {
   finishedByMonth(params: { year: number; month: number }): Promise<FinishedFlatItem[]> {
     return apiClient.get<FinishedFlatItem[]>(EP.shelves.finishedByMonth, params);
   },
+
+  // 오늘 독서기록 여부
+  readToday(): Promise<{ readToday: boolean }> {
+    return apiClient.get(EP.shelves.todayRead);
+  },
 };

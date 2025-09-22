@@ -33,6 +33,12 @@ function normalizeShelfItem(raw: any): ShelfBook {
   };
 }
 
+function monthKeyOf(isoDate: string) {
+  // 'YYYY-MM-DD'
+  const [y, m] = isoDate.split('-');
+  return `${y}-${m}`;
+}
+
 export const useShelvesStore = defineStore("shelves", {
   state: () => ({
     bookshelfId: null as number | null,
@@ -43,6 +49,7 @@ export const useShelvesStore = defineStore("shelves", {
     stats: null as ShelfStats | null,
     statsYear: new Date().getFullYear() as number, // 선택 연도
     readLogMonthCache: {} as Record<string, FinishedMonthResp>,
+    readToday: null as boolean | null,
   }),
 
   getters: {
@@ -56,6 +63,12 @@ export const useShelvesStore = defineStore("shelves", {
   },
 
   actions: {
+    // 특정 '월' 독서달력 케시 비우기
+    invalidateReadLogByDate(isoDate?: string | null) {
+      if (!isoDate) return;
+      const key = monthKeyOf(isoDate);
+      delete this.readLogMonthCache[key];
+    },
     // 내 책장 로드
     async fetchMyShelf(userId: number) {
       this.loading.shelf = true; this.error.shelf = null;
@@ -102,6 +115,14 @@ export const useShelvesStore = defineStore("shelves", {
             : { ...base, ...arg };
 
         await api.shelves.addShelfItem(payload);
+
+        // 달력 캐시 무효화 (DONE인 경우..)
+        const endDate = (payload as any).endDate as string | undefined;
+        const status = (payload as any).readingStatus as string | undefined;
+        if (endDate && status === 'DONE') {
+          this.invalidateReadLogByDate(endDate);
+        }
+
         await this.fetchShelfItems();
       } catch (e) {
         this.shelfItems = prev;
@@ -127,6 +148,10 @@ export const useShelvesStore = defineStore("shelves", {
 
       try {
         await api.shelves.updateShelfItem(payload);
+
+        if (payload.endDate && payload.readingStatus === 'DONE') {
+          this.invalidateReadLogByDate(payload.endDate);
+        }
         await this.fetchShelfItems();
       } catch (e: any) {
         // 롤백
@@ -191,6 +216,15 @@ export const useShelvesStore = defineStore("shelves", {
       const resp: FinishedMonthResp = { year, month, days };
       this.readLogMonthCache[key] = resp;
       return resp;
+    },
+
+    async fetchReadToday() {
+      try {
+        const { readToday } = await api.shelves.readToday();
+        this.readToday = !!readToday;
+      } catch(e) {
+        this.readToday = null;
+      }
     },
   },
 });

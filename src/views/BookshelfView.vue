@@ -196,6 +196,13 @@
     </div>
     
     <div v-if="bookshelfId" class="shelf-wrap">
+      <div v-if="userTodayRead === false" class="read-tip" role="status" aria-live="polite">
+        <div class="read-tip__inner">
+          <div class="read-tip__main">
+            <div class="read-tip__title">아직 오늘의 독서 기록을 하지 않았어요!</div>
+          </div>
+        </div>
+      </div>
       <template v-if="store.shelfEntries.length">
         <Bookshelf class="shelf--center" :entries="store.shelfEntries" />
         <BookSearchModal ref="searchRef" />
@@ -272,6 +279,8 @@ const years = Array.from({ length: 11 }, (_, i) => nowYear - i);
 const keyword  = ref<string>('');
 const sortSel  = ref<'added'|'title'|'pages'|''>('');
 const orderSel = ref<'asc'|'desc'|''>('');
+
+const userTodayRead = computed(() => store.readToday);
 
 let kwTimer: number | undefined;
 function onKeywordInput() {
@@ -386,6 +395,7 @@ onMounted(async () => {
   }
   yearSel.value = String(nowYear);
   await reload();
+  await store.fetchReadToday();
 });
 
 onMounted(() => {

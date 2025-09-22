@@ -1,8 +1,9 @@
 /* 래퍼(페이지 가운데 배치용) */
 .shelf-wrap{
   display:flex;
+  flex-direction: column;
   justify-content:center;
-  align-items:flex-start;   /* 상단 정렬로 변경 */
+  align-items:stretch;   /* 상단 정렬로 변경 */
   padding: 8px 0;           /* 상하 패딩 살짝만 */
 }
 
@@ -23,6 +24,7 @@
 }
 
 .shelf--center{
+  align-self: center;
   margin-left:auto;
   margin-right:auto;
   margin-top: clamp(6px, 1.2vw, 20px);
@@ -137,11 +139,44 @@
 
 /* 제목 */
 .spine__title{
+  inset: 6px 2px;
   font-size: var(--spine-fz, 14px);
   letter-spacing: var(--spine-ls, 0);
   padding-inline: var(--spine-pad, 4px);
   line-height: 1.05;
   max-height: 92%;
+  display: -webkit-box;
+  -webkit-line-clamp: 12;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  overflow: hidden;
+}
+
+.spine--sideways .spine__title-text{
+  /* 세로 흐름(오른→왼), 글리프는 눕힘 */
+  writing-mode: vertical-rl;
+  text-orientation: sideways;        /* 표준 */
+  -webkit-text-orientation: sideways;/* WebKit 계열 대응 */
+
+  /* 한국어를 책등처럼 아래→위로 읽히게 하려면 180도 회전 */
+  transform: rotate(180deg);
+
+  /* 한 줄로 붙여서 흐르게(줄바꿈 방지) */
+  white-space: nowrap;
+
+  /* 타이포 */
+  font-size: var(--spine-fz, 14px);
+  letter-spacing: var(--spine-ls, 0);
+  line-height: 1.05;
+
+  /* 넘치면 클리핑 */
+  display: block;
+  overflow: hidden;
+}
+
+/* 필요 시: 기존 한 글자씩 세우는 스타일을 따로 유지하고 싶다면 */
+.spine--upright .spine__title-text{
+  /* 이전에 쓰시던 스타일 */
   display: -webkit-box;
   -webkit-line-clamp: 12;
   -webkit-box-orient: vertical;
@@ -308,3 +343,65 @@
    - 다크 테마에서 특히 '라이트' 변형은 검은 글자(#000)로 강제
 */
 .theme-dark .spine--light { --spine-fg: #000; }
+
+.read-tip{
+  width: 100%;
+  display: flex;
+  justify-content: center;   /* 가운데 정렬 */
+  margin: 8px 0 12px;
+  padding: 0 10px;           /* 좌우 여백(작은 화면) */
+}
+
+.read-tip__inner{
+  width: min(980px, 100%);
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* 아이콘 | 텍스트 | 액션 */
+  align-items: center;
+  gap: 10px 12px;
+  padding: 10px 12px;
+  border: 1px dashed var(--color-border);
+  border-radius: 10px;
+  background: var(--color-elev);
+}
+
+.read-tip__icon{
+  font-size: 20px;
+  line-height: 1;
+}
+
+.read-tip__main{
+  display: grid;
+  gap: 2px;
+}
+
+.read-tip__title{
+  justify-self: center;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.read-tip__desc{
+  font-size: 12px;
+}
+
+.read-tip__actions{
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+@media (max-width: 640px){
+  .read-tip__inner{
+    grid-template-columns: auto 1fr;    /* 아이콘 | 텍스트  */
+  }
+  .read-tip__actions{
+    grid-column: 1 / -1;                /* 전체 너비 */
+    justify-content: flex-start;        /* 왼쪽 정렬 */
+  }
+}
+
+/* 다크 테마 대비 미세 보정(있어도 되고 없어도 됨) */
+.theme-dark .read-tip__inner{
+  border-color: color-mix(in oklab, var(--color-border), transparent 15%);
+}

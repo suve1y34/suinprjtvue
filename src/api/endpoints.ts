@@ -20,6 +20,7 @@ export const EP = {
     updateMemo: "/shelves/books/updateMemo",
     stats: "/shelves/books/stats",
     finishedByMonth: '/shelves/books/calendar',
+    todayRead: "/shelves/books/today-read",
   },
   users: {
     myInfo: '/users/me',

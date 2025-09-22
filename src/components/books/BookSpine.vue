@@ -6,7 +6,9 @@
     :title="titleAttr"
     @click="openEdit"
   >
-    <span class="spine__title">{{ shortTitle  }}</span>
+    <span class="spine__title">
+      <span class="spine__title-text">{{ shortTitle }}</span>
+    </span>
     <span v-show="showProgress" class="spine__progress">{{ percentText }}</span>
   </div>
 </template>
