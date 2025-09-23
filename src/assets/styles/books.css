@@ -405,3 +405,35 @@
 .theme-dark .read-tip__inner{
   border-color: color-mix(in oklab, var(--color-border), transparent 15%);
 }
+
+.rating{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.rating__star{
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  padding: 0 2px;
+  color: #c9c9c9;             /* off */
+  transition: transform .08s ease, color .12s ease;
+}
+.rating__star.is-on{
+  color: #f5a623;             /* on */
+  text-shadow: 0 0 0.5px rgba(0,0,0,.2);
+}
+.rating__star:active{ transform: scale(0.9); }
+
+.rating__clear{
+  margin-left: 4px;
+  font-size: 12px;
+  color: var(--color-brand, #444);
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}

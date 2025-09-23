@@ -99,6 +99,31 @@
           </label>
         </div>
 
+        <div class="form-col" v-if="status === 'DONE'">
+          <label class="form-label">평점</label>
+          <div class="rating" role="radiogroup" aria-label="별점 선택">
+            <button
+              v-for="n in 5"
+              :key="n"
+              type="button"
+              class="rating__star"
+              :class="{ 'is-on': (rating ?? 0) >= n }"
+              :aria-label="`${n}점`"
+              :aria-checked="(rating ?? 0) === n"
+              role="radio"
+              @click="setRating(n)"
+            >★</button>
+            <button
+              type="button"
+              class="rating__clear"
+              v-if="(rating ?? 0) > 0"
+              @click="setRating(null)"
+              title="별점 지우기"
+              aria-label="별점 지우기"
+            >지우기</button>
+          </div>
+        </div>
+
         <div class="modal__actions">
           <button type="button" class="btn btn--outline-black" @click="onClickClose">취소</button>
           <button type="submit" class="btn btn--solid-gray">저장</button>
@@ -134,12 +159,15 @@ const memo = ref<string>("");
 const review = ref<string>("");
 const reviewPublic = ref<boolean>(false);
 
+const rating = ref<number|null>(null);
+
 const initial = ref<{
   status: ReadingStatus;
   currentPage: number;
   memo: string;
   review: string;
   reviewPublic: boolean;
+  rating: number | null;
   startDate: string|null;
   endDate: string|null
 } | null>(null);
@@ -195,7 +223,7 @@ const coverUrl = computed<string | undefined>(() => {
 
 const emit = defineEmits<{
   (e: 'confirm-add',  payload: AddPayload): void;
-  (e: 'confirm-edit', payload: ShelfUpdatePayload & { totalPages?: number }): void;
+  (e: 'confirm-edit', payload: ShelfUpdatePayload): void;
 }>();
 
 async function ensureOpen() {
@@ -217,6 +245,7 @@ function isDirty() {
     memoTrimmed !== (initial.value.memo ?? "") ||
     reviewTrimmed !== (initial.value.review ?? "") ||
     reviewPublic.value !== initial.value.reviewPublic ||
+    (rating?.value ?? null) !== (initial.value.rating ?? null) ||   // ★ 별점 변경 비교
     (startDate.value || null) !== (initial.value.startDate || null) ||
     (endDate.value || null) !== (initial.value.endDate || null)
   );
@@ -254,6 +283,7 @@ function resetState() {
   memo.value = "";
   review.value = "";
   reviewPublic.value = false;
+  rating.value = null;
   startDate.value = null;
   endDate.value = null;
   initial.value = null;
@@ -266,6 +296,7 @@ function primeInitial() {
     memo: memo.value ?? "",
     review: review.value ?? "",
     reviewPublic: reviewPublic.value,
+    rating: rating.value ?? null,
     startDate: startDate.value,
     endDate: endDate.value,
   };
@@ -288,6 +319,7 @@ function openFromSearch(b: AladinBook) {
   memo.value = "";
   review.value = "";
   reviewPublic.value = false;
+  rating.value = null;
 
   primeInitial();
   ensureOpen();
@@ -300,6 +332,7 @@ async function openFromShelf(entry: {
   memo?: string | null;
   review?: string | null;
   reviewVisibility?: Visibility;
+  rating?: number | null;
   startDate?: string | null;
   endDate?: string | null;
   book?: { title?: string; author?: string; pages?: number; isbn13Code?: string };
@@ -322,6 +355,7 @@ async function openFromShelf(entry: {
   memo.value = (fresh as any).memo ?? entry.memo ?? "";
   review.value = (fresh as any).review ?? entry.review ?? "";
   reviewPublic.value = ((fresh as any).reviewVisibility ?? entry.reviewVisibility) === "PUBLIC";
+  rating.value = (fresh as any).rating ?? entry.rating ?? null;
 
   startDate.value = (fresh as any).startDate ?? entry.startDate ?? null;
   endDate.value   = (fresh as any).endDate   ?? entry.endDate   ?? null;
@@ -337,9 +371,14 @@ function normalizedStart(): string | undefined {
   // 선택 안 했으면 오늘로
   return (startDate.value && startDate.value !== '') ? startDate.value : todayStr();
 }
+
 function normalizedEnd(): string | undefined {
   if (status.value !== 'DONE') return undefined;
   return (endDate.value && endDate.value !== '') ? endDate.value : todayStr();
+}
+
+function setRating(n: number | null) {
+  rating.value = n;
 }
 
 function onConfirm() {
@@ -371,6 +410,7 @@ function onConfirm() {
       ...(status.value === 'DONE' ? {
         review: reviewTrimmed || undefined,
         reviewVisibility: reviewVis,
+        rating: rating.value ?? null,
       } : {})
     };
 
@@ -402,11 +442,13 @@ function onConfirm() {
             review: reviewChanged ? (reviewTrimmed.length ? reviewTrimmed : null) : undefined,
             reviewVisibility: reviewChanged ? reviewVis : undefined,
             reviewChanged,
+            rating: rating.value ?? null,
           }
         : {
             review: null,
             reviewVisibility: undefined,
             reviewChanged: true,
+            rating: undefined,
           }
       ),
     };

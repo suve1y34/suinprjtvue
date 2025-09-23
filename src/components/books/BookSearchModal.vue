@@ -88,6 +88,7 @@ import { aladinApi } from "@/api/aladin.api";
 import { useShelvesStore } from "@/stores";
 import type { AladinBook } from "@/types/aladin";
 import type { AddPayload, ReadingStatus } from "@/types/shelf";
+import { type ShelfUpsertForm } from '@/domain/shelf';
 
 import searchHistory from "@/utils/searchHistory";
 
@@ -241,56 +242,73 @@ function onImgError(e: Event) {
 }
 
 async function onConfirmAdd(p: AddPayload): Promise<void> {
-  const { book, status, currentPage, memo, memoVisibility, review, reviewVisibility, startDate, endDate } = p;
-  const pages = (book as any).pages ?? (book as any).itemPage ?? undefined;
+  // AddPayload -> ShelfUpsertForm으로 변환
+  const form: ShelfUpsertForm = {
+    mode: 'add',
+    book: {
+      title: p.book.title,
+      author: p.book.author,
+      // 검색 결과마다 pages 키가 다를 수 있어 느슨 변환
+      pages: (p.book as any).pages ?? (p.book as any).itemPage ?? undefined,
+      isbn13Code: (p.book as any).isbn13Code,
+      // 썸네일은 있으면 넣어줌(옵션)
+      coverImageUrl:
+        (p.book as any).coverImageUrl ??
+        (p.book as any).coverLargeUrl ??
+        (p.book as any).cover ??
+        (p.book as any).coverSmallUrl ??
+        undefined,
+    },
+    readingStatus: p.status,
+    currentPage: p.currentPage,
+    startDate: p.startDate ?? undefined,
+    endDate: p.endDate ?? undefined,
 
-  const deriveStatus = (cp: number, total?: number): ReadingStatus => {
-    if (typeof total === "number") {
-      if (cp >= total) return "DONE";
-      if (cp > 0)      return "READING";
-      return "PLAN";
-    }
-    return cp > 0 ? "READING" : "PLAN";
+    // 메모/리뷰
+    memo: p.memo ?? null,
+    review: p.review ?? null,
+    reviewPublic: (p.reviewVisibility ?? 'PRIVATE') === 'PUBLIC',
+
+    // 평점
+    rating: p.rating ?? null,
   };
 
   try {
-    await store.addBookToShelf({
-      isbn13Code: (book as any).isbn13Code,
-      title: book.title,
-      author: book.author,
-      pages,
-      publisher: (book as any).publisher,
-      pubDate: (book as any).pubDate,
-      readingStatus: status,
-      currentPage,
-      startDate,
-      endDate,
-      memo: memo ?? undefined,
-      memoVisibility: memoVisibility ?? "PRIVATE",
-      review: review ?? null,
-      reviewVisibility: reviewVisibility ?? "PRIVATE",
-    }); 
+    await store.addBookToShelf(form);
 
-    if (currentPage > 0) {
+    // (선택) 예전처럼 진행도에 따라 상태 재조정하고 싶으면 아래 유지
+    const pages = form.book.pages;
+    const deriveStatus = (cp: number, total?: number): ReadingStatus => {
+      if (typeof total === 'number') {
+        if (cp >= total) return 'DONE';
+        if (cp > 0) return 'READING';
+        return 'PLAN';
+      }
+      return cp > 0 ? 'READING' : 'PLAN';
+    };
+
+    if (form.currentPage > 0) {
       await store.fetchShelfItems();
-      const added = store.shelfItems.find(e =>
-        e.book?.isbn13Code === (book as any).isbn13Code
+      const added = store.shelfItems.find(
+        (e) => e.book?.isbn13Code === form.book.isbn13Code
       );
       if (added) {
-        const nextStatus = deriveStatus(currentPage, pages);
+        const nextStatus = deriveStatus(form.currentPage, pages);
         await store.updateShelfItem({
+          // update는 여전히 기존 컴포넌트(편집 모달)에서 emit하는 타입을 쓰므로,
+          // 필요한 최소 필드만 전달
           shelfBookId: added.shelfBookId,
-          currentPage,
+          currentPage: form.currentPage,
           readingStatus: nextStatus,
-        });
+        } as any);
       }
     }
 
     try { configRef.value?.close?.(); } catch {}
     try { detailRef.value?.close?.(); } catch {}
-    close(); // 검색 모달 닫기
+    close();
   } catch (e: any) {
-    alert(e?.message ?? "추가 실패");
+    alert(e?.message ?? '추가 실패');
   }
 }
 </script>

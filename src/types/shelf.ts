@@ -21,6 +21,7 @@ export interface ShelfBook {
   memoVisibility: Visibility;
   review: string | null;
   reviewVisibility: Visibility;
+  rating?: number;
   addedDatetime: string;
   modifiedDatetime: string;
   book: Book;
@@ -41,6 +42,7 @@ export type ShelfAddByIsbn13Payload = {
   memoVisibility: Visibility;
   review: string | null;
   reviewVisibility: Visibility;
+  rating?: number;
 };
 
 export type AddPayload = {
@@ -55,6 +57,7 @@ export type AddPayload = {
   // 리뷰(공개 가능)
   review?: string | null;
   reviewVisibility?: Visibility;
+  rating?: number | null;
 };
 
 export type ShelfAddPayload =
@@ -71,6 +74,7 @@ export type ShelfAddPayload =
       // 리뷰(공개 가능)
       review?: string | null;
       reviewVisibility?: Visibility;
+      rating?: number | null;
     }
   | ({ bookshelfId: number } & ShelfAddByIsbn13Payload);
 
@@ -88,6 +92,8 @@ export type ShelfUpdatePayload = {
   review?: string | null;
   reviewVisibility?: Visibility;
   reviewChanged?: boolean | null;
+
+  rating?: number | null;
 };
 
 export type ShelfListOpts = {

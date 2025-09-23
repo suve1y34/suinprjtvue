@@ -1,6 +1,7 @@
 import { apiClient  } from "./http";
 import { EP } from "./endpoints";
 import type { Bookshelf, ShelfBook, ShelfAddPayload, ShelfUpdatePayload, ShelfListOpts, ShelfStats, FinishedFlatItem  } from "@/types/shelf";
+import { omitUndefined } from '@/domain/shelf';
 
 
 export const shelvesApi = {
@@ -24,13 +25,13 @@ export const shelvesApi = {
 
   // 책 추가
   addShelfItem(payload: ShelfAddPayload) {
-    return apiClient.post(EP.shelves.add, payload);
+    return apiClient.post(EP.shelves.add, omitUndefined(payload));
   },
 
   // 책 수정
   updateShelfItem(payload: ShelfUpdatePayload) {
           console.log(payload)
-    return apiClient.post(EP.shelves.update, payload);
+    return apiClient.post(EP.shelves.update, omitUndefined(payload));
   },
 
   // 책 제거

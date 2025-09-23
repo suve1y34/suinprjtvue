@@ -8,6 +8,7 @@ Google OAuth2 로그인 성공 후 서버가 발급한 JWT로 세션을 유지�
 ## 링크
 - Frontend Repo: https://github.com/suve1y34/suinprjtvue
 - Backend Repo: https://github.com/suve1y34/suinprjt
+- Live Demo: http://ckk122.cafe24.com
 
 ---
 
